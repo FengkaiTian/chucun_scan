@@ -16,7 +16,7 @@ from datetime import datetime
 warnings.filterwarnings('ignore')
 sys.stdout.reconfigure(encoding='utf-8')
 
-OUTPUT_HTML = r"C:\Users\ft7b6\OneDrive\Desktop\STOCK\daily_report.html"
+OUTPUT_HTML = r"C:\Users\ft7b6\OneDrive\Desktop\STOCK\index.html"
 
 # ── 数据 ──────────────────────────────────────────────────
 
