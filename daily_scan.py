@@ -383,7 +383,7 @@ def main():
     import subprocess
     repo_dir = r"C:\Users\ft7b6\OneDrive\Desktop\STOCK"
     try:
-        subprocess.run(['git', '-C', repo_dir, 'add', 'daily_report.html'], check=True)
+        subprocess.run(['git', '-C', repo_dir, 'add', 'index.html'], check=True)
         subprocess.run(['git', '-C', repo_dir, 'commit', '-m', f'report: {date_str}'], check=True)
         subprocess.run(['git', '-C', repo_dir, 'push', 'origin', 'main'], check=True)
         print("✅ 已推送到 GitHub Pages")
