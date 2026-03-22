@@ -2,7 +2,7 @@
 <html lang="zh">
 <head>
 <meta charset="UTF-8">
-<title>信号扫描 2026-03-22 12:14</title>
+<title>信号扫描 2026-03-22 12:15</title>
 <style>
   * { box-sizing:border-box }
   body { font-family:-apple-system,"Microsoft YaHei",sans-serif;background:#f0f2f5;margin:0;padding:16px }
@@ -26,16 +26,16 @@
 
 <div class="card">
   <h1>📊 SP500 信号扫描 v4</h1>
-  <p style="color:#aaa;margin:2px 0 10px;font-size:13px">2026-03-22 12:14 &nbsp;·&nbsp; 只显示6年回测超baseline(54%)的信号组合</p>
+  <p style="color:#aaa;margin:2px 0 10px;font-size:13px">2026-03-22 12:15 &nbsp;·&nbsp; 只显示6年回测超baseline(54%)的信号组合</p>
   <div class="stat">大盘 <b style="color:#e74c3c">熊市 📉</b></div>
   <div class="stat">SPY <b>$6506.48</b></div>
   <div class="stat">vs MA200 <b style="color:#e74c3c">-1.7%</b></div>
   <br><br>
   <span class="badge" style="background:#6c3483">S级 0</span>
   <span class="badge" style="background:#c0392b">A+级 0</span>
-  <span class="badge" style="background:#e74c3c">A级 0</span>
-  <span class="badge" style="background:#f39c12">A-级 0</span>
-  <span class="badge" style="background:#2c3e50">总计 0</span>
+  <span class="badge" style="background:#e74c3c">A级 1</span>
+  <span class="badge" style="background:#f39c12">A-级 3</span>
+  <span class="badge" style="background:#2c3e50">总计 4</span>
 </div>
 
 <div class="card">
@@ -58,12 +58,68 @@
 
 <div class="card">
   <h2>🟠 A级 — 有效信号</h2>
-  <p style="color:#aaa;padding:12px">暂无</p>
+  <table class="data-table"><thead><tr><th>股票/板块</th><th>级别</th><th>信号</th><th>RSI</th><th>CCI</th><th>CMF</th><th>WR</th><th>MACD HIST</th><th>距52W低</th><th>乖离</th><th>成交量</th><th>日涨跌</th><th>止损</th></tr></thead><tbody><tr>
+          <td><b>CPB</b> $21.07<br><small style="color:#888">Consumer Staples</small></td>
+          <td><span style="background:#e74c3c;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">A</span></td>
+          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI<30反弹</span><span style="background:#8e44ad;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">CCI<-100</span><span style="background:#8e44ad;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">近52周低</span></td>
+          <td style="font-size:13px;font-weight:bold;color:#e74c3c">22.4</td>
+          <td style="font-size:12px;color:#8e44ad">-103.9</td>
+          <td style="font-size:12px;color:#e74c3c">-0.380</td>
+          <td style="font-size:12px">-95.2</td>
+          <td style="font-size:12px">-0.3460</td>
+          <td style="font-size:12px;color:#8e44ad">+0.2%</td>
+          <td style="font-size:12px">-0.8%</td>
+          <td style="font-size:12px">正常 1.1x</td>
+          <td style="color:#27ae60;font-weight:bold">+0.19%</td>
+          <td style="font-size:12px">$23.54</td>
+        </tr></tbody></table>
 </div>
 
 <div class="card">
   <h2>🟡 A-级 — 参考信号（6年5日胜率55.2%，均收+1.2%）</h2>
-  <p style="color:#aaa;padding:12px">暂无</p>
+  <table class="data-table"><thead><tr><th>股票/板块</th><th>级别</th><th>信号</th><th>RSI</th><th>CCI</th><th>CMF</th><th>WR</th><th>MACD HIST</th><th>距52W低</th><th>乖离</th><th>成交量</th><th>日涨跌</th><th>止损</th></tr></thead><tbody><tr>
+          <td><b>FITB</b> $44.19<br><small style="color:#888">Financials</small></td>
+          <td><span style="background:#f39c12;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">A-</span></td>
+          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI<30反弹</span></td>
+          <td style="font-size:13px;font-weight:bold;color:#e74c3c">31.8</td>
+          <td style="font-size:12px;color:#8e44ad">-84.5</td>
+          <td style="font-size:12px;color:#e74c3c">-0.044</td>
+          <td style="font-size:12px">-82.2</td>
+          <td style="font-size:12px">-0.3388</td>
+          <td style="font-size:12px;color:#8e44ad">+36.2%</td>
+          <td style="font-size:12px">+0.4%</td>
+          <td style="font-size:12px">放量 2.0x</td>
+          <td style="color:#27ae60;font-weight:bold">+1.21%</td>
+          <td style="font-size:12px">$45.81</td>
+        </tr><tr>
+          <td><b>TFC</b> $44.16<br><small style="color:#888">Financials</small></td>
+          <td><span style="background:#f39c12;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">A-</span></td>
+          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI<30反弹</span></td>
+          <td style="font-size:13px;font-weight:bold;color:#e74c3c">30.7</td>
+          <td style="font-size:12px;color:#8e44ad">-90.7</td>
+          <td style="font-size:12px;color:#e74c3c">-0.196</td>
+          <td style="font-size:12px">-84.5</td>
+          <td style="font-size:12px">-0.2981</td>
+          <td style="font-size:12px;color:#8e44ad">+33.0%</td>
+          <td style="font-size:12px">-0.1%</td>
+          <td style="font-size:12px">缩量 0.8x</td>
+          <td style="color:#27ae60;font-weight:bold">+0.64%</td>
+          <td style="font-size:12px">$45.7</td>
+        </tr><tr>
+          <td><b>VMC</b> $258.4<br><small style="color:#888">Materials</small></td>
+          <td><span style="background:#f39c12;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">A-</span></td>
+          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI<30反弹</span></td>
+          <td style="font-size:13px;font-weight:bold;color:#e74c3c">27.2</td>
+          <td style="font-size:12px;color:#8e44ad">-90.0</td>
+          <td style="font-size:12px;color:#27ae60">+0.116</td>
+          <td style="font-size:12px">-87.8</td>
+          <td style="font-size:12px">-2.3810</td>
+          <td style="font-size:12px;color:#8e44ad">+14.9%</td>
+          <td style="font-size:12px">-1.0%</td>
+          <td style="font-size:12px">放量 1.9x</td>
+          <td style="color:#27ae60;font-weight:bold">+0.54%</td>
+          <td style="font-size:12px">$274.45</td>
+        </tr></tbody></table>
 </div>
 
 <div class="card" style="border-top:3px solid #2c3e50;margin-top:30px">
