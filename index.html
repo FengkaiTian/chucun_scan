@@ -2,7 +2,7 @@
 <html lang="zh">
 <head>
 <meta charset="UTF-8">
-<title>信号扫描 2026-03-22 12:15</title>
+<title>信号扫描 2026-03-22 17:01</title>
 <style>
   * { box-sizing:border-box }
   body { font-family:-apple-system,"Microsoft YaHei",sans-serif;background:#f0f2f5;margin:0;padding:16px }
@@ -25,138 +25,106 @@
 <div class="container">
 
 <div class="card">
-  <h1>📊 SP500 信号扫描 v4</h1>
-  <p style="color:#aaa;margin:2px 0 10px;font-size:13px">2026-03-22 12:15 &nbsp;·&nbsp; 只显示6年回测超baseline(54%)的信号组合</p>
-  <div class="stat">大盘 <b style="color:#e74c3c">熊市 📉</b></div>
+  <h1>SP500 Signal Scanner v5</h1>
+  <p style="color:#aaa;margin:2px 0 10px;font-size:13px">2026-03-22 17:01 &nbsp;·&nbsp; 87种回测验证组合(去除C级) · T+1/3/5/10全周期超baseline</p>
+  <div class="stat">SPY <b style="color:#e74c3c">熊市</b></div>
   <div class="stat">SPY <b>$6506.48</b></div>
   <div class="stat">vs MA200 <b style="color:#e74c3c">-1.7%</b></div>
   <br><br>
+  <span class="badge" style="background:#ff6f00">SSS级 0</span>
   <span class="badge" style="background:#6c3483">S级 0</span>
-  <span class="badge" style="background:#c0392b">A+级 0</span>
-  <span class="badge" style="background:#e74c3c">A级 1</span>
-  <span class="badge" style="background:#f39c12">A-级 3</span>
-  <span class="badge" style="background:#2c3e50">总计 4</span>
+  <span class="badge" style="background:#c0392b">A级 0</span>
+  <span class="badge" style="background:#2980b9">B级 1</span>
+  <span class="badge" style="background:#2c3e50">总计 1</span>
 </div>
 
 <div class="card">
   <div class="legend">
-    <b>信号说明（6年2020-2025全SP500回测验证）：基础=MACD收窄+RSI<30反弹</b><br>
-    <span style="background:#6c3483;color:white;padding:2px 8px;border-radius:10px;font-size:11px;margin:2px 4px;display:inline-block"><b>S</b> 最强 · 收窄+超卖+CCI<-100+52周低+CMF>0+WR<-80</span> <span style="background:#c0392b;color:white;padding:2px 8px;border-radius:10px;font-size:11px;margin:2px 4px;display:inline-block"><b>A+</b> 强 · 收窄+超卖+CCI<-100+52周低+CMF>0</span> <span style="background:#e74c3c;color:white;padding:2px 8px;border-radius:10px;font-size:11px;margin:2px 4px;display:inline-block"><b>A</b> 有效 · 收窄+超卖+CCI<-100+52周低</span> <span style="background:#f39c12;color:white;padding:2px 8px;border-radius:10px;font-size:11px;margin:2px 4px;display:inline-block"><b>A-</b> 参考 · 收窄+超卖 · 6年5日胜率55.2%</span> 
-    <p class="note">⚠️ 低于A-级的信号（含MACD金叉、RSI背离等）未超baseline，不显示</p>
+    <b>信号分级（6年2020-2025标普500全成分股回测，1,626种组合穷举，全周期T+1/3/5/10验证）</b><br>
+    <span style="background:#ff6f00;color:white;padding:2px 8px;border-radius:10px;font-size:11px;margin:2px 4px;display:inline-block"><b>SSS</b> 高收益区 · 样本少但均收>2% · T+1/3/5/10全超baseline</span> <span style="background:#6c3483;color:white;padding:2px 8px;border-radius:10px;font-size:11px;margin:2px 4px;display:inline-block"><b>S</b> 最强 · 5日胜率≥80%</span> <span style="background:#c0392b;color:white;padding:2px 8px;border-radius:10px;font-size:11px;margin:2px 4px;display:inline-block"><b>A</b> 强 · 5日胜率70-80%</span> <span style="background:#2980b9;color:white;padding:2px 8px;border-radius:10px;font-size:11px;margin:2px 4px;display:inline-block"><b>B</b> 有效 · 5日胜率65-70%</span> 
+    <p class="note">基础信号: MACD收窄(柱状图零轴下连续3根递增) + RSI&lt;30反弹 · 每个等级在此基础上叠加不同附加条件</p>
   </div>
 </div>
 
+
 <div class="card">
-  <h2>🟣 S级 — 最强信号（6条件全满足）</h2>
+  <h2>🔥 SSS高收益区（均收>2%，样本较少，高弹性）</h2>
   <p style="color:#aaa;padding:12px">暂无</p>
 </div>
 
 <div class="card">
-  <h2>🔴 A+级 — 强信号</h2>
+  <h2>🟣 S级 — 最强信号（5日胜率≥80%）</h2>
   <p style="color:#aaa;padding:12px">暂无</p>
 </div>
 
 <div class="card">
-  <h2>🟠 A级 — 有效信号</h2>
-  <table class="data-table"><thead><tr><th>股票/板块</th><th>级别</th><th>信号</th><th>RSI</th><th>CCI</th><th>CMF</th><th>WR</th><th>MACD HIST</th><th>距52W低</th><th>乖离</th><th>成交量</th><th>日涨跌</th><th>止损</th></tr></thead><tbody><tr>
-          <td><b>CPB</b> $21.07<br><small style="color:#888">Consumer Staples</small></td>
-          <td><span style="background:#e74c3c;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">A</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI<30反弹</span><span style="background:#8e44ad;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">CCI<-100</span><span style="background:#8e44ad;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">近52周低</span></td>
-          <td style="font-size:13px;font-weight:bold;color:#e74c3c">22.4</td>
-          <td style="font-size:12px;color:#8e44ad">-103.9</td>
-          <td style="font-size:12px;color:#e74c3c">-0.380</td>
-          <td style="font-size:12px">-95.2</td>
-          <td style="font-size:12px">-0.3460</td>
-          <td style="font-size:12px;color:#8e44ad">+0.2%</td>
-          <td style="font-size:12px">-0.8%</td>
-          <td style="font-size:12px">正常 1.1x</td>
-          <td style="color:#27ae60;font-weight:bold">+0.19%</td>
-          <td style="font-size:12px">$23.54</td>
-        </tr></tbody></table>
+  <h2>🔴 A级 — 强信号（5日胜率70-80%）</h2>
+  <p style="color:#aaa;padding:12px">暂无</p>
 </div>
 
 <div class="card">
-  <h2>🟡 A-级 — 参考信号（6年5日胜率55.2%，均收+1.2%）</h2>
-  <table class="data-table"><thead><tr><th>股票/板块</th><th>级别</th><th>信号</th><th>RSI</th><th>CCI</th><th>CMF</th><th>WR</th><th>MACD HIST</th><th>距52W低</th><th>乖离</th><th>成交量</th><th>日涨跌</th><th>止损</th></tr></thead><tbody><tr>
-          <td><b>FITB</b> $44.19<br><small style="color:#888">Financials</small></td>
-          <td><span style="background:#f39c12;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">A-</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI<30反弹</span></td>
-          <td style="font-size:13px;font-weight:bold;color:#e74c3c">31.8</td>
-          <td style="font-size:12px;color:#8e44ad">-84.5</td>
-          <td style="font-size:12px;color:#e74c3c">-0.044</td>
-          <td style="font-size:12px">-82.2</td>
-          <td style="font-size:12px">-0.3388</td>
-          <td style="font-size:12px;color:#8e44ad">+36.2%</td>
-          <td style="font-size:12px">+0.4%</td>
-          <td style="font-size:12px">放量 2.0x</td>
-          <td style="color:#27ae60;font-weight:bold">+1.21%</td>
-          <td style="font-size:12px">$45.81</td>
-        </tr><tr>
-          <td><b>TFC</b> $44.16<br><small style="color:#888">Financials</small></td>
-          <td><span style="background:#f39c12;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">A-</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI<30反弹</span></td>
-          <td style="font-size:13px;font-weight:bold;color:#e74c3c">30.7</td>
-          <td style="font-size:12px;color:#8e44ad">-90.7</td>
-          <td style="font-size:12px;color:#e74c3c">-0.196</td>
-          <td style="font-size:12px">-84.5</td>
-          <td style="font-size:12px">-0.2981</td>
-          <td style="font-size:12px;color:#8e44ad">+33.0%</td>
-          <td style="font-size:12px">-0.1%</td>
-          <td style="font-size:12px">缩量 0.8x</td>
-          <td style="color:#27ae60;font-weight:bold">+0.64%</td>
-          <td style="font-size:12px">$45.7</td>
-        </tr><tr>
+  <h2>🔵 B级 — 有效信号（5日胜率65-70%）</h2>
+  <table class="data-table"><thead><tr><th>股票/板块</th><th>级别</th><th>匹配信号</th><th>T+5胜率</th><th>RSI</th><th>CCI</th><th>CMF</th><th>WR</th><th>距52W低</th><th>成交量</th><th>日涨跌</th><th>止损</th></tr></thead><tbody><tr>
           <td><b>VMC</b> $258.4<br><small style="color:#888">Materials</small></td>
-          <td><span style="background:#f39c12;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">A-</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI<30反弹</span></td>
+          <td><span style="background:#2980b9;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B</span></td>
+          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI<30反弹</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">CMF>0</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">Keltner下轨</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">WR<-80</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">OBV上升</span></td>
+          <td style="font-size:13px;font-weight:bold">69.4%</td>
           <td style="font-size:13px;font-weight:bold;color:#e74c3c">27.2</td>
           <td style="font-size:12px;color:#8e44ad">-90.0</td>
           <td style="font-size:12px;color:#27ae60">+0.116</td>
           <td style="font-size:12px">-87.8</td>
-          <td style="font-size:12px">-2.3810</td>
           <td style="font-size:12px;color:#8e44ad">+14.9%</td>
-          <td style="font-size:12px">-1.0%</td>
           <td style="font-size:12px">放量 1.9x</td>
           <td style="color:#27ae60;font-weight:bold">+0.54%</td>
           <td style="font-size:12px">$274.45</td>
         </tr></tbody></table>
 </div>
 
+
 <div class="card" style="border-top:3px solid #2c3e50;margin-top:30px">
-  <h2 style="border-left:4px solid #2c3e50;padding-left:10px">📋 方法论</h2>
+  <h2 style="border-left:4px solid #2c3e50;padding-left:10px">方法论</h2>
   <div style="font-size:13px;line-height:1.9;color:#444">
 
-  <p><b>数据：</b>标普500全部成分股，2020-2025年共6年日线数据，1,763种指标组合穷举回测，逐年稳定性验证。</p>
+  <h3 style="font-size:14px;margin:16px 0 8px;color:#2c3e50">策略</h3>
+  <p>在MACD金叉之前入场。当MACD柱状图在零轴下方连续3根递增（空头力量减弱），同时RSI从30以下开始反弹（超卖修复），形成基础买入信号。在此基础上叠加多种技术指标组合提高胜率。</p>
 
-  <h3 style="font-size:14px;margin:16px 0 8px;color:#2c3e50">核心策略</h3>
-  <p><b>在MACD金叉之前入场，而非确认后。</b>当MACD柱状图在零轴下方连续3根递增（空头力量减弱），同时RSI从30以下开始反弹（超卖修复），形成基础买入信号。</p>
-
-  <h3 style="font-size:14px;margin:16px 0 8px;color:#2c3e50">信号分级</h3>
+  <h3 style="font-size:14px;margin:16px 0 8px;color:#2c3e50">回测验证</h3>
   <table style="font-size:12px;border-collapse:collapse;margin:6px 0 12px;width:100%">
-    <tr style="background:#2c3e50;color:white">
-      <th style="padding:6px 10px;text-align:left">等级</th>
-      <th style="padding:6px 10px;text-align:left">条件（在基础信号上叠加）</th>
-      <th style="padding:6px 10px;text-align:center">6年5日胜率</th>
-    </tr>
-    <tr style="background:#f3e5f5"><td style="padding:5px 10px"><b style="color:#6c3483">S</b></td><td style="padding:5px 10px">+ CCI&lt;-100 + 近52周低点5% + CMF&gt;0 + Williams%R&lt;-80</td><td style="padding:5px 10px;text-align:center"><b>最高</b></td></tr>
-    <tr><td style="padding:5px 10px"><b style="color:#c0392b">A+</b></td><td style="padding:5px 10px">+ CCI&lt;-100 + 近52周低点5% + CMF&gt;0</td><td style="padding:5px 10px;text-align:center"><b>高</b></td></tr>
-    <tr style="background:#f8f8f8"><td style="padding:5px 10px"><b style="color:#e74c3c">A</b></td><td style="padding:5px 10px">+ CCI&lt;-100 + 近52周低点5%</td><td style="padding:5px 10px;text-align:center"><b>有效</b></td></tr>
-    <tr><td style="padding:5px 10px"><b style="color:#f39c12">A-</b></td><td style="padding:5px 10px">仅基础信号（MACD收窄 + RSI&lt;30反弹）</td><td style="padding:5px 10px;text-align:center">55.2%</td></tr>
+    <tr style="background:#f8f8f8"><td style="padding:4px 10px;width:120px"><b>数据</b></td><td style="padding:4px 10px">标普500全部成分股，2020-2025年共6年日线</td></tr>
+    <tr><td style="padding:4px 10px"><b>测试范围</b></td><td style="padding:4px 10px">25个技术指标条件，穷举双/三/四条件组合共1,695种</td></tr>
+    <tr style="background:#f8f8f8"><td style="padding:4px 10px"><b>筛选标准</b></td><td style="padding:4px 10px">T+1/3/5/10全4个周期胜率超baseline + 5日胜率≥65%（去除C级）</td></tr>
+    <tr><td style="padding:4px 10px"><b>Baseline</b></td><td style="padding:4px 10px">T+1: 53.7% · T+3: 55.5% · T+5: 55.7% · T+10: 56.6%</td></tr>
+    <tr style="background:#f8f8f8"><td style="padding:4px 10px"><b>存活组合</b></td><td style="padding:4px 10px">87种（SSS 20种 + S 2种 + A 24种 + B 41种）</td></tr>
   </table>
 
-  <h3 style="font-size:14px;margin:16px 0 8px;color:#2c3e50">指标说明</h3>
+  <h3 style="font-size:14px;margin:16px 0 8px;color:#2c3e50">分级标准</h3>
   <table style="font-size:12px;border-collapse:collapse;margin:6px 0 12px;width:100%">
-    <tr style="background:#f8f8f8"><td style="padding:4px 10px;width:140px"><b>MACD收窄</b></td><td style="padding:4px 10px">MACD柱状图(DIF-DEA)在零轴下方，连续3根递增 → 空头动能减弱</td></tr>
-    <tr><td style="padding:4px 10px"><b>RSI&lt;30反弹</b></td><td style="padding:4px 10px">前日RSI(14)低于30，今日开始回升 → 超卖后修复</td></tr>
-    <tr style="background:#f8f8f8"><td style="padding:4px 10px"><b>CCI&lt;-100</b></td><td style="padding:4px 10px">商品通道指标低于-100 → 价格显著偏离均值</td></tr>
-    <tr><td style="padding:4px 10px"><b>近52周低</b></td><td style="padding:4px 10px">当前价距52周最低点不超过5% → 处于深度低位</td></tr>
-    <tr style="background:#f8f8f8"><td style="padding:4px 10px"><b>CMF&gt;0</b></td><td style="padding:4px 10px">Chaikin资金流为正 → 虽然价格低但资金在流入</td></tr>
-    <tr><td style="padding:4px 10px"><b>WR&lt;-80</b></td><td style="padding:4px 10px">Williams %R低于-80 → 价格处于区间底部</td></tr>
+    <tr style="background:#2c3e50;color:white"><th style="padding:6px 10px">等级</th><th style="padding:6px 10px">条件</th><th style="padding:6px 10px">组合数</th><th style="padding:6px 10px">中位5日收益</th></tr>
+    <tr style="background:#fff3e0"><td style="padding:5px 10px"><b style="color:#ff6f00">SSS</b></td><td style="padding:5px 10px">全周期超baseline + 5日均收&gt;2%（样本较少，高弹性）</td><td style="padding:5px 10px">20</td><td style="padding:5px 10px">+2.02%</td></tr>
+    <tr style="background:#f3e5f5"><td style="padding:5px 10px"><b style="color:#6c3483">S</b></td><td style="padding:5px 10px">5日胜率 &ge; 80%（样本&ge;20）</td><td style="padding:5px 10px">2</td><td style="padding:5px 10px">+1.16%</td></tr>
+    <tr><td style="padding:5px 10px"><b style="color:#c0392b">A</b></td><td style="padding:5px 10px">5日胜率 70-80%（样本&ge;20）</td><td style="padding:5px 10px">24</td><td style="padding:5px 10px">+1.67%</td></tr>
+    <tr style="background:#f8f8f8"><td style="padding:5px 10px"><b style="color:#2980b9">B</b></td><td style="padding:5px 10px">5日胜率 65-70%（样本&ge;20）</td><td style="padding:5px 10px">41</td><td style="padding:5px 10px">+1.67%</td></tr>
+  </table>
+
+  <h3 style="font-size:14px;margin:16px 0 8px;color:#2c3e50">使用的技术指标</h3>
+  <table style="font-size:12px;border-collapse:collapse;margin:6px 0 12px;width:100%">
+    <tr style="background:#f8f8f8"><td style="padding:4px 10px;width:130px"><b>MACD</b></td><td style="padding:4px 10px">柱状图收窄 (DIF-DEA零轴下连续递增)</td></tr>
+    <tr><td style="padding:4px 10px"><b>RSI(14)</b></td><td style="padding:4px 10px">超卖反弹(&lt;30), 深度超卖(&lt;25, &lt;20)</td></tr>
+    <tr style="background:#f8f8f8"><td style="padding:4px 10px"><b>CCI(20)</b></td><td style="padding:4px 10px">价格偏离度(&lt;-100), 趋势方向(上升)</td></tr>
+    <tr><td style="padding:4px 10px"><b>CMF(20)</b></td><td style="padding:4px 10px">Chaikin资金流(>0=流入, 上升)</td></tr>
+    <tr style="background:#f8f8f8"><td style="padding:4px 10px"><b>Williams %R(14)</b></td><td style="padding:4px 10px">区间位置(&lt;-80), 穿越信号</td></tr>
+    <tr><td style="padding:4px 10px"><b>StochRSI</b></td><td style="padding:4px 10px">K/D交叉, K线方向</td></tr>
+    <tr style="background:#f8f8f8"><td style="padding:4px 10px"><b>MFI(14)</b></td><td style="padding:4px 10px">资金流量(&lt;20, &lt;30)</td></tr>
+    <tr><td style="padding:4px 10px"><b>OBV</b></td><td style="padding:4px 10px">量能趋势(>5日均线)</td></tr>
+    <tr style="background:#f8f8f8"><td style="padding:4px 10px"><b>Keltner通道</b></td><td style="padding:4px 10px">价格低于下轨</td></tr>
+    <tr><td style="padding:4px 10px"><b>均线</b></td><td style="padding:4px 10px">MA50偏离, MA200方向</td></tr>
+    <tr style="background:#f8f8f8"><td style="padding:4px 10px"><b>K线形态</b></td><td style="padding:4px 10px">锤子线</td></tr>
+    <tr><td style="padding:4px 10px"><b>动量</b></td><td style="padding:4px 10px">近5日/10日跌幅, 成交量异动</td></tr>
   </table>
 
   <p style="margin-top:16px;padding-top:12px;border-top:1px solid #eee;color:#aaa;font-size:11px">
-    建议持仓：5个交易日 · 止损参考：MA20×0.97<br>
-    ⚠️ 本工具仅供研究参考，不构成投资建议。历史回测不代表未来表现。
+    建议持仓：5个交易日 · 止损参考：MA20 x 0.97<br>
+    本工具仅供研究参考，不构成投资建议。历史回测不代表未来表现。
   </p>
   </div>
 </div>
