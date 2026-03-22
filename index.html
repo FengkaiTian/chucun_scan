@@ -2,11 +2,11 @@
 <html lang="zh">
 <head>
 <meta charset="UTF-8">
-<title>信号扫描 2026-03-21 19:47</title>
+<title>信号扫描 2026-03-22 12:04</title>
 <style>
   * { box-sizing:border-box }
   body { font-family:-apple-system,"Microsoft YaHei",sans-serif;background:#f0f2f5;margin:0;padding:16px }
-  .container { max-width:1400px;margin:auto }
+  .container { max-width:1600px;margin:auto }
   .card { background:white;border-radius:10px;padding:20px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.07) }
   h1 { color:#2c3e50;margin:0 0 4px;font-size:22px }
   h2 { color:#2c3e50;margin:0 0 14px;font-size:15px;border-left:4px solid #3498db;padding-left:10px }
@@ -18,965 +18,110 @@
   table.data-table td { padding:8px 10px;border-bottom:1px solid #f0f0f0;vertical-align:top }
   table.data-table tr:hover td { background:#fafafa }
   .legend { font-size:11px;line-height:2;padding:10px;background:#f8f9fa;border-radius:6px }
+  .note { color:#888;font-size:11px;margin-top:6px }
 </style>
 </head>
 <body>
 <div class="container">
 
 <div class="card">
-  <h1>📊 SP500 信号扫描 v3</h1>
-  <p style="color:#aaa;margin:2px 0 10px;font-size:13px">2026-03-21 19:47 &nbsp;·&nbsp; 策略：MACD收窄 + RSI超卖反弹（回测验证57%胜率/5日60%）</p>
+  <h1>📊 SP500 信号扫描 v4</h1>
+  <p style="color:#aaa;margin:2px 0 10px;font-size:13px">2026-03-22 12:04 &nbsp;·&nbsp; 只显示6年回测超baseline(54%)的信号组合</p>
   <div class="stat">大盘 <b style="color:#e74c3c">熊市 📉</b></div>
   <div class="stat">SPY <b>$6506.48</b></div>
   <div class="stat">vs MA200 <b style="color:#e74c3c">-1.7%</b></div>
   <br><br>
-  <span class="badge" style="background:#c0392b">A级 5</span>
-  <span class="badge" style="background:#e67e22">B级 46</span>
-  <span class="badge" style="background:#2ecc71">C级 7</span>
-  <span class="badge" style="background:#95a5a6">D级 25</span>
-  <span class="badge" style="background:#2c3e50">总计 83</span>
+  <span class="badge" style="background:#6c3483">S级 0</span>
+  <span class="badge" style="background:#c0392b">A+级 0</span>
+  <span class="badge" style="background:#e74c3c">A级 0</span>
+  <span class="badge" style="background:#2c3e50">总计 0</span>
 </div>
 
 <div class="card">
   <div class="legend">
-    <b>信号级别说明（基于2022-2023全SP500回测）</b><br>
-    <span style="background:#c0392b;color:white;padding:2px 8px;border-radius:10px;font-size:11px;margin:2px 4px;display:inline-block"><b>A</b> 最强 · MACD收窄+RSI超卖+底背离 · 回测57%/60%</span> <span style="background:#e74c3c;color:white;padding:2px 8px;border-radius:10px;font-size:11px;margin:2px 4px;display:inline-block"><b>A-</b> 强 · MACD收窄+RSI超卖 · 回测52%/55%</span> <span style="background:#d35400;color:white;padding:2px 8px;border-radius:10px;font-size:11px;margin:2px 4px;display:inline-block"><b>B+</b> MACD收窄+RSI底背离 · 回测51%/53%</span> <span style="background:#e67e22;color:white;padding:2px 8px;border-radius:10px;font-size:11px;margin:2px 4px;display:inline-block"><b>B</b> MACD金叉+RSI底背离 · 回测54%/55%</span> <span style="background:#f39c12;color:white;padding:2px 8px;border-radius:10px;font-size:11px;margin:2px 4px;display:inline-block"><b>B-</b> MACD开始收窄+RSI超卖</span> <span style="background:#27ae60;color:white;padding:2px 8px;border-radius:10px;font-size:11px;margin:2px 4px;display:inline-block"><b>C+</b> RSI超卖+底背离 · 回测51%/56%</span> <span style="background:#2ecc71;color:white;padding:2px 8px;border-radius:10px;font-size:11px;margin:2px 4px;display:inline-block"><b>C</b> 单信号</span> <span style="background:#95a5a6;color:white;padding:2px 8px;border-radius:10px;font-size:11px;margin:2px 4px;display:inline-block"><b>D</b> RSI底背离（弱）</span> 
+    <b>信号说明（6年2020-2025全SP500回测验证）：基础=MACD收窄+RSI<30反弹</b><br>
+    <span style="background:#6c3483;color:white;padding:2px 8px;border-radius:10px;font-size:11px;margin:2px 4px;display:inline-block"><b>S</b> 最强 · 收窄+超卖+CCI<-100+52周低+CMF>0+WR<-80 · 6年回测最优</span> <span style="background:#c0392b;color:white;padding:2px 8px;border-radius:10px;font-size:11px;margin:2px 4px;display:inline-block"><b>A+</b> 强 · 收窄+超卖+CCI<-100+52周低+CMF>0</span> <span style="background:#e74c3c;color:white;padding:2px 8px;border-radius:10px;font-size:11px;margin:2px 4px;display:inline-block"><b>A</b> 有效 · 收窄+超卖+CCI<-100+52周低</span> 
+    <p class="note">⚠️ 低于A级的信号（含MACD金叉、RSI背离等）未超baseline，本版本不显示</p>
   </div>
 </div>
 
 <div class="card">
-  <h2>🔥 A级 — MACD收窄 + RSI超卖反弹（最强组合）</h2>
-  <table class="data-table"><thead><tr><th>股票/板块</th><th>级别</th><th>信号组合</th><th>MACD</th><th>RSI</th><th>趋势</th><th>乖离</th><th>成交量</th><th>日涨跌</th><th>止损</th></tr></thead><tbody><tr>
-          <td><b>FITB</b> $44.19<br><small style="color:#888">Financials</small></td>
-          <td><span style="background:#c0392b;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">A</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI<30反弹</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">▲ 连续收窄 (HIST=-0.327)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">31.5</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">+0.4%</td>
-          <td style="font-size:12px">放量 2.0x</td>
-          <td style="color:#27ae60;font-weight:bold">+1.21%</td>
-          <td style="font-size:12px">$45.81</td>
-        </tr><tr>
-          <td><b>RF</b> $25.36<br><small style="color:#888">Financials</small></td>
-          <td><span style="background:#c0392b;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">A</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI<30反弹</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">▲ 连续收窄 (HIST=-0.169)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">32.0</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">+0.2%</td>
-          <td style="font-size:12px">放量 2.1x</td>
-          <td style="color:#27ae60;font-weight:bold">+0.60%</td>
-          <td style="font-size:12px">$26.05</td>
-        </tr><tr>
-          <td><b>TFC</b> $44.16<br><small style="color:#888">Financials</small></td>
-          <td><span style="background:#c0392b;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">A</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI<30反弹</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">▲ 连续收窄 (HIST=-0.286)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">30.4</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">-0.1%</td>
-          <td style="font-size:12px">缩量 0.8x</td>
-          <td style="color:#27ae60;font-weight:bold">+0.64%</td>
-          <td style="font-size:12px">$45.7</td>
-        </tr><tr>
-          <td><b>CPB</b> $21.07<br><small style="color:#888">Consumer Staples</small></td>
-          <td><span style="background:#e74c3c;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">A-</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI<30反弹</span></td>
-          <td style="font-size:12px">▲ 连续收窄 (HIST=-0.350)</td>
-          <td style="font-size:13px;font-weight:bold;color:#e74c3c">22.2</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">-0.8%</td>
-          <td style="font-size:12px">正常 1.1x</td>
-          <td style="color:#27ae60;font-weight:bold">+0.19%</td>
-          <td style="font-size:12px">$23.54</td>
-        </tr><tr>
-          <td><b>VMC</b> $258.4<br><small style="color:#888">Materials</small></td>
-          <td><span style="background:#e74c3c;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">A-</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI<30反弹</span></td>
-          <td style="font-size:12px">▲ 连续收窄 (HIST=-2.381)</td>
-          <td style="font-size:13px;font-weight:bold;color:#e74c3c">27.0</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">-1.0%</td>
-          <td style="font-size:12px">放量 1.9x</td>
-          <td style="color:#27ae60;font-weight:bold">+0.54%</td>
-          <td style="font-size:12px">$274.45</td>
-        </tr></tbody></table>
+  <h2>🟣 S级 — 最强信号（6条件全满足）</h2>
+  <p style="color:#aaa;padding:12px">暂无</p>
 </div>
 
 <div class="card">
-  <h2>⭐ B级 — MACD金叉/收窄 + RSI信号</h2>
-  <table class="data-table"><thead><tr><th>股票/板块</th><th>级别</th><th>信号组合</th><th>MACD</th><th>RSI</th><th>趋势</th><th>乖离</th><th>成交量</th><th>日涨跌</th><th>止损</th></tr></thead><tbody><tr>
-          <td><b>BAC</b> $47.16<br><small style="color:#888">Financials</small></td>
-          <td><span style="background:#d35400;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B+</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">▲ 连续收窄 (HIST=-0.048)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">34.6</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">+0.2%</td>
-          <td style="font-size:12px">放量 1.7x</td>
-          <td style="color:#27ae60;font-weight:bold">+0.32%</td>
-          <td style="font-size:12px">$47.31</td>
-        </tr><tr>
-          <td><b>CCL</b> $24.12<br><small style="color:#888">Consumer Discretionary</small></td>
-          <td><span style="background:#d35400;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B+</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">▲ 连续收窄 (HIST=-0.222)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">33.6</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">-2.0%</td>
-          <td style="font-size:12px">放量 1.6x</td>
-          <td style="color:#e74c3c;font-weight:bold">-3.29%</td>
-          <td style="font-size:12px">$26.49</td>
-        </tr><tr>
-          <td><b>CMG</b> $33.37<br><small style="color:#888">Consumer Discretionary</small></td>
-          <td><span style="background:#d35400;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B+</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">▲ 连续收窄 (HIST=-0.147)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">38.7</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">-0.3%</td>
-          <td style="font-size:12px">正常 1.3x</td>
-          <td style="color:#27ae60;font-weight:bold">+1.31%</td>
-          <td style="font-size:12px">$34.19</td>
-        </tr><tr>
-          <td><b>CI</b> $262.84<br><small style="color:#888">Health Care</small></td>
-          <td><span style="background:#d35400;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B+</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">▲ 连续收窄 (HIST=-1.205)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">37.4</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">-0.7%</td>
-          <td style="font-size:12px">放量 1.9x</td>
-          <td style="color:#e74c3c;font-weight:bold">-0.65%</td>
-          <td style="font-size:12px">$265.64</td>
-        </tr><tr>
-          <td><b>CFG</b> $57.02<br><small style="color:#888">Financials</small></td>
-          <td><span style="background:#d35400;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B+</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">▲ 连续收窄 (HIST=-0.162)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">37.9</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">+0.3%</td>
-          <td style="font-size:12px">放量 1.9x</td>
-          <td style="color:#e74c3c;font-weight:bold">-0.05%</td>
-          <td style="font-size:12px">$57.36</td>
-        </tr><tr>
-          <td><b>COO</b> $69.96<br><small style="color:#888">Health Care</small></td>
-          <td><span style="background:#d35400;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B+</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">▲ 连续收窄 (HIST=-0.738)</td>
-          <td style="font-size:13px;font-weight:bold;color:#e74c3c">25.1</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">-1.4%</td>
-          <td style="font-size:12px">正常 1.1x</td>
-          <td style="color:#e74c3c;font-weight:bold">-1.06%</td>
-          <td style="font-size:12px">$74.88</td>
-        </tr><tr>
-          <td><b>CRH</b> $100.47<br><small style="color:#888">Materials</small></td>
-          <td><span style="background:#d35400;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B+</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">▲ 连续收窄 (HIST=-0.496)</td>
-          <td style="font-size:13px;font-weight:bold;color:#e74c3c">29.3</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">-1.8%</td>
-          <td style="font-size:12px">正常 1.4x</td>
-          <td style="color:#e74c3c;font-weight:bold">-0.54%</td>
-          <td style="font-size:12px">$106.28</td>
-        </tr><tr>
-          <td><b>DHR</b> $189.35<br><small style="color:#888">Health Care</small></td>
-          <td><span style="background:#d35400;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B+</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">▲ 连续收窄 (HIST=-0.039)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">33.1</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">-1.1%</td>
-          <td style="font-size:12px">正常 1.3x</td>
-          <td style="color:#e74c3c;font-weight:bold">-0.40%</td>
-          <td style="font-size:12px">$193.13</td>
-        </tr><tr>
-          <td><b>DRI</b> $203.05<br><small style="color:#888">Consumer Discretionary</small></td>
-          <td><span style="background:#d35400;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B+</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">▲ 连续收窄 (HIST=-0.460)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">46.4</td>
-          <td style="font-size:12px">弱多 ▲</td>
-          <td style="font-size:12px">-0.3%</td>
-          <td style="font-size:12px">放量 1.9x</td>
-          <td style="color:#e74c3c;font-weight:bold">-0.67%</td>
-          <td style="font-size:12px">$200.32</td>
-        </tr><tr>
-          <td><b>DOV</b> $209.37<br><small style="color:#888">Industrials</small></td>
-          <td><span style="background:#d35400;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B+</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">▲ 连续收窄 (HIST=-0.830)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">42.2</td>
-          <td style="font-size:12px">弱多 ▲</td>
-          <td style="font-size:12px">-0.7%</td>
-          <td style="font-size:12px">缩量 0.8x</td>
-          <td style="color:#e74c3c;font-weight:bold">-1.00%</td>
-          <td style="font-size:12px">$209.81</td>
-        </tr><tr>
-          <td><b>EL</b> $85.92<br><small style="color:#888">Consumer Staples</small></td>
-          <td><span style="background:#d35400;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B+</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">▲ 连续收窄 (HIST=-0.755)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">31.1</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">-1.3%</td>
-          <td style="font-size:12px">正常 1.5x</td>
-          <td style="color:#27ae60;font-weight:bold">+0.37%</td>
-          <td style="font-size:12px">$93.78</td>
-        </tr><tr>
-          <td><b>FDX</b> $358.85<br><small style="color:#888">Industrials</small></td>
-          <td><span style="background:#d35400;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B+</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">▲ 连续收窄 (HIST=-3.188)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">49.5</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">+1.3%</td>
-          <td style="font-size:12px">放量 2.2x</td>
-          <td style="color:#27ae60;font-weight:bold">+0.77%</td>
-          <td style="font-size:12px">$356.81</td>
-        </tr><tr>
-          <td><b>FISV</b> $57.07<br><small style="color:#888">Financials</small></td>
-          <td><span style="background:#d35400;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B+</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">▲ 连续收窄 (HIST=-0.258)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">38.9</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">-0.6%</td>
-          <td style="font-size:12px">正常 1.1x</td>
-          <td style="color:#27ae60;font-weight:bold">+0.09%</td>
-          <td style="font-size:12px">$58.04</td>
-        </tr><tr>
-          <td><b>FTV</b> $55.22<br><small style="color:#888">Industrials</small></td>
-          <td><span style="background:#d35400;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B+</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">▲ 连续收窄 (HIST=-0.239)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">44.9</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">+0.3%</td>
-          <td style="font-size:12px">极缩 0.6x</td>
-          <td style="color:#e74c3c;font-weight:bold">-0.59%</td>
-          <td style="font-size:12px">$55.01</td>
-        </tr><tr>
-          <td><b>GEN</b> $20.97<br><small style="color:#888">Information Technology</small></td>
-          <td><span style="background:#d35400;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B+</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">▲ 连续收窄 (HIST=-0.025)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">37.5</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">+1.1%</td>
-          <td style="font-size:12px">放量 2.8x</td>
-          <td style="color:#27ae60;font-weight:bold">+1.99%</td>
-          <td style="font-size:12px">$21.07</td>
-        </tr><tr>
-          <td><b>HOLX</b> $75.41<br><small style="color:#888">Health Care</small></td>
-          <td><span style="background:#d35400;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B+</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">▲ 连续收窄 (HIST=-0.035)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">55.1</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">+0.3%</td>
-          <td style="font-size:12px">缩量 0.8x</td>
-          <td style="color:#27ae60;font-weight:bold">+0.11%</td>
-          <td style="font-size:12px">$73.13</td>
-        </tr><tr>
-          <td><b>HUBB</b> $475.74<br><small style="color:#888">Industrials</small></td>
-          <td><span style="background:#d35400;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B+</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">▲ 连续收窄 (HIST=-1.149)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">44.1</td>
-          <td style="font-size:12px">弱多 ▲</td>
-          <td style="font-size:12px">-0.5%</td>
-          <td style="font-size:12px">正常 1.3x</td>
-          <td style="color:#e74c3c;font-weight:bold">-3.43%</td>
-          <td style="font-size:12px">$476.05</td>
-        </tr><tr>
-          <td><b>IDXX</b> $577.26<br><small style="color:#888">Health Care</small></td>
-          <td><span style="background:#d35400;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B+</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">▲ 连续收窄 (HIST=-2.078)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">33.9</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">-0.7%</td>
-          <td style="font-size:12px">正常 1.4x</td>
-          <td style="color:#e74c3c;font-weight:bold">-0.45%</td>
-          <td style="font-size:12px">$594.51</td>
-        </tr><tr>
-          <td><b>ISRG</b> $477.97<br><small style="color:#888">Health Care</small></td>
-          <td><span style="background:#d35400;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B+</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">▲ 连续收窄 (HIST=-0.184)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">40.0</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">-0.5%</td>
-          <td style="font-size:12px">正常 1.5x</td>
-          <td style="color:#e74c3c;font-weight:bold">-0.41%</td>
-          <td style="font-size:12px">$475.78</td>
-        </tr><tr>
-          <td><b>IVZ</b> $23.21<br><small style="color:#888">Financials</small></td>
-          <td><span style="background:#d35400;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B+</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">▲ 连续收窄 (HIST=-0.049)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">35.3</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">-0.6%</td>
-          <td style="font-size:12px">缩量 0.9x</td>
-          <td style="color:#e74c3c;font-weight:bold">-0.43%</td>
-          <td style="font-size:12px">$23.81</td>
-        </tr><tr>
-          <td><b>KEY</b> $19.41<br><small style="color:#888">Financials</small></td>
-          <td><span style="background:#d35400;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B+</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">▲ 连续收窄 (HIST=-0.045)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">38.4</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">+1.3%</td>
-          <td style="font-size:12px">正常 1.3x</td>
-          <td style="color:#27ae60;font-weight:bold">+0.67%</td>
-          <td style="font-size:12px">$19.41</td>
-        </tr><tr>
-          <td><b>LW</b> $40.0<br><small style="color:#888">Consumer Staples</small></td>
-          <td><span style="background:#d35400;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B+</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">▲ 连续收窄 (HIST=-0.570)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">30.3</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">-1.4%</td>
-          <td style="font-size:12px">放量 3.9x</td>
-          <td style="color:#e74c3c;font-weight:bold">-1.57%</td>
-          <td style="font-size:12px">$43.01</td>
-        </tr><tr>
-          <td><b>MTB</b> $198.15<br><small style="color:#888">Financials</small></td>
-          <td><span style="background:#d35400;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B+</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">▲ 连续收窄 (HIST=-1.390)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">33.9</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">+0.1%</td>
-          <td style="font-size:12px">放量 1.9x</td>
-          <td style="color:#27ae60;font-weight:bold">+0.97%</td>
-          <td style="font-size:12px">$202.85</td>
-        </tr><tr>
-          <td><b>MAR</b> $319.76<br><small style="color:#888">Consumer Discretionary</small></td>
-          <td><span style="background:#d35400;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B+</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">▲ 连续收窄 (HIST=-1.305)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">42.6</td>
-          <td style="font-size:12px">弱多 ▲</td>
-          <td style="font-size:12px">-1.1%</td>
-          <td style="font-size:12px">放量 1.9x</td>
-          <td style="color:#e74c3c;font-weight:bold">-1.58%</td>
-          <td style="font-size:12px">$320.6</td>
-        </tr><tr>
-          <td><b>MCHP</b> $62.97<br><small style="color:#888">Information Technology</small></td>
-          <td><span style="background:#d35400;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B+</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">▲ 连续收窄 (HIST=-0.373)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">31.3</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">-1.4%</td>
-          <td style="font-size:12px">正常 1.4x</td>
-          <td style="color:#e74c3c;font-weight:bold">-0.51%</td>
-          <td style="font-size:12px">$66.25</td>
-        </tr><tr>
-          <td><b>MCO</b> $435.12<br><small style="color:#888">Financials</small></td>
-          <td><span style="background:#d35400;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B+</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">▲ 连续收窄 (HIST=-0.753)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">39.7</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">-0.3%</td>
-          <td style="font-size:12px">正常 1.4x</td>
-          <td style="color:#e74c3c;font-weight:bold">-0.16%</td>
-          <td style="font-size:12px">$438.89</td>
-        </tr><tr>
-          <td><b>OTIS</b> $79.54<br><small style="color:#888">Industrials</small></td>
-          <td><span style="background:#d35400;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B+</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">▲ 连续收窄 (HIST=-1.024)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">31.1</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">-2.1%</td>
-          <td style="font-size:12px">缩量 0.8x</td>
-          <td style="color:#e74c3c;font-weight:bold">-0.86%</td>
-          <td style="font-size:12px">$84.44</td>
-        </tr><tr>
-          <td><b>PGR</b> $206.0<br><small style="color:#888">Financials</small></td>
-          <td><span style="background:#d35400;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B+</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">▲ 连续收窄 (HIST=-0.445)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">49.7</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">+1.1%</td>
-          <td style="font-size:12px">放量 2.0x</td>
-          <td style="color:#27ae60;font-weight:bold">+1.64%</td>
-          <td style="font-size:12px">$200.92</td>
-        </tr><tr>
-          <td><b>PRU</b> $93.03<br><small style="color:#888">Financials</small></td>
-          <td><span style="background:#d35400;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B+</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">▲ 连续收窄 (HIST=-0.060)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">34.4</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">-0.2%</td>
-          <td style="font-size:12px">正常 1.0x</td>
-          <td style="color:#27ae60;font-weight:bold">+0.56%</td>
-          <td style="font-size:12px">$93.77</td>
-        </tr><tr>
-          <td><b>RVTY</b> $85.94<br><small style="color:#888">Health Care</small></td>
-          <td><span style="background:#d35400;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B+</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">▲ 连续收窄 (HIST=-0.374)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">34.2</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">-0.2%</td>
-          <td style="font-size:12px">极缩 0.5x</td>
-          <td style="color:#27ae60;font-weight:bold">+0.21%</td>
-          <td style="font-size:12px">$89.26</td>
-        </tr><tr>
-          <td><b>SWKS</b> $54.44<br><small style="color:#888">Information Technology</small></td>
-          <td><span style="background:#d35400;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B+</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">▲ 连续收窄 (HIST=-0.160)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">37.5</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">+0.7%</td>
-          <td style="font-size:12px">放量 1.9x</td>
-          <td style="color:#27ae60;font-weight:bold">+0.59%</td>
-          <td style="font-size:12px">$54.73</td>
-        </tr><tr>
-          <td><b>LUV</b> $39.41<br><small style="color:#888">Industrials</small></td>
-          <td><span style="background:#d35400;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B+</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">▲ 连续收窄 (HIST=-0.465)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">34.8</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">-2.4%</td>
-          <td style="font-size:12px">正常 1.4x</td>
-          <td style="color:#e74c3c;font-weight:bold">-3.57%</td>
-          <td style="font-size:12px">$42.9</td>
-        </tr><tr>
-          <td><b>STT</b> $121.97<br><small style="color:#888">Financials</small></td>
-          <td><span style="background:#d35400;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B+</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">▲ 连续收窄 (HIST=-0.204)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">43.1</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">+0.7%</td>
-          <td style="font-size:12px">缩量 0.7x</td>
-          <td style="color:#27ae60;font-weight:bold">+0.84%</td>
-          <td style="font-size:12px">$120.95</td>
-        </tr><tr>
-          <td><b>SYK</b> $335.67<br><small style="color:#888">Health Care</small></td>
-          <td><span style="background:#d35400;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B+</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">▲ 连续收窄 (HIST=-3.446)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">31.8</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">-2.4%</td>
-          <td style="font-size:12px">缩量 0.7x</td>
-          <td style="color:#e74c3c;font-weight:bold">-1.20%</td>
-          <td style="font-size:12px">$352.91</td>
-        </tr><tr>
-          <td><b>TMO</b> $474.39<br><small style="color:#888">Health Care</small></td>
-          <td><span style="background:#d35400;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B+</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">▲ 连续收窄 (HIST=-0.396)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">34.3</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">+0.8%</td>
-          <td style="font-size:12px">缩量 0.6x</td>
-          <td style="color:#27ae60;font-weight:bold">+0.89%</td>
-          <td style="font-size:12px">$481.51</td>
-        </tr><tr>
-          <td><b>TJX</b> $154.98<br><small style="color:#888">Consumer Discretionary</small></td>
-          <td><span style="background:#d35400;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B+</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">▲ 连续收窄 (HIST=-0.679)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">46.0</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">+0.1%</td>
-          <td style="font-size:12px">正常 1.1x</td>
-          <td style="color:#27ae60;font-weight:bold">+0.19%</td>
-          <td style="font-size:12px">$152.96</td>
-        </tr><tr>
-          <td><b>ULTA</b> $529.97<br><small style="color:#888">Consumer Discretionary</small></td>
-          <td><span style="background:#d35400;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B+</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">▲ 连续收窄 (HIST=-13.737)</td>
-          <td style="font-size:13px;font-weight:bold;color:#e74c3c">25.9</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">+1.0%</td>
-          <td style="font-size:12px">缩量 0.7x</td>
-          <td style="color:#e74c3c;font-weight:bold">-0.77%</td>
-          <td style="font-size:12px">$604.08</td>
-        </tr><tr>
-          <td><b>DIS</b> $99.51<br><small style="color:#888">Communication Services</small></td>
-          <td><span style="background:#d35400;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B+</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">▲ 连续收窄 (HIST=-0.028)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">37.0</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">+0.1%</td>
-          <td style="font-size:12px">放量 1.7x</td>
-          <td style="color:#27ae60;font-weight:bold">+0.31%</td>
-          <td style="font-size:12px">$99.01</td>
-        </tr><tr>
-          <td><b>WBD</b> $27.42<br><small style="color:#888">Communication Services</small></td>
-          <td><span style="background:#d35400;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B+</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">▲ 连续收窄 (HIST=-0.053)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">42.4</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">-0.3%</td>
-          <td style="font-size:12px">放量 1.5x</td>
-          <td style="color:#e74c3c;font-weight:bold">-0.76%</td>
-          <td style="font-size:12px">$27.16</td>
-        </tr><tr>
-          <td><b>XYL</b> $120.44<br><small style="color:#888">Industrials</small></td>
-          <td><span style="background:#d35400;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B+</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">▲ 连续收窄 (HIST=-0.042)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">35.6</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">-0.2%</td>
-          <td style="font-size:12px">放量 1.7x</td>
-          <td style="color:#e74c3c;font-weight:bold">-0.05%</td>
-          <td style="font-size:12px">$120.84</td>
-        </tr><tr>
-          <td><b>JPM</b> $286.56<br><small style="color:#888">Financials</small></td>
-          <td><span style="background:#e67e22;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD金叉</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">★ 今日金叉</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">37.2</td>
-          <td style="font-size:12px">弱多 ▲</td>
-          <td style="font-size:12px">-0.2%</td>
-          <td style="font-size:12px">放量 1.9x</td>
-          <td style="color:#e74c3c;font-weight:bold">-0.49%</td>
-          <td style="font-size:12px">$283.86</td>
-        </tr><tr>
-          <td><b>WTW</b> $291.25<br><small style="color:#888">Financials</small></td>
-          <td><span style="background:#e67e22;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD金叉</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">★ 今日金叉</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">43.6</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">+0.6%</td>
-          <td style="font-size:12px">放量 1.6x</td>
-          <td style="color:#27ae60;font-weight:bold">+1.40%</td>
-          <td style="font-size:12px">$286.41</td>
-        </tr><tr>
-          <td><b>CPRT</b> $32.86<br><small style="color:#888">Industrials</small></td>
-          <td><span style="background:#f39c12;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B-</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD开始收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI<30反弹</span></td>
-          <td style="font-size:12px">△ 开始收窄 (HIST=-0.343)</td>
-          <td style="font-size:13px;font-weight:bold;color:#e74c3c">28.0</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">-1.2%</td>
-          <td style="font-size:12px">正常 1.2x</td>
-          <td style="color:#27ae60;font-weight:bold">+1.05%</td>
-          <td style="font-size:12px">$34.73</td>
-        </tr><tr>
-          <td><b>DG</b> $124.52<br><small style="color:#888">Consumer Staples</small></td>
-          <td><span style="background:#f39c12;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B-</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD开始收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI<30反弹</span></td>
-          <td style="font-size:12px">△ 开始收窄 (HIST=-2.717)</td>
-          <td style="font-size:13px;font-weight:bold;color:#e74c3c">25.6</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">-2.8%</td>
-          <td style="font-size:12px">正常 1.1x</td>
-          <td style="color:#27ae60;font-weight:bold">+0.87%</td>
-          <td style="font-size:12px">$139.03</td>
-        </tr><tr>
-          <td><b>NSC</b> $281.09<br><small style="color:#888">Industrials</small></td>
-          <td><span style="background:#f39c12;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B-</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD开始收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI<30反弹</span></td>
-          <td style="font-size:12px">△ 开始收窄 (HIST=-3.386)</td>
-          <td style="font-size:13px;font-weight:bold;color:#e74c3c">28.6</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">-1.4%</td>
-          <td style="font-size:12px">缩量 0.9x</td>
-          <td style="color:#27ae60;font-weight:bold">+1.04%</td>
-          <td style="font-size:12px">$293.03</td>
-        </tr><tr>
-          <td><b>UNP</b> $234.92<br><small style="color:#888">Industrials</small></td>
-          <td><span style="background:#f39c12;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">B-</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD开始收窄</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI<30反弹</span></td>
-          <td style="font-size:12px">△ 开始收窄 (HIST=-3.285)</td>
-          <td style="font-size:13px;font-weight:bold;color:#e74c3c">29.0</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">-1.3%</td>
-          <td style="font-size:12px">缩量 0.9x</td>
-          <td style="color:#27ae60;font-weight:bold">+0.32%</td>
-          <td style="font-size:12px">$245.66</td>
-        </tr></tbody></table>
+  <h2>🔴 A+级 — 强信号</h2>
+  <p style="color:#aaa;padding:12px">暂无</p>
 </div>
 
 <div class="card">
-  <h2>○ C级 — 单一RSI信号</h2>
-  <table class="data-table"><thead><tr><th>股票/板块</th><th>级别</th><th>信号组合</th><th>MACD</th><th>RSI</th><th>趋势</th><th>乖离</th><th>成交量</th><th>日涨跌</th><th>止损</th></tr></thead><tbody><tr>
-          <td><b>ADBE</b> $248.15<br><small style="color:#888">Information Technology</small></td>
-          <td><span style="background:#2ecc71;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">C</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD开始收窄</span></td>
-          <td style="font-size:12px">△ 开始收窄 (HIST=-1.390)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">35.7</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">-0.4%</td>
-          <td style="font-size:12px">正常 1.3x</td>
-          <td style="color:#27ae60;font-weight:bold">+0.88%</td>
-          <td style="font-size:12px">$254.53</td>
-        </tr><tr>
-          <td><b>CMCSA</b> $29.02<br><small style="color:#888">Communication Services</small></td>
-          <td><span style="background:#2ecc71;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">C</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD开始收窄</span></td>
-          <td style="font-size:12px">△ 开始收窄 (HIST=-0.326)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">36.8</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">-1.3%</td>
-          <td style="font-size:12px">放量 3.4x</td>
-          <td style="color:#27ae60;font-weight:bold">+0.14%</td>
-          <td style="font-size:12px">$29.74</td>
-        </tr><tr>
-          <td><b>DLTR</b> $105.92<br><small style="color:#888">Consumer Staples</small></td>
-          <td><span style="background:#2ecc71;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">C</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD开始收窄</span></td>
-          <td style="font-size:12px">△ 开始收窄 (HIST=-1.085)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">32.2</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">-2.9%</td>
-          <td style="font-size:12px">正常 1.1x</td>
-          <td style="color:#27ae60;font-weight:bold">+0.34%</td>
-          <td style="font-size:12px">$113.55</td>
-        </tr><tr>
-          <td><b>GPN</b> $68.5<br><small style="color:#888">Financials</small></td>
-          <td><span style="background:#2ecc71;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">C</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD开始收窄</span></td>
-          <td style="font-size:12px">△ 开始收窄 (HIST=-0.765)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">39.1</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">-1.2%</td>
-          <td style="font-size:12px">正常 1.3x</td>
-          <td style="color:#27ae60;font-weight:bold">+0.47%</td>
-          <td style="font-size:12px">$71.9</td>
-        </tr><tr>
-          <td><b>HIG</b> $132.65<br><small style="color:#888">Financials</small></td>
-          <td><span style="background:#2ecc71;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">C</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD开始收窄</span></td>
-          <td style="font-size:12px">△ 开始收窄 (HIST=-0.826)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">38.2</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">-0.5%</td>
-          <td style="font-size:12px">放量 1.6x</td>
-          <td style="color:#27ae60;font-weight:bold">+0.98%</td>
-          <td style="font-size:12px">$133.34</td>
-        </tr><tr>
-          <td><b>MA</b> $496.32<br><small style="color:#888">Financials</small></td>
-          <td><span style="background:#2ecc71;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">C</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD开始收窄</span></td>
-          <td style="font-size:12px">△ 开始收窄 (HIST=-1.080)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">39.3</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">-0.4%</td>
-          <td style="font-size:12px">放量 1.5x</td>
-          <td style="color:#27ae60;font-weight:bold">+1.05%</td>
-          <td style="font-size:12px">$493.41</td>
-        </tr><tr>
-          <td><b>ZTS</b> $115.67<br><small style="color:#888">Health Care</small></td>
-          <td><span style="background:#2ecc71;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">C</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MACD开始收窄</span></td>
-          <td style="font-size:12px">△ 开始收窄 (HIST=-0.716)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">36.8</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">-1.8%</td>
-          <td style="font-size:12px">缩量 0.8x</td>
-          <td style="color:#e74c3c;font-weight:bold">-0.28%</td>
-          <td style="font-size:12px">$118.89</td>
-        </tr></tbody></table>
-  
+  <h2>🟠 A级 — 有效信号</h2>
+  <p style="color:#aaa;padding:12px">暂无</p>
 </div>
 
-<div class="card">
-  <h2>△ D级 — 仅RSI底背离（弱信号）</h2>
-  <table class="data-table"><thead><tr><th>股票/板块</th><th>级别</th><th>信号组合</th><th>MACD</th><th>RSI</th><th>趋势</th><th>乖离</th><th>成交量</th><th>日涨跌</th><th>止损</th></tr></thead><tbody><tr>
-          <td><b>GOOGL</b> $301.0<br><small style="color:#888">Communication Services</small></td>
-          <td><span style="background:#95a5a6;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">D</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">金叉中 (HIST=0.618)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">41.2</td>
-          <td style="font-size:12px">弱多 ▲</td>
-          <td style="font-size:12px">-1.8%</td>
-          <td style="font-size:12px">放量 1.6x</td>
-          <td style="color:#e74c3c;font-weight:bold">-2.00%</td>
-          <td style="font-size:12px">$297.07</td>
-        </tr><tr>
-          <td><b>GOOG</b> $298.79<br><small style="color:#888">Communication Services</small></td>
-          <td><span style="background:#95a5a6;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">D</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">金叉中 (HIST=0.449)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">39.4</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">-2.0%</td>
-          <td style="font-size:12px">放量 1.8x</td>
-          <td style="color:#e74c3c;font-weight:bold">-2.27%</td>
-          <td style="font-size:12px">$296.59</td>
-        </tr><tr>
-          <td><b>AMZN</b> $205.37<br><small style="color:#888">Consumer Discretionary</small></td>
-          <td><span style="background:#95a5a6;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">D</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">金叉中 (HIST=0.195)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">40.5</td>
-          <td style="font-size:12px">弱空 ▼</td>
-          <td style="font-size:12px">-2.3%</td>
-          <td style="font-size:12px">正常 1.3x</td>
-          <td style="color:#e74c3c;font-weight:bold">-1.62%</td>
-          <td style="font-size:12px">$204.53</td>
-        </tr><tr>
-          <td><b>ADP</b> $208.69<br><small style="color:#888">Industrials</small></td>
-          <td><span style="background:#95a5a6;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">D</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">金叉中 (HIST=0.588)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">39.7</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">-0.3%</td>
-          <td style="font-size:12px">放量 3.0x</td>
-          <td style="color:#e74c3c;font-weight:bold">-0.94%</td>
-          <td style="font-size:12px">$205.97</td>
-        </tr><tr>
-          <td><b>BBY</b> $62.8<br><small style="color:#888">Consumer Discretionary</small></td>
-          <td><span style="background:#95a5a6;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">D</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">死叉 (HIST=-0.008)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">43.7</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">-0.4%</td>
-          <td style="font-size:12px">正常 0.9x</td>
-          <td style="color:#e74c3c;font-weight:bold">-2.17%</td>
-          <td style="font-size:12px">$61.8</td>
-        </tr><tr>
-          <td><b>BSX</b> $69.48<br><small style="color:#888">Health Care</small></td>
-          <td><span style="background:#95a5a6;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">D</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">金叉中 (HIST=0.410)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">34.2</td>
-          <td style="font-size:12px">弱多 ▲</td>
-          <td style="font-size:12px">-1.2%</td>
-          <td style="font-size:12px">正常 0.9x</td>
-          <td style="color:#e74c3c;font-weight:bold">-0.59%</td>
-          <td style="font-size:12px">$69.99</td>
-        </tr><tr>
-          <td><b>BXP</b> $52.08<br><small style="color:#888">Real Estate</small></td>
-          <td><span style="background:#95a5a6;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">D</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">金叉中 (HIST=0.143)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">34.2</td>
-          <td style="font-size:12px">弱多 ▲</td>
-          <td style="font-size:12px">-1.4%</td>
-          <td style="font-size:12px">正常 1.0x</td>
-          <td style="color:#e74c3c;font-weight:bold">-2.49%</td>
-          <td style="font-size:12px">$53.42</td>
-        </tr><tr>
-          <td><b>COF</b> $181.46<br><small style="color:#888">Financials</small></td>
-          <td><span style="background:#95a5a6;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">D</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">金叉中 (HIST=0.451)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">35.7</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">+0.2%</td>
-          <td style="font-size:12px">放量 1.7x</td>
-          <td style="color:#27ae60;font-weight:bold">+0.96%</td>
-          <td style="font-size:12px">$183.22</td>
-        </tr><tr>
-          <td><b>CTSH</b> $62.07<br><small style="color:#888">Information Technology</small></td>
-          <td><span style="background:#95a5a6;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">D</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">金叉中 (HIST=0.420)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">38.9</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">+1.3%</td>
-          <td style="font-size:12px">放量 1.6x</td>
-          <td style="color:#27ae60;font-weight:bold">+0.84%</td>
-          <td style="font-size:12px">$60.91</td>
-        </tr><tr>
-          <td><b>STZ</b> $149.62<br><small style="color:#888">Consumer Staples</small></td>
-          <td><span style="background:#95a5a6;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">D</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">金叉中 (HIST=0.020)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">43.5</td>
-          <td style="font-size:12px">弱多 ▲</td>
-          <td style="font-size:12px">-1.1%</td>
-          <td style="font-size:12px">正常 1.3x</td>
-          <td style="color:#e74c3c;font-weight:bold">-1.51%</td>
-          <td style="font-size:12px">$147.91</td>
-        </tr><tr>
-          <td><b>ETN</b> $356.8<br><small style="color:#888">Industrials</small></td>
-          <td><span style="background:#95a5a6;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">D</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">死叉 (HIST=-0.596)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">47.7</td>
-          <td style="font-size:12px">弱多 ▲</td>
-          <td style="font-size:12px">-1.0%</td>
-          <td style="font-size:12px">放量 1.5x</td>
-          <td style="color:#e74c3c;font-weight:bold">-0.95%</td>
-          <td style="font-size:12px">$349.95</td>
-        </tr><tr>
-          <td><b>EA</b> $200.51<br><small style="color:#888">Communication Services</small></td>
-          <td><span style="background:#95a5a6;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">D</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">金叉中 (HIST=0.161)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">49.8</td>
-          <td style="font-size:12px">弱多 ▲</td>
-          <td style="font-size:12px">+0.0%</td>
-          <td style="font-size:12px">放量 2.1x</td>
-          <td style="color:#e74c3c;font-weight:bold">-0.09%</td>
-          <td style="font-size:12px">$194.35</td>
-        </tr><tr>
-          <td><b>EME</b> $724.93<br><small style="color:#888">Industrials</small></td>
-          <td><span style="background:#95a5a6;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">D</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">死叉 (HIST=-0.818)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">46.8</td>
-          <td style="font-size:12px">弱多 ▲</td>
-          <td style="font-size:12px">-1.2%</td>
-          <td style="font-size:12px">正常 1.0x</td>
-          <td style="color:#e74c3c;font-weight:bold">-3.51%</td>
-          <td style="font-size:12px">$716.64</td>
-        </tr><tr>
-          <td><b>FSLR</b> $192.82<br><small style="color:#888">Information Technology</small></td>
-          <td><span style="background:#95a5a6;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">D</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">金叉中 (HIST=1.169)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">36.5</td>
-          <td style="font-size:12px">弱多 ▲</td>
-          <td style="font-size:12px">-2.6%</td>
-          <td style="font-size:12px">放量 2.1x</td>
-          <td style="color:#e74c3c;font-weight:bold">-3.42%</td>
-          <td style="font-size:12px">$196.22</td>
-        </tr><tr>
-          <td><b>HLT</b> $292.58<br><small style="color:#888">Consumer Discretionary</small></td>
-          <td><span style="background:#95a5a6;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">D</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">死叉 (HIST=-1.054)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">40.7</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">-1.3%</td>
-          <td style="font-size:12px">缩量 0.9x</td>
-          <td style="color:#e74c3c;font-weight:bold">-1.76%</td>
-          <td style="font-size:12px">$293.69</td>
-        </tr><tr>
-          <td><b>HPQ</b> $18.27<br><small style="color:#888">Information Technology</small></td>
-          <td><span style="background:#95a5a6;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">D</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">金叉中 (HIST=0.016)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">43.0</td>
-          <td style="font-size:12px">弱空 ▼</td>
-          <td style="font-size:12px">-1.1%</td>
-          <td style="font-size:12px">正常 1.0x</td>
-          <td style="color:#e74c3c;font-weight:bold">-1.14%</td>
-          <td style="font-size:12px">$18.0</td>
-        </tr><tr>
-          <td><b>IQV</b> $166.07<br><small style="color:#888">Health Care</small></td>
-          <td><span style="background:#95a5a6;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">D</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">金叉中 (HIST=1.218)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">38.8</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">-0.3%</td>
-          <td style="font-size:12px">正常 0.9x</td>
-          <td style="color:#e74c3c;font-weight:bold">-0.24%</td>
-          <td style="font-size:12px">$164.86</td>
-        </tr><tr>
-          <td><b>LIN</b> $488.15<br><small style="color:#888">Materials</small></td>
-          <td><span style="background:#95a5a6;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">D</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">死叉 (HIST=-1.932)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">52.9</td>
-          <td style="font-size:12px">弱多 ▲</td>
-          <td style="font-size:12px">-0.7%</td>
-          <td style="font-size:12px">放量 2.0x</td>
-          <td style="color:#e74c3c;font-weight:bold">-0.34%</td>
-          <td style="font-size:12px">$478.57</td>
-        </tr><tr>
-          <td><b>HOOD</b> $70.89<br><small style="color:#888">Financials</small></td>
-          <td><span style="background:#95a5a6;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">D</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">金叉中 (HIST=0.348)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">37.2</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">-4.9%</td>
-          <td style="font-size:12px">正常 1.4x</td>
-          <td style="color:#e74c3c;font-weight:bold">-4.41%</td>
-          <td style="font-size:12px">$74.27</td>
-        </tr><tr>
-          <td><b>SNPS</b> $420.32<br><small style="color:#888">Information Technology</small></td>
-          <td><span style="background:#95a5a6;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">D</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">金叉中 (HIST=1.064)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">42.9</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">-1.4%</td>
-          <td style="font-size:12px">放量 1.8x</td>
-          <td style="color:#e74c3c;font-weight:bold">-1.85%</td>
-          <td style="font-size:12px">$415.98</td>
-        </tr><tr>
-          <td><b>TTD</b> $24.11<br><small style="color:#888">Communication Services</small></td>
-          <td><span style="background:#95a5a6;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">D</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">死叉 (HIST=-0.111)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">38.4</td>
-          <td style="font-size:12px">弱空 ▼</td>
-          <td style="font-size:12px">-2.2%</td>
-          <td style="font-size:12px">缩量 0.9x</td>
-          <td style="color:#27ae60;font-weight:bold">+2.55%</td>
-          <td style="font-size:12px">$25.04</td>
-        </tr><tr>
-          <td><b>UNH</b> $275.59<br><small style="color:#888">Health Care</small></td>
-          <td><span style="background:#95a5a6;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">D</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">金叉中 (HIST=0.263)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">40.5</td>
-          <td style="font-size:12px">弱多 ▲</td>
-          <td style="font-size:12px">-2.5%</td>
-          <td style="font-size:12px">放量 3.3x</td>
-          <td style="color:#e74c3c;font-weight:bold">-1.73%</td>
-          <td style="font-size:12px">$275.23</td>
-        </tr><tr>
-          <td><b>WST</b> $237.03<br><small style="color:#888">Health Care</small></td>
-          <td><span style="background:#95a5a6;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">D</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">死叉 (HIST=-0.173)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">43.8</td>
-          <td style="font-size:12px">弱多 ▲</td>
-          <td style="font-size:12px">-0.9%</td>
-          <td style="font-size:12px">缩量 0.7x</td>
-          <td style="color:#e74c3c;font-weight:bold">-1.37%</td>
-          <td style="font-size:12px">$235.97</td>
-        </tr><tr>
-          <td><b>WY</b> $22.47<br><small style="color:#888">Real Estate</small></td>
-          <td><span style="background:#95a5a6;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">D</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">死叉 (HIST=-0.107)</td>
-          <td style="font-size:13px;font-weight:bold;color:#e74c3c">28.7</td>
-          <td style="font-size:12px">空头 ▼▼</td>
-          <td style="font-size:12px">-3.7%</td>
-          <td style="font-size:12px">正常 1.2x</td>
-          <td style="color:#e74c3c;font-weight:bold">-2.13%</td>
-          <td style="font-size:12px">$23.25</td>
-        </tr><tr>
-          <td><b>WYNN</b> $99.98<br><small style="color:#888">Consumer Discretionary</small></td>
-          <td><span style="background:#95a5a6;color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">D</span></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI底背离</span></td>
-          <td style="font-size:12px">金叉中 (HIST=0.228)</td>
-          <td style="font-size:13px;font-weight:bold;color:#333">39.8</td>
-          <td style="font-size:12px">弱多 ▲</td>
-          <td style="font-size:12px">-1.7%</td>
-          <td style="font-size:12px">正常 1.3x</td>
-          <td style="color:#e74c3c;font-weight:bold">-3.08%</td>
-          <td style="font-size:12px">$100.43</td>
-        </tr></tbody></table>
-  
+<div class="card" style="border-top:3px solid #2c3e50;margin-top:30px">
+  <h2 style="border-left:4px solid #2c3e50;padding-left:10px">📋 方法论</h2>
+  <div style="font-size:13px;line-height:1.9;color:#444">
+
+  <p><b>目标：</b>从标普500中筛选次日/5日上涨概率显著高于随机水平的股票。</p>
+
+  <p><b>数据：</b>标普500全部成分股，2020-2025年共6年日线数据（约75万个交易日样本）。</p>
+
+  <h3 style="font-size:14px;margin:16px 0 8px;color:#2c3e50">第一阶段 — 否定传统评分</h3>
+  <p>最初使用趋势偏离+成交量+MACD+RSI加权评分(0-100分)进行回测。<br>
+  结果：<b>评分高低与次日收益无关</b>。"强买"组5日均收+0.051%，"回避"组反而+0.084%。<br>
+  结论：传统技术评分系统对短期预测无效，<b>推翻重来</b>。</p>
+
+  <h3 style="font-size:14px;margin:16px 0 8px;color:#2c3e50">第二阶段 — 寻找有效信号</h3>
+  <p>单独测试MACD/RSI各类信号的6年胜率：</p>
+  <table style="font-size:12px;border-collapse:collapse;margin:6px 0 12px">
+    <tr style="background:#f8f8f8"><td style="padding:4px 12px"><b>MACD金叉确认后买</b></td><td style="padding:4px 12px">5日胜率 52.8%</td><td style="padding:4px 12px;color:#e74c3c">≈抛硬币</td></tr>
+    <tr><td style="padding:4px 12px"><b>RSI底背离</b></td><td style="padding:4px 12px">5日胜率 53.9%</td><td style="padding:4px 12px;color:#e74c3c">≈baseline</td></tr>
+    <tr style="background:#f8f8f8"><td style="padding:4px 12px"><b>MACD收窄+RSI&lt;30反弹</b></td><td style="padding:4px 12px">5日胜率 55.2%</td><td style="padding:4px 12px;color:#27ae60">有效，但不够强</td></tr>
+  </table>
+  <p>核心发现：<b>在金叉之前入场</b>（MACD柱状图收窄 = 空头力量减弱）比等金叉确认后买入显著更好。</p>
+
+  <h3 style="font-size:14px;margin:16px 0 8px;color:#2c3e50">第三阶段 — 穷举附加条件</h3>
+  <p>在"MACD收窄+RSI超卖"基础上，引入25种技术指标作为附加过滤条件：<br>
+  <span style="color:#888">CCI, Williams%R, StochRSI, MFI, CMF, OBV, ADX, Keltner Channel, Bollinger Band,<br>
+  VIX, 52周低点距离, MA200位置, 锤子线形态, 多周期动量, 成交量异动等</span></p>
+
+  <p>穷举测试：</p>
+  <table style="font-size:12px;border-collapse:collapse;margin:6px 0 12px">
+    <tr style="background:#f8f8f8"><td style="padding:4px 12px">双条件组合</td><td style="padding:4px 12px"><b>300种</b></td></tr>
+    <tr><td style="padding:4px 12px">三条件组合</td><td style="padding:4px 12px"><b>680种</b></td></tr>
+    <tr style="background:#f8f8f8"><td style="padding:4px 12px">四条件组合</td><td style="padding:4px 12px"><b>715种</b></td></tr>
+    <tr><td style="padding:4px 12px;font-weight:bold">共计</td><td style="padding:4px 12px;font-weight:bold">1,763种组合</td></tr>
+  </table>
+
+  <h3 style="font-size:14px;margin:16px 0 8px;color:#2c3e50">第四阶段 — 年度稳定性验证</h3>
+  <p>对筛出的候选组合，逐年(2020-2025)拆分验证，排除仅在特定年份有效的过拟合组合。<br>
+  <b>最终结论：1,763种组合中，仅以下信号在6年间稳定超过baseline(54%)：</b></p>
+
+  <table style="font-size:12px;border-collapse:collapse;margin:6px 0 12px;width:100%">
+    <tr style="background:#2c3e50;color:white">
+      <th style="padding:6px 10px;text-align:left">等级</th>
+      <th style="padding:6px 10px;text-align:left">条件</th>
+      <th style="padding:6px 10px">5日胜率</th>
+      <th style="padding:6px 10px">通过率</th>
+    </tr>
+    <tr style="background:#f3e5f5"><td style="padding:5px 10px"><b style="color:#6c3483">S</b></td><td style="padding:5px 10px">MACD收窄 + RSI&lt;30反弹 + CCI&lt;-100 + 近52周低 + CMF&gt;0 + WR&lt;-80</td><td style="padding:5px 10px;text-align:center"><b>最高</b></td><td style="padding:5px 10px;text-align:center;color:#888">极少触发</td></tr>
+    <tr><td style="padding:5px 10px"><b style="color:#c0392b">A+</b></td><td style="padding:5px 10px">MACD收窄 + RSI&lt;30反弹 + CCI&lt;-100 + 近52周低 + CMF&gt;0</td><td style="padding:5px 10px;text-align:center"><b>高</b></td><td style="padding:5px 10px;text-align:center;color:#888">较少</td></tr>
+    <tr style="background:#f8f8f8"><td style="padding:5px 10px"><b style="color:#e74c3c">A</b></td><td style="padding:5px 10px">MACD收窄 + RSI&lt;30反弹 + CCI&lt;-100 + 近52周低</td><td style="padding:5px 10px;text-align:center"><b>有效</b></td><td style="padding:5px 10px;text-align:center;color:#888">适中</td></tr>
+  </table>
+
+  <h3 style="font-size:14px;margin:16px 0 8px;color:#2c3e50">被淘汰的常见策略</h3>
+  <p style="color:#888;font-size:12px">
+    MACD金叉买入(52.8%) · RSI底背离(53.9%) · RSI超卖单独(51.6%) · MACD+RSI评分系统(无区分度)<br>
+    以上均未通过6年回测验证，本扫描器不使用。
+  </p>
+
+  <p style="margin-top:16px;padding-top:12px;border-top:1px solid #eee;color:#aaa;font-size:11px">
+    建议持仓周期：5个交易日 · 止损参考：MA20×0.97<br>
+    ⚠️ 本工具仅供研究参考，不构成投资建议。历史回测不代表未来表现。
+  </p>
+  </div>
 </div>
 
 </div>
