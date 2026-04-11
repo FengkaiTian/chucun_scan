@@ -305,11 +305,10 @@ GRADE_DESC = {
 def make_table(rows):
     if not rows:
         return '<p style="color:#aaa;padding:12px">暂无</p>'
-    cols = ['股票/板块', '级别', '匹配信号', 'T+1', 'T+3', 'T+5', 'T+10', 'RSI', 'CCI', 'CMF', 'WR', '距52W低', '成交量', '日涨跌', '止损']
+    cols = ['股票/板块', '匹配信号', 'T+1', 'T+3', 'T+5', 'T+10', 'RSI', 'CCI', 'CMF', 'WR', '距52W低', '成交量', '日涨跌', '止损']
     th = ''.join(f'<th>{c}</th>' for c in cols)
     body = ''
     for r in rows:
-        gc = GRADE_COLOR.get(r['grade'], '#888')
         chg_c = '#27ae60' if r['chg'] >= 0 else '#e74c3c'
 
         sig_tags = ''
@@ -325,7 +324,6 @@ def make_table(rows):
 
         body += f'''<tr>
           <td><b>{r["ticker"]}</b> ${r["price"]}<br><small style="color:#888">{r["sector"][:22]}</small>{earn_tag}</td>
-          <td><span style="background:{gc};color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">{r["grade"]}</span></td>
           <td style="font-size:11px">{sig_tags}</td>
           {wr_cell(r.get("wr1",0))}
           {wr_cell(r.get("wr3",0))}
@@ -370,10 +368,9 @@ def build_recent_table(n_picks=10):
         ).stdout
         seen = set()
         for row_html in re.split(r'<tr[^>]*>', html_src):
-            mt = re.search(r'<b>([A-Z][A-Z0-9\-]{0,5})</b>\s*\$', row_html)
-            mg = re.search(r'border-radius:12px[^>]*font-weight:bold">(SSS|S|A|B)</span>', row_html)
-            if mt and mg and mt.group(1) not in seen:
-                all_picks.append({'ticker': mt.group(1), 'grade': mg.group(1), 'scan_date': ds})
+            mt = re.search(r'<td[^>]*><b>([A-Z][A-Z0-9\-]{0,5})</b>\s*\$', row_html)
+            if mt and mt.group(1) not in seen:
+                all_picks.append({'ticker': mt.group(1), 'scan_date': ds})
                 seen.add(mt.group(1))
         if len(all_picks) >= n_picks:
             break
@@ -415,11 +412,9 @@ def build_recent_table(n_picks=10):
         return f'<td style="color:{color};font-weight:bold;text-align:center">{sign}{v:.2f}%</td>'
 
     # 4. 生成 HTML 表格
-    GRADE_COLOR = {'SSS': '#ff6f00', 'S': '#6c3483', 'A': '#c0392b', 'B': '#2980b9'}
     rows_html = ''
     for p in all_picks:
-        t, ds, g = p['ticker'], p['scan_date'], p['grade']
-        gc = GRADE_COLOR.get(g, '#888')
+        t, ds = p['ticker'], p['scan_date']
         r1  = get_ret(t, ds, 1)
         r3  = get_ret(t, ds, 3)
         r5  = get_ret(t, ds, 5)
@@ -427,7 +422,6 @@ def build_recent_table(n_picks=10):
         rows_html += f'''<tr>
           <td style="font-weight:bold;padding:6px 10px">{t}</td>
           <td style="color:#888;font-size:12px;padding:6px 10px">{ds}</td>
-          <td style="padding:6px 10px"><span style="background:{gc};color:white;padding:2px 8px;border-radius:10px;font-size:12px">{g}</span></td>
           {ret_cell(r1)}{ret_cell(r3)}{ret_cell(r5)}{ret_cell(r10)}
         </tr>'''
 
@@ -435,7 +429,6 @@ def build_recent_table(n_picks=10):
   <thead><tr style="background:#f5f5f5;color:#555;font-size:12px">
     <th style="padding:8px 10px;text-align:left">股票</th>
     <th style="padding:8px 10px;text-align:left">入场日</th>
-    <th style="padding:8px 10px;text-align:left">级别</th>
     <th style="padding:8px 10px;text-align:center">T+1</th>
     <th style="padding:8px 10px;text-align:center">T+3</th>
     <th style="padding:8px 10px;text-align:center">T+5</th>
@@ -557,64 +550,62 @@ def main():
         except Exception:
             pass
 
-    # 按级别排序
-    grade_order = {'SSS': 0, 'S': 1, 'A': 2, 'B': 3}
-    results.sort(key=lambda x: (grade_order.get(x['grade'], 99), -x.get('win_rate_5', 0)))
+    # 过滤近10个交易日（约14日历天）已推荐的股票
+    today_str = datetime.now().strftime('%Y-%m-%d')
+    cutoff_str = (datetime.now().date() - timedelta(days=14)).strftime('%Y-%m-%d')
+    git_log_out = subprocess.run(['git', '-C', SCRIPT_DIR, 'log', '--oneline'],
+                                 capture_output=True, text=True).stdout
+    recent_commits = {}
+    for line in git_log_out.strip().split('\n'):
+        m_log = re.search(r'([a-f0-9]+) .* scan: (\d{4}-\d{2}-\d{2})', line)
+        if m_log:
+            sha, ds = m_log.group(1), m_log.group(2)
+            if cutoff_str <= ds < today_str and ds not in recent_commits:
+                recent_commits[ds] = sha
+    recent_tickers = set()
+    for sha in recent_commits.values():
+        h = subprocess.run(['git', '-C', SCRIPT_DIR, 'show', f'{sha}:index.html'],
+                           capture_output=True, text=True, encoding='utf-8', errors='ignore').stdout
+        for row_html in re.split(r'<tr[^>]*>', h):
+            mt2 = re.search(r'<td[^>]*><b>([A-Z][A-Z0-9\-]{0,5})</b>\s*\$', row_html)
+            if mt2:
+                recent_tickers.add(mt2.group(1))
+    before = len(results)
+    results = [r for r in results if r['ticker'] not in recent_tickers]
+    if before - len(results):
+        print(f"  去重过滤: 移除 {before - len(results)} 只（近10交易日已推荐）")
 
-    by_grade = {}
-    for g in ['SSS','S','A','B']:
-        by_grade[g] = [r for r in results if r['grade'] == g]
+    # 按胜率排序（不分级别）
+    results.sort(key=lambda x: -x.get('win_rate_5', 0))
 
     print("生成近期选股表现...")
     recent_table_html = build_recent_table()
 
     date_str = datetime.now().strftime('%Y-%m-%d %H:%M')
 
-    grade_legend = ''
-    for g, desc in GRADE_DESC.items():
-        gc = GRADE_COLOR[g]
-        cnt = len(by_grade.get(g, []))
-        grade_legend += f'<span style="background:{gc};color:white;padding:2px 8px;border-radius:10px;font-size:11px;margin:2px 4px;display:inline-block"><b>{g}</b> {desc}</span> '
-
-    badge_html = ''
-    for g in ['SSS','S','A','B']:
-        gc = GRADE_COLOR[g]
-        cnt = len(by_grade.get(g, []))
-        badge_html += f'<span class="badge" style="background:{gc}">{g}级 {cnt}</span>\n  '
-    badge_html += f'<span class="badge" style="background:#2c3e50">总计 {len(results)}</span>'
+    badge_html = f'<span class="badge" style="background:#2c3e50">今日信号 {len(results)}</span>'
 
     # ── 板块统计 ──
     from collections import defaultdict
-    sector_stats = defaultdict(lambda: {'count': 0, 'wr5_sum': 0, 'grades': []})
+    sector_stats = defaultdict(lambda: {'count': 0, 'wr5_sum': 0})
     for r in results:
         s = r['sector']
         sector_stats[s]['count'] += 1
         sector_stats[s]['wr5_sum'] += r.get('wr5', 0)
-        sector_stats[s]['grades'].append(r['grade'])
-
-    sector_rows = []
-    for sec, st in sorted(sector_stats.items(), key=lambda x: -x[1]['count']):
-        avg_wr5 = st['wr5_sum'] / st['count'] if st['count'] else 0
-        grade_cnt = {g: st['grades'].count(g) for g in ['SSS','S','A','B'] if st['grades'].count(g)}
-        grade_str = ' '.join(
-            f'<span style="background:{GRADE_COLOR[g]};color:white;padding:1px 6px;'
-            f'border-radius:8px;font-size:10px">{g}×{n}</span>'
-            for g, n in grade_cnt.items()
-        )
-        sector_rows.append((sec, st['count'], avg_wr5, grade_str))
 
     sector_html = ''
+    sector_rows = sorted(sector_stats.items(), key=lambda x: -x[1]['count'])
     if sector_rows:
-        bar_max = sector_rows[0][1]
+        bar_max = sector_rows[0][1]['count']
         rows_html = ''
-        for sec, cnt, avg_wr5, grade_str in sector_rows:
-            bar_w = int(cnt / bar_max * 180)
+        for sec, st in sector_rows:
+            avg_wr5 = st['wr5_sum'] / st['count'] if st['count'] else 0
+            bar_w = int(st['count'] / bar_max * 180)
             rows_html += f'''<tr>
               <td style="font-size:12px;white-space:nowrap">{sec[:32]}</td>
-              <td style="text-align:center;font-weight:bold">{cnt}</td>
+              <td style="text-align:center;font-weight:bold">{st["count"]}</td>
               <td><div style="background:#3498db;height:12px;width:{bar_w}px;border-radius:3px;display:inline-block"></div></td>
               <td style="text-align:center;color:#27ae60;font-weight:bold">{avg_wr5:.1f}%</td>
-              <td>{grade_str}</td>
             </tr>'''
         sector_html = f'''
 <div class="card">
@@ -625,27 +616,16 @@ def main():
       <th style="padding:6px 10px">信号数</th>
       <th style="padding:6px 10px;text-align:left">占比</th>
       <th style="padding:6px 10px">均T+5胜率</th>
-      <th style="padding:6px 10px;text-align:left">等级构成</th>
     </tr></thead>
     <tbody>{rows_html}</tbody>
   </table>
 </div>
 '''
 
-    section_html = ''
-    section_info = {
-        'SSS': ('🔥', 'SSS高收益区', '均收>2%，样本较少，高弹性'),
-        'S':   ('🟣', 'S级 — 最强信号', '5日胜率≥80%'),
-        'A':   ('🔴', 'A级 — 强信号', '5日胜率70-80%'),
-        'B':   ('🔵', 'B级 — 有效信号', '5日胜率65-70%'),
-    }
-    for g in ['SSS','S','A','B']:
-        icon, title, desc = section_info[g]
-        rows = by_grade.get(g, [])
-        section_html += f'''
+    section_html = f'''
 <div class="card">
-  <h2>{icon} {title}（{desc}）</h2>
-  {make_table(rows)}
+  <h2>今日信号</h2>
+  {make_table(results)}
 </div>
 '''
 
@@ -690,9 +670,7 @@ def main():
 
 <div class="card">
   <div class="legend">
-    <b>信号分级（6年2020-2025标普500全成分股回测，1,626种组合穷举，全周期T+1/3/5/10验证）</b><br>
-    {grade_legend}
-    <p class="note">基础信号: MACD收窄(柱状图零轴下连续3根递增) + RSI&lt;30反弹 · 每个等级在此基础上叠加不同附加条件</p>
+    <p class="note">基础信号: MACD收窄(柱状图零轴下连续3根递增) + RSI&lt;30反弹 · 叠加多项技术指标过滤，T+1/3/5/10全周期验证</p>
   </div>
 </div>
 
@@ -718,13 +696,8 @@ def main():
         f.write(html)
 
     print(f"\n✅ 报告已生成：{OUTPUT_HTML}")
-    for g in ['SSS','S','A','B']:
-        cnt = len(by_grade.get(g, []))
-        if cnt:
-            print(f"\n   {g}级 ({cnt}只):")
-            for r in by_grade[g]:
-                print(f"      {r['ticker']:6} RSI={r['rsi']:5.1f} T+5胜率={r['win_rate_5']:.1f}% 匹配: {r['matched_combo']}")
-
+    for r in results:
+        print(f"   {r['ticker']:6} RSI={r['rsi']:5.1f} T+5胜率={r['win_rate_5']:.1f}% 匹配: {r['matched_combo']}")
     print(f"\n   总计: {len(results)} 只")
 
     webbrowser.open(f'file:///{OUTPUT_HTML}')
