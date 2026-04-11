@@ -9,6 +9,7 @@
 ## Pipeline
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {'background': '#ffffff', 'primaryBkg': '#ffffff', 'secondaryBkg': '#f0f0f0', 'tertiaryBkg': '#ffffff', 'mainBkg': '#ffffff'}}}%%
 flowchart TD
     A([🕓 04:30 AM\nloop_scan.py 触发]) --> B
 
