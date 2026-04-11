@@ -8,7 +8,7 @@
 
 ## Pipeline
 
-![pipeline](pipeline.png)
+![pipeline](pipeline.svg)
 
 ---
 
