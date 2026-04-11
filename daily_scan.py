@@ -361,12 +361,12 @@ def build_recent_table(n_picks=10):
 
     # 2. 从每个 commit 的 index.html 提取 ticker + grade，按日期倒序取前 n_picks 条
     all_picks = []
+    seen = set()  # 跨日期去重
     for ds, sha in sorted(commits_by_date.items(), reverse=True):
         html_src = subprocess.run(
             ['git', '-C', SCRIPT_DIR, 'show', f'{sha}:index.html'],
             capture_output=True, text=True, encoding='utf-8', errors='ignore'
         ).stdout
-        seen = set()
         for row_html in re.split(r'<tr[^>]*>', html_src):
             mt = re.search(r'<td[^>]*><b>([A-Z][A-Z0-9\-]{0,5})</b>\s*\$', row_html)
             if mt and mt.group(1) not in seen:
