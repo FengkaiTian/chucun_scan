@@ -343,51 +343,48 @@ def make_table(rows):
     return f'<table class="data-table"><thead><tr>{th}</tr></thead><tbody>{body}</tbody></table>'
 
 
-def build_monthly_charts():
-    """从 git 历史提取过去3个月选股，生成月度 boxplot，返回 {month: base64_png}"""
-    import matplotlib.pyplot as plt
-    plt.switch_backend('agg')
-    plt.rcParams['font.family'] = 'Microsoft YaHei'
-    plt.rcParams['axes.unicode_minus'] = False
+def build_recent_table(n_picks=10):
+    """从 git 历史取最近 n_picks 条选股，计算 T+1/3/5/10 实际收益，返回 HTML 表格"""
 
-    today = datetime.now().date()
-    cutoff = today - timedelta(days=92)
-
-    # 1. 拿所有扫描 commit（每天取最新一次）
+    # 1. 读 git log，取最近 60 天的每日最新 commit
     r = subprocess.run(['git', '-C', SCRIPT_DIR, 'log', '--oneline'],
                        capture_output=True, text=True)
+    cutoff = (datetime.now().date() - timedelta(days=60)).strftime('%Y-%m-%d')
     commits_by_date = {}
     for line in r.stdout.strip().split('\n'):
         m = re.search(r'([a-f0-9]+) .* scan: (\d{4}-\d{2}-\d{2})', line)
         if m:
             sha, ds = m.group(1), m.group(2)
-            if datetime.strptime(ds, '%Y-%m-%d').date() >= cutoff and ds not in commits_by_date:
+            if ds >= cutoff and ds not in commits_by_date:
                 commits_by_date[ds] = sha
 
     if not commits_by_date:
         return ''
 
-    # 2. 从每个 commit 的 index.html 提取 ticker
+    # 2. 从每个 commit 的 index.html 提取 ticker + grade，按日期倒序取前 n_picks 条
     all_picks = []
-    for ds, sha in sorted(commits_by_date.items()):
-        html = subprocess.run(
+    for ds, sha in sorted(commits_by_date.items(), reverse=True):
+        html_src = subprocess.run(
             ['git', '-C', SCRIPT_DIR, 'show', f'{sha}:index.html'],
             capture_output=True, text=True, encoding='utf-8', errors='ignore'
         ).stdout
         seen = set()
-        for row_html in re.split(r'<tr[^>]*>', html):
+        for row_html in re.split(r'<tr[^>]*>', html_src):
             mt = re.search(r'<b>([A-Z][A-Z0-9\-]{0,5})</b>\s*\$', row_html)
             mg = re.search(r'border-radius:12px[^>]*font-weight:bold">(SSS|S|A|B)</span>', row_html)
             if mt and mg and mt.group(1) not in seen:
-                all_picks.append({'ticker': mt.group(1), 'scan_date': ds})
+                all_picks.append({'ticker': mt.group(1), 'grade': mg.group(1), 'scan_date': ds})
                 seen.add(mt.group(1))
+        if len(all_picks) >= n_picks:
+            break
+    all_picks = all_picks[:n_picks]
 
     if not all_picks:
         return ''
 
-    # 3. 下载价格（选股 + SPY）
-    tickers_needed = list(set(p['ticker'] for p in all_picks)) + ['^GSPC']
-    start_str = (today - timedelta(days=110)).strftime('%Y-%m-%d')
+    # 3. 下载价格
+    tickers_needed = list(set(p['ticker'] for p in all_picks))
+    start_str = (datetime.now().date() - timedelta(days=75)).strftime('%Y-%m-%d')
     try:
         prices = yf.download(tickers_needed, start=start_str,
                              auto_adjust=True, progress=False)['Close']
@@ -400,99 +397,52 @@ def build_monthly_charts():
         if ticker not in prices.columns:
             return None
         col = prices[ticker].dropna()
-        idx = col.index
-        future = idx[idx >= pd.Timestamp(scan_date)]
+        future = col.index[col.index >= pd.Timestamp(scan_date)]
         if len(future) < n + 1:
             return None
-        return float((col[future[n]] / col[future[0]] - 1) * 100)
+        return round(float((col[future[n]] / col[future[0]] - 1) * 100), 2)
 
-    # 4. 按月分组，计算收益
-    monthly = {}
+    def ret_cell(v):
+        if v is None:
+            return '<td style="color:#bbb;text-align:center">—</td>'
+        if v > 0.2:
+            color = '#e74c3c'   # 涨：红
+        elif v < -0.2:
+            color = '#27ae60'   # 跌：绿
+        else:
+            color = '#333'      # 平：黑
+        sign = '+' if v > 0 else ''
+        return f'<td style="color:{color};font-weight:bold;text-align:center">{sign}{v:.2f}%</td>'
+
+    # 4. 生成 HTML 表格
+    GRADE_COLOR = {'SSS': '#ff6f00', 'S': '#6c3483', 'A': '#c0392b', 'B': '#2980b9'}
+    rows_html = ''
     for p in all_picks:
-        month = p['scan_date'][:7]
-        if month not in monthly:
-            monthly[month] = {k: [] for k in ['T+1', 'T+3', 'T+5', 'T+10', 'SPY']}
-        for n, key in [(1,'T+1'),(3,'T+3'),(5,'T+5'),(10,'T+10')]:
-            v = get_ret(p['ticker'], p['scan_date'], n)
-            if v is not None:
-                monthly[month][key].append(v)
-        for n, key in [(1,'SPY_1'),(3,'SPY_3'),(5,'SPY_5'),(10,'SPY_10')]:
-            v = get_ret('^GSPC', p['scan_date'], n)
-            if v is not None:
-                monthly[month].setdefault(key, []).append(v)
+        t, ds, g = p['ticker'], p['scan_date'], p['grade']
+        gc = GRADE_COLOR.get(g, '#888')
+        r1  = get_ret(t, ds, 1)
+        r3  = get_ret(t, ds, 3)
+        r5  = get_ret(t, ds, 5)
+        r10 = get_ret(t, ds, 10)
+        rows_html += f'''<tr>
+          <td style="font-weight:bold;padding:6px 10px">{t}</td>
+          <td style="color:#888;font-size:12px;padding:6px 10px">{ds}</td>
+          <td style="padding:6px 10px"><span style="background:{gc};color:white;padding:2px 8px;border-radius:10px;font-size:12px">{g}</span></td>
+          {ret_cell(r1)}{ret_cell(r3)}{ret_cell(r5)}{ret_cell(r10)}
+        </tr>'''
 
-    # 5. 画图
-    charts_html = ''
-    for month in sorted(monthly.keys()):
-        try:
-            d = monthly[month]
-            all_labels   = ['T+1', 'T+3', 'T+5', 'T+10', 'SPY\nT+1', 'SPY\nT+3', 'SPY\nT+5', 'SPY\nT+10']
-            all_datasets = [d['T+1'], d['T+3'], d['T+5'], d['T+10'],
-                            d.get('SPY_1',[]), d.get('SPY_3',[]), d.get('SPY_5',[]), d.get('SPY_10',[])]
-            all_colors   = ['#3498db']*4 + ['#95a5a6']*4
-
-            # 只保留有数据的列
-            filtered = [(lbl, dat, col) for lbl, dat, col in zip(all_labels, all_datasets, all_colors) if dat]
-            if not filtered:
-                continue
-            labels, datasets, colors = zip(*filtered)
-            positions = list(range(1, len(labels) + 1))
-
-            # 分隔线位置（信号 vs SPY 之间）
-            spy_start = next((i+1 for i, lbl in enumerate(labels) if 'SPY' in lbl), None)
-
-            fig, ax = plt.subplots(figsize=(max(6, len(labels)*1.1), 4.5))
-            fig.patch.set_facecolor('white')
-            ax.set_facecolor('#fafafa')
-
-            bp = ax.boxplot(datasets, positions=positions, labels=labels, patch_artist=True,
-                            medianprops=dict(color='white', linewidth=2.5),
-                            whiskerprops=dict(linewidth=1.5, color='#555'),
-                            capprops=dict(linewidth=1.5, color='#555'),
-                            flierprops=dict(marker='o', markersize=4, alpha=0.5,
-                                            markerfacecolor='#e74c3c', markeredgecolor='none'))
-            for patch, color in zip(bp['boxes'], colors):
-                patch.set_facecolor(color)
-                patch.set_alpha(0.82)
-
-            ax.axhline(0, color='#e74c3c', linewidth=1, linestyle='--', alpha=0.6)
-            if spy_start:
-                ax.axvline(spy_start - 0.5, color='#bbb', linewidth=1, linestyle='--')
-
-            # 先设定 ylim，再标注 n=
-            all_vals = [v for dat in datasets for v in dat]
-            y_min, y_max = min(all_vals), max(all_vals)
-            pad = max(abs(y_min), abs(y_max)) * 0.25 + 1
-            ax.set_ylim(y_min - pad, y_max + pad)
-            for pos, dat in zip(positions, datasets):
-                ax.text(pos, y_min - pad * 0.6, f'n={len(dat)}',
-                        ha='center', va='bottom', fontsize=7.5, color='#888')
-
-            ax.set_title(f'{month}  收益分布（蓝=信号 · 灰=SPY同期基准）',
-                         fontsize=12, pad=10, color='#2c3e50')
-            ax.set_ylabel('收益率 (%)', fontsize=10)
-            ax.grid(axis='y', alpha=0.3, linewidth=0.8)
-            ax.spines['top'].set_visible(False)
-            ax.spines['right'].set_visible(False)
-            ax.tick_params(axis='x', labelsize=9)
-
-            buf = io.BytesIO()
-            plt.savefig(buf, format='png', dpi=160, bbox_inches='tight', facecolor='white')
-            plt.close(fig)
-            buf.seek(0)
-            b64 = base64.b64encode(buf.read()).decode()
-            charts_html += (
-                f'<div style="margin-bottom:16px">'
-                f'<img src="data:image/png;base64,{b64}" '
-                f'style="width:100%;max-width:860px;display:block;margin:0 auto">'
-                f'</div>'
-            )
-        except Exception as e:
-            print(f'  月度图表生成失败 {month}: {e}')
-            continue
-
-    print(f"  月度图表生成完成: {charts_html.count('data:image/png')} 张")
-    return charts_html
+    return f'''<table style="width:100%;border-collapse:collapse;font-size:13px">
+  <thead><tr style="background:#f5f5f5;color:#555;font-size:12px">
+    <th style="padding:8px 10px;text-align:left">股票</th>
+    <th style="padding:8px 10px;text-align:left">入场日</th>
+    <th style="padding:8px 10px;text-align:left">级别</th>
+    <th style="padding:8px 10px;text-align:center">T+1</th>
+    <th style="padding:8px 10px;text-align:center">T+3</th>
+    <th style="padding:8px 10px;text-align:center">T+5</th>
+    <th style="padding:8px 10px;text-align:center">T+10</th>
+  </tr></thead>
+  <tbody>{rows_html}</tbody>
+</table>'''
 
 
 def main():
@@ -615,8 +565,8 @@ def main():
     for g in ['SSS','S','A','B']:
         by_grade[g] = [r for r in results if r['grade'] == g]
 
-    print("生成月度收益图表...")
-    monthly_charts_html = build_monthly_charts()
+    print("生成近期选股表现...")
+    recent_table_html = build_recent_table()
 
     date_str = datetime.now().strftime('%Y-%m-%d %H:%M')
 
@@ -751,9 +701,9 @@ def main():
 {section_html}
 
 <div class="card" style="border-top:3px solid #2c3e50;margin-top:30px">
-  <h2 style="border-left:4px solid #2c3e50;padding-left:10px">近3个月实盘表现</h2>
-  <p style="font-size:12px;color:#aaa;margin:4px 0 16px">蓝色 = 信号选股收益分布 &nbsp;·&nbsp; 灰色 = SPY同期基准 &nbsp;·&nbsp; 红虚线 = 0轴 &nbsp;·&nbsp; 每月一张图</p>
-  {monthly_charts_html}
+  <h2 style="border-left:4px solid #2c3e50;padding-left:10px">近期选股表现（最近10条）</h2>
+  <p style="font-size:12px;color:#aaa;margin:4px 0 12px"><span style="color:#e74c3c;font-weight:bold">■</span> 涨 &nbsp;<span style="color:#27ae60;font-weight:bold">■</span> 跌 &nbsp;<span style="color:#333;font-weight:bold">■</span> 平（±0.2%以内）&nbsp;·&nbsp; — 表示数据未到</p>
+  {recent_table_html}
   <p style="margin-top:12px;padding-top:12px;border-top:1px solid #eee;color:#aaa;font-size:11px">
     建议持仓：5个交易日 · 止损参考：MA20 × 0.97<br>
     仅供研究参考，不构成投资建议。历史回测不代表未来表现。
