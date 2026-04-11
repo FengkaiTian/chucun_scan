@@ -8,7 +8,7 @@ import yfinance as yf
 import pandas as pd
 import numpy as np
 import requests, io, sys, json, webbrowser, warnings, os, subprocess
-from datetime import datetime
+from datetime import datetime, timedelta
 
 warnings.filterwarnings('ignore')
 sys.stdout.reconfigure(encoding='utf-8')
@@ -317,8 +317,12 @@ def make_table(rows):
         def wr_cell(val):
             return f'<td style="font-size:12px;font-weight:bold;color:#27ae60">{val:.1f}%</td>'
 
+        earn_tag = ''
+        if r.get('earnings_warn'):
+            earn_tag = f'<br><span style="background:#e67e22;color:white;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:bold">⚠️ 财报 {r["earnings_warn"]}</span>'
+
         body += f'''<tr>
-          <td><b>{r["ticker"]}</b> ${r["price"]}<br><small style="color:#888">{r["sector"][:22]}</small></td>
+          <td><b>{r["ticker"]}</b> ${r["price"]}<br><small style="color:#888">{r["sector"][:22]}</small>{earn_tag}</td>
           <td><span style="background:{gc};color:white;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold">{r["grade"]}</span></td>
           <td style="font-size:11px">{sig_tags}</td>
           {wr_cell(r.get("wr1",0))}
@@ -426,6 +430,28 @@ def main():
             results.append(r)
         except Exception:
             continue
+
+    # 财报预警：未来10天内有财报则标注
+    today = datetime.now().date()
+    deadline = today + timedelta(days=10)
+    print("检查财报日期...")
+    for r in results:
+        r['earnings_warn'] = ''
+        try:
+            cal = yf.Ticker(r['ticker']).calendar
+            dates = []
+            if isinstance(cal, pd.DataFrame) and not cal.empty:
+                if 'Earnings Date' in cal.columns:
+                    dates = [d for d in cal['Earnings Date'] if pd.notna(d)]
+            elif isinstance(cal, dict):
+                raw = cal.get('Earnings Date', [])
+                dates = raw if isinstance(raw, list) else [raw]
+            upcoming = [d for d in dates if hasattr(d, 'date') and today <= d.date() <= deadline]
+            if upcoming:
+                nearest = min(upcoming, key=lambda d: d.date())
+                r['earnings_warn'] = nearest.strftime('%m-%d')
+        except Exception:
+            pass
 
     # 按级别排序
     grade_order = {'SSS': 0, 'S': 1, 'A': 2, 'B': 3}
