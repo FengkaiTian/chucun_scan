@@ -1,0 +1,389 @@
+{
+  "_comment": "职位名称匹配规则。categories 按顺序匹配，先匹配到的胜出，所以更具体的必须排在更宽泛的前面（例如 Research Assistant Professor 必须在 Assistant Professor 之前）。patterns 为不区分大小写的正则。",
+
+  "settings": {
+    "fuzzy_threshold": 88,
+    "require_domain_for_generic": true,
+    "_require_domain_note": "对 generic=true 的宽泛职位（Lecturer / Instructor / Research Associate 等），要求标题或描述里至少命中一个领域关键词，否则丢弃。关掉它会捞进大量护理、临床、音乐类岗位。设为 false 可完全关闭。"
+  },
+
+  "categories": [
+    {
+      "id": "presidential_provost_postdoc_fellow",
+      "label": "Presidential / Provost Postdoctoral Fellow",
+      "generic": false,
+      "patterns": [
+        "\\b(presidential|provost'?s?|chancellor'?s?|dean'?s?|distinguished|prestigious)\\b[^,;]{0,40}\\bpost[\\s\\-–]?doc(toral)?\\b[^,;]{0,20}\\bfellow"
+      ]
+    },
+    {
+      "id": "assistant_professor_and_extension_specialist",
+      "label": "Assistant Professor and Extension Specialist",
+      "generic": false,
+      "patterns": [
+        "\\bassist(ant|\\.)?\\s+prof(essor|\\.)?\\b[^,;]{0,30}\\bextension\\s+special(ist)?",
+        "\\bextension\\s+special(ist)?\\b[^,;]{0,30}\\bassist(ant|\\.)?\\s+prof(essor|\\.)?"
+      ]
+    },
+    {
+      "id": "extension_assistant_professor",
+      "label": "Extension Assistant Professor",
+      "generic": false,
+      "patterns": ["\\bextension\\s+assist(ant|\\.)?\\s+prof(essor|\\.)?\\b"]
+    },
+    {
+      "id": "research_assistant_professor",
+      "label": "Research Assistant Professor",
+      "generic": false,
+      "patterns": ["\\bresearch\\s+assist(ant|\\.)?\\s+prof(essor|\\.)?\\b"]
+    },
+    {
+      "id": "assistant_research_professor",
+      "label": "Assistant Research Professor",
+      "generic": false,
+      "patterns": ["\\bassist(ant|\\.)?\\s+research\\s+prof(essor|\\.)?\\b"]
+    },
+    {
+      "id": "teaching_assistant_professor",
+      "label": "Teaching Assistant Professor",
+      "generic": false,
+      "patterns": [
+        "\\bteaching\\s+assist(ant|\\.)?\\s+prof(essor|\\.)?\\b",
+        "\\bassist(ant|\\.)?\\s+teaching\\s+prof(essor|\\.)?\\b"
+      ]
+    },
+    {
+      "id": "assistant_associate_professor",
+      "label": "Assistant/Associate Professor",
+      "generic": false,
+      "patterns": [
+        "\\bassist(ant|\\.)?\\s*(?:/|,|\\s+or\\s+|\\s+and\\s+|&|\\s+-\\s+)\\s*assoc(iate|\\.)?\\s+prof(essor|\\.)?\\b",
+        "\\bassoc(iate|\\.)?\\s*(?:/|,|\\s+or\\s+|\\s+and\\s+|&|\\s+-\\s+)\\s*assist(ant|\\.)?\\s+prof(essor|\\.)?\\b",
+        "\\bassist(ant|\\.)?\\s*,?\\s*assoc(iate|\\.)?\\s*,?\\s*or\\s+full\\s+prof(essor|\\.)?\\b"
+      ]
+    },
+    {
+      "id": "assistant_professor",
+      "label": "Assistant Professor",
+      "generic": false,
+      "patterns": [
+        "\\bassist(ant|\\.)?\\s+prof(essor|\\.)?\\b",
+        "\\basst\\.?\\s+prof(essor|\\.)?\\b",
+        "\\btenure[\\s\\-]track\\s+(faculty|position)\\b"
+      ]
+    },
+    {
+      "id": "postdoctoral_research_associate",
+      "label": "Postdoctoral Research Associate",
+      "generic": false,
+      "patterns": ["\\bpost[\\s\\-–]?doc(toral)?\\s+research\\s+assoc(iate|\\.)?\\b"]
+    },
+    {
+      "id": "postdoctoral_researcher",
+      "label": "Postdoctoral Researcher",
+      "generic": false,
+      "patterns": [
+        "\\bpost[\\s\\-–]?doc(toral)?\\s+research(er)?\\b",
+        "\\bpost[\\s\\-–]?doc(toral)?\\s+position\\b"
+      ]
+    },
+    {
+      "id": "postdoctoral_fellow",
+      "label": "Postdoctoral Fellow",
+      "generic": false,
+      "patterns": [
+        "\\bpost[\\s\\-–]?doc(toral)?\\s+fellow(ship)?\\b",
+        "\\bpost[\\s\\-–]?doc(toral)?\\s+research\\s+fellow\\b"
+      ]
+    },
+    {
+      "id": "postdoctoral_scholar",
+      "label": "Postdoctoral Scholar",
+      "generic": false,
+      "patterns": ["\\bpost[\\s\\-–]?doc(toral)?\\s+scholar\\b"]
+    },
+    {
+      "id": "postdoctoral_other",
+      "label": "Postdoctoral (其他表述)",
+      "generic": false,
+      "patterns": [
+        "\\bpost[\\s\\-–]?doc(toral)?\\s+(associate|trainee|appointment|opportunity)\\b",
+        "^\\s*post[\\s\\-–]?doc(toral)?\\b",
+        "\\bpostdoc\\b"
+      ]
+    },
+    {
+      "id": "senior_research_associate",
+      "label": "Senior Research Associate",
+      "generic": false,
+      "patterns": ["\\b(senior|sr\\.?|lead|principal)\\s+research\\s+assoc(iate|\\.)?\\b"]
+    },
+    {
+      "id": "research_associate",
+      "label": "Research Associate",
+      "generic": true,
+      "patterns": ["\\bresearch\\s+assoc(iate|\\.)?\\b"]
+    },
+    {
+      "id": "extension_associate",
+      "label": "Extension Associate",
+      "generic": false,
+      "patterns": ["\\bextension\\s+assoc(iate|\\.)?\\b"]
+    },
+    {
+      "id": "extension_specialist",
+      "label": "Extension Specialist",
+      "generic": false,
+      "patterns": [
+        "\\bextension\\s+special(ist)?\\b",
+        "\\bextension\\s+educator\\b",
+        "\\bstate\\s+extension\\s+(specialist|agent)\\b"
+      ]
+    },
+    {
+      "id": "research_data_scientist",
+      "label": "Research Data Scientist",
+      "generic": false,
+      "patterns": [
+        "\\bresearch\\s+data\\s+scientist\\b",
+        "\\bdata\\s+scientist\\b[^,;]{0,20}\\bresearch\\b"
+      ]
+    },
+    {
+      "id": "research_scientist",
+      "label": "Research Scientist",
+      "generic": false,
+      "patterns": [
+        "\\bresearch\\s+scientist\\b",
+        "\\b(senior|sr\\.?|principal|lead)\\s+research\\s+scientist\\b"
+      ]
+    },
+    {
+      "id": "assistant_scientist",
+      "label": "Assistant Scientist",
+      "generic": false,
+      "patterns": ["\\bassist(ant|\\.)?\\s+scientist\\b"]
+    },
+    {
+      "id": "associate_scientist",
+      "label": "Associate Scientist",
+      "generic": false,
+      "patterns": ["\\bassoc(iate|\\.)?\\s+scientist\\b"]
+    },
+    {
+      "id": "staff_scientist",
+      "label": "Staff Scientist",
+      "generic": false,
+      "patterns": ["\\bstaff\\s+scientist\\b"]
+    },
+    {
+      "id": "computational_scientist",
+      "label": "Computational Scientist",
+      "generic": false,
+      "patterns": [
+        "\\bcomputational\\s+scientist\\b",
+        "\\bscientific\\s+(software|computing)\\s+(engineer|specialist)\\b"
+      ]
+    },
+    {
+      "id": "research_engineer",
+      "label": "Research Engineer",
+      "generic": false,
+      "patterns": [
+        "\\bresearch\\s+engineer\\b",
+        "\\bresearch\\s+&?\\s*development\\s+engineer\\b"
+      ]
+    },
+    {
+      "id": "research_specialist",
+      "label": "Research Specialist",
+      "generic": true,
+      "patterns": [
+        "\\bresearch\\s+special(ist)?\\b",
+        "\\bresearch\\s+technician\\b"
+      ]
+    },
+    {
+      "id": "research_program_manager",
+      "label": "Research Program Manager",
+      "generic": false,
+      "patterns": [
+        "\\bresearch\\s+program\\s+(manager|coordinator|director)\\b",
+        "\\bprogram\\s+manager\\b[^,;]{0,20}\\bresearch\\b"
+      ]
+    },
+    {
+      "id": "phenotyping_facility_manager",
+      "label": "Phenotyping Facility Manager",
+      "generic": false,
+      "patterns": [
+        "\\bphenotyp(ing|e)\\b[^,;]{0,30}\\b(facility|platform|center|centre)\\b[^,;]{0,20}\\b(manager|director|lead)\\b",
+        "\\b(manager|director|lead)\\b[^,;]{0,30}\\bphenotyp(ing|e)\\s+(facility|platform)\\b"
+      ]
+    },
+    {
+      "id": "core_facility_manager",
+      "label": "Core Facility Manager",
+      "generic": false,
+      "patterns": [
+        "\\bcore\\s+facility\\s+(manager|director|lead)\\b",
+        "\\b(manager|director)\\b[^,;]{0,20}\\bcore\\s+facility\\b"
+      ]
+    },
+    {
+      "id": "field_research_manager",
+      "label": "Field Research Manager",
+      "generic": false,
+      "patterns": [
+        "\\bfield\\s+research\\s+(manager|supervisor|coordinator|director)\\b",
+        "\\bresearch\\s+farm\\s+(manager|supervisor)\\b",
+        "\\bfield\\s+(operations|trial(s)?)\\s+manager\\b"
+      ]
+    },
+    {
+      "id": "uas_program_manager",
+      "label": "UAS Program Manager",
+      "generic": false,
+      "patterns": [
+        "\\b(uas|uav|drone|unmanned\\s+air(craft|ial))\\b[^,;]{0,30}\\b(program|operations|flight)\\b[^,;]{0,20}\\b(manager|coordinator|director|lead)\\b",
+        "\\b(manager|coordinator|director)\\b[^,;]{0,25}\\b(uas|uav|drone)\\s+(program|operations)\\b",
+        "\\b(chief|lead)\\s+(uas|uav|drone)\\s+pilot\\b"
+      ]
+    },
+    {
+      "id": "laboratory_manager",
+      "label": "Laboratory Manager",
+      "generic": true,
+      "patterns": [
+        "\\blab(oratory)?\\s+(manager|supervisor|coordinator)\\b",
+        "\\bmanager\\b[^,;]{0,15}\\blab(oratory)?\\b"
+      ]
+    },
+    {
+      "id": "remote_sensing_specialist",
+      "label": "Remote Sensing Specialist",
+      "generic": false,
+      "patterns": [
+        "\\bremote\\s+sensing\\s+(specialist|analyst|scientist|technician|engineer)\\b",
+        "\\bgeospatial\\s+(analyst|scientist|specialist)\\b",
+        "\\bimagery\\s+analyst\\b"
+      ]
+    },
+    {
+      "id": "gis_specialist",
+      "label": "GIS Specialist",
+      "generic": true,
+      "patterns": [
+        "\\bgis\\s+(specialist|analyst|technician|coordinator|manager|scientist)\\b",
+        "\\bgeographic\\s+information\\s+system(s)?\\s+(specialist|analyst)\\b"
+      ]
+    },
+    {
+      "id": "research_fellow",
+      "label": "Research Fellow",
+      "generic": true,
+      "patterns": ["\\bresearch\\s+fellow(ship)?\\b"]
+    },
+    {
+      "id": "lecturer",
+      "label": "Lecturer",
+      "generic": true,
+      "patterns": [
+        "\\blecturer\\b",
+        "\\b(teaching|assistant\\s+teaching)\\s+fellow\\b"
+      ]
+    },
+    {
+      "id": "instructor",
+      "label": "Instructor",
+      "generic": true,
+      "patterns": ["\\binstructor\\b"]
+    }
+  ],
+
+  "negative_title_patterns": [
+    "\\bnursing\\b", "\\bnurse\\b", "\\bclinical\\s+(nurse|trial|psycholog)",
+    "\\bdental\\b", "\\bdentistry\\b", "\\bpharmac(y|ist)\\b",
+    "\\bveterinary\\s+(technician|clinic)\\b", "\\bradiolog(y|ist)\\b",
+    "\\bsurger(y|on)\\b", "\\banesthesi", "\\bpediatric\\b", "\\boncolog",
+    "\\bpsychiatr", "\\bsocial\\s+work\\b", "\\bcounsel(ing|or)\\b",
+    "\\blaw\\s+school\\b", "\\bparalegal\\b", "\\btheolog", "\\bdivinity\\b",
+    "\\bmusic\\b", "\\bdance\\b", "\\btheat(er|re)\\b", "\\bstudio\\s+art\\b",
+    "\\bathletic\\b", "\\bcoach\\b", "\\bcustodi(an|al)\\b", "\\bgroundskeep",
+    "\\bfood\\s+service\\b", "\\bdining\\b", "\\bcashier\\b", "\\bdriver\\b",
+    "\\bk-12\\b", "\\belementary\\s+school\\b", "\\bhigh\\s+school\\s+teacher\\b",
+    "\\bmedieval\\b", "\\bphilosoph", "\\blinguistic", "\\bcreative\\s+writing\\b"
+  ],
+
+  "domain_keywords": {
+    "遥感": [
+      "remote sensing", "uav", "uas", "unmanned aerial", "unmanned aircraft",
+      "drone", "suas", "aerial imagery", "aerial image", "satellite imagery",
+      "sentinel-2", "sentinel", "landsat", "planetscope", "worldview",
+      "hyperspectral", "multispectral", "thermal imagery", "thermal infrared",
+      "lidar", "photogrammetry", "radiometric", "ndvi", "vegetation index",
+      "canopy reflectance", "spectroscopy", "spectral", "earth observation",
+      "synthetic aperture radar", "structure from motion", "orthomosaic",
+      "point cloud", "agisoft", "pix4d", "metashape", "envi"
+    ],
+    "精准农业": [
+      "precision agriculture", "precision ag", "digital agriculture",
+      "smart farming", "site-specific", "variable rate", "agtech", "ag tech",
+      "crop monitoring", "yield prediction", "yield mapping", "yield estimation",
+      "nitrogen management", "nutrient management", "soil sensing", "soil health",
+      "agronomy", "agronomic", "crop modeling", "crop model", "cropping system",
+      "plant phenotyping", "phenotyping", "high-throughput phenotyping",
+      "field phenotyping", "plant breeding", "crop stress", "abiotic stress",
+      "weed detection", "weed management", "disease detection", "crop emergence",
+      "biomass estimation", "canopy cover", "chlorophyll", "irrigation"
+    ],
+    "精准畜牧": [
+      "precision livestock", "livestock", "swine", "pig production", "sow",
+      "cattle", "beef", "dairy", "poultry", "broiler", "animal behavior",
+      "animal welfare", "estrus", "animal monitoring", "animal science"
+    ],
+    "AI与工程": [
+      "machine learning", "deep learning", "computer vision",
+      "artificial intelligence", "neural network", "pytorch", "tensorflow",
+      "yolo", "ultralytics", "image analysis", "image processing",
+      "data science", "geospatial", "gis", "arcgis", "qgis",
+      "google earth engine", "robotics", "autonomous", "sensor network",
+      "edge computing", "cyber-physical", "digital twin"
+    ],
+    "学科": [
+      "biosystems engineering", "agricultural engineering",
+      "biological engineering", "agricultural and biological engineering",
+      "plant science", "plant sciences", "soil science", "horticulture",
+      "forestry", "natural resources", "environmental science", "geography",
+      "geomatics", "ecology", "entomology", "crop science", "land-grant"
+    ]
+  },
+
+  "citizenship_patterns": [
+    "u\\.?s\\.?\\s+citizen(ship)?\\s+(is\\s+)?(required|only)",
+    "must\\s+be\\s+a\\s+u\\.?s\\.?\\s+citizen",
+    "open\\s+to\\s+u\\.?s\\.?\\s+citizens\\s+only",
+    "restricted\\s+to\\s+u\\.?s\\.?\\s+citizens",
+    "united\\s+states\\s+citizenship\\s+(is\\s+)?required",
+    "canadian\\s+citizens?\\s+(and|or)\\s+permanent\\s+residents?\\s+(will\\s+be\\s+)?(given\\s+)?priorit",
+    "security\\s+clearance\\s+(is\\s+)?required"
+  ],
+
+  "sponsorship_patterns": [
+    "visa\\s+sponsorship\\s+(is\\s+)?(available|provided|offered)",
+    "will\\s+sponsor",
+    "we\\s+sponsor\\s+(h-?1b|work\\s+visas?)",
+    "eligible\\s+for\\s+visa\\s+sponsorship",
+    "h-?1b\\s+sponsorship"
+  ],
+
+  "deadline_patterns": [
+    "(?:application(?:s)?\\s+(?:due|deadline|close[sd]?)|deadline\\s+(?:for\\s+application(?:s)?\\s+)?(?:is|:)?|closing\\s+date\\s*:?|apply\\s+by|must\\s+be\\s+received\\s+by)\\s*(?:on\\s+)?([A-Z][a-z]+\\.?\\s+\\d{1,2},?\\s+\\d{4})",
+    "(?:application(?:s)?\\s+(?:due|deadline|close[sd]?)|closing\\s+date\\s*:?|apply\\s+by)\\s*(?:on\\s+)?(\\d{1,2}\\s+[A-Z][a-z]+\\s+\\d{4})",
+    "(?:application(?:s)?\\s+(?:due|deadline|close[sd]?)|closing\\s+date\\s*:?|apply\\s+by)\\s*(?:on\\s+)?(\\d{4}-\\d{2}-\\d{2})",
+    "(?:review\\s+of\\s+application(?:s)?\\s+(?:will\\s+)?begin(?:s|ning)?)\\s*(?:on\\s+)?([A-Z][a-z]+\\.?\\s+\\d{1,2},?\\s+\\d{4})",
+    "(open\\s+until\\s+filled)",
+    "(until\\s+(?:the\\s+)?position\\s+is\\s+filled)",
+    "(rolling\\s+basis)"
+  ]
+}

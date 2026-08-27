@@ -1,0 +1,10 @@
+# job_scan.py 的依赖
+# 安装:  pip install -r requirements_jobscan.txt
+
+requests>=2.31        # HTTP
+feedparser>=6.0       # RSS/Atom 解析（rss 与 peopleadmin 抓取器依赖）
+openpyxl>=3.1         # xlsx 生成
+
+# 以下两个可选，缺了脚本仍能跑：
+rapidfuzz>=3.0        # 标题模糊匹配；缺失时自动回退到标准库 difflib（准确率略降）
+rich>=13.0            # 终端实时状态看板；缺失时退化为逐行打印

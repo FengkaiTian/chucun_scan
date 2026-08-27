@@ -1,0 +1,23 @@
+{
+  "_comment": [
+    "把本文件复制为 job_config.json 再填写。job_config.json 已被 .gitignore 排除，",
+    "绝不会进入公开仓库——API key 属于凭据，不能提交。",
+    "",
+    "留空的 key 不会导致报错：对应的源会在状态表里显示 SKIP 并说明原因，",
+    "其余源照常运行。"
+  ],
+
+  "adzuna_app_id": "",
+  "adzuna_app_key": "",
+  "_adzuna_note": "免费申请: https://developer.adzuna.com/ · 免费额度约 250 次/天 · 同时覆盖美国与加拿大",
+
+  "usajobs_api_key": "",
+  "usajobs_email": "",
+  "_usajobs_note": [
+    "免费申请: https://developer.usajobs.gov/APIRequest",
+    "usajobs_email 填申请时用的邮箱（该 API 要求把邮箱放在 User-Agent 头里）。",
+    "填好后还需要把 job_sources.json 里 id=usajobs 那条的 enabled 改成 true。",
+    "USDA-ARS 的正式编制岗（Research Agricultural Engineer / Research Physical",
+    "Scientist）只在 USAJOBS 挂，但绝大多数联邦岗要求美国公民身份。"
+  ]
+}

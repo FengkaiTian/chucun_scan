@@ -1,0 +1,24 @@
+# ── 岗位扫描的输出与凭据（不进公开仓库）────────────────────────────
+# chucun_scan 是带 GitHub Pages 的公开仓库，求职记录与 API key 都不该公开。
+#
+# 注意：git 不支持行尾注释，注释必须独占一行，
+# 否则 "job_config.json  # 说明" 会被当成字面文件名而匹配不到任何东西。
+
+# 含 API key，属于凭据
+job_config.json
+
+# xlsx 与运行日志
+job_output/
+job_scan_log.txt
+
+# SQLite 去重库
+jobs.db
+
+# ── 通用 ──────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+scan_log.txt
+.DS_Store
+Thumbs.db

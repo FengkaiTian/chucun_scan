@@ -1,0 +1,1341 @@
+"""
+Academic Job Scanner - 美国/加拿大学术与科研岗位每日扫描
+
+按 job_titles.json 里的职位名称，在 job_sources.json 注册的各招聘平台上
+逐源抓取，去重后输出 xlsx（今日新增 / 全部在招 / 已消失 / 源健康度）。
+
+不做相关性评分——xlsx 携带职位描述原文，评分交给下游 AI。
+
+用法:
+    python job_scan.py                  正常扫描
+    python job_scan.py --check-sources  探测所有源的健康度（第一次务必先跑这个）
+    python job_scan.py --only asabe     只跑指定源，调试用
+    python job_scan.py --self-test      离线自测，不联网
+"""
+import os, sys, re, json, time, html, hashlib, sqlite3, argparse, threading, traceback
+import urllib.parse as urlparse
+import urllib.robotparser as robotparser
+from datetime import datetime, timedelta, timezone
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+import requests
+from requests.adapters import HTTPAdapter
+
+try:
+    from urllib3.util.retry import Retry
+except ImportError:
+    Retry = None
+
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8')
+
+SCRIPT_DIR   = os.path.dirname(os.path.abspath(__file__))
+TITLES_FILE  = os.path.join(SCRIPT_DIR, 'job_titles.json')
+SOURCES_FILE = os.path.join(SCRIPT_DIR, 'job_sources.json')
+CONFIG_FILE  = os.path.join(SCRIPT_DIR, 'job_config.json')
+DB_FILE      = os.path.join(SCRIPT_DIR, 'jobs.db')
+OUT_DIR      = os.path.join(SCRIPT_DIR, 'job_output')
+
+USER_AGENT = ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+              'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36 '
+              '(personal academic job search; contact: tianf@missouri.edu)')
+
+HTTP_TIMEOUT   = 25
+MAX_WORKERS    = 8
+PER_HOST_DELAY = 1.2      # 同一域名两次请求之间的最小间隔（秒）
+GONE_AFTER     = 3        # 连续多少次「源正常但没再出现」判定为已消失
+DESC_LIMIT     = 2000     # xlsx 里描述列的截断长度
+
+
+# ══════════════════════════════════════════════════════════════════
+#  控制台看板
+# ══════════════════════════════════════════════════════════════════
+
+try:
+    from rich.console import Console
+    from rich.table import Table
+    from rich.live import Live
+    from rich.panel import Panel
+    _HAS_RICH = True
+except ImportError:
+    _HAS_RICH = False
+
+STATUS_STYLE = {
+    'OK':      'green',
+    'RUNNING': 'yellow',
+    'EMPTY':   'yellow',
+    'SKIP':    'blue',
+    'HTTP':    'red',
+    'ERROR':   'red',
+    'PENDING': 'dim',
+}
+
+
+class Dashboard:
+    """逐源实时状态看板。rich 可用时是刷新表格，否则退化成逐行打印。"""
+
+    def __init__(self, sources, title='岗位扫描'):
+        self.title = title
+        self.lock = threading.Lock()
+        self.rows = {}
+        for s in sources:
+            self.rows[s['id']] = {
+                'name': s.get('name', s['id']), 'type': s.get('type', '?'),
+                'status': 'PENDING', 'found': 0, 'kept': 0, 'detail': '',
+            }
+        self._live = None
+        self._console = Console() if _HAS_RICH else None
+        self.t0 = time.time()
+
+    # -- 渲染 ------------------------------------------------------
+    def _table(self):
+        t = Table(title=None, expand=True, header_style='bold')
+        t.add_column('源', style='cyan', no_wrap=True, max_width=34)
+        t.add_column('类型', style='dim', no_wrap=True, width=12)
+        t.add_column('状态', no_wrap=True, width=8)
+        t.add_column('抓到', justify='right', width=6)
+        t.add_column('命中', justify='right', width=6)
+        t.add_column('说明', style='dim', overflow='fold')
+        for r in self.rows.values():
+            t.add_row(r['name'], r['type'],
+                      f"[{STATUS_STYLE.get(r['status'],'white')}]{r['status']}[/]",
+                      str(r['found'] or ''), str(r['kept'] or ''), r['detail'][:70])
+        done = sum(1 for r in self.rows.values() if r['status'] != 'PENDING' and r['status'] != 'RUNNING')
+        kept = sum(r['kept'] for r in self.rows.values())
+        sub = (f"进度 {done}/{len(self.rows)} 源 · 命中 {kept} 条 · "
+               f"用时 {time.time()-self.t0:.0f}s")
+        return Panel(t, title=f'[bold]{self.title}[/]', subtitle=sub)
+
+    def __enter__(self):
+        if _HAS_RICH:
+            self._live = Live(self._table(), console=self._console,
+                              refresh_per_second=4, transient=False)
+            self._live.__enter__()
+        else:
+            print(f'=== {self.title} ===  (装 rich 可获得实时表格: pip install rich)')
+        return self
+
+    def __exit__(self, *exc):
+        if self._live:
+            self._live.update(self._table())
+            self._live.__exit__(*exc)
+        return False
+
+    def update(self, sid, **kw):
+        with self.lock:
+            if sid not in self.rows:
+                return
+            self.rows[sid].update(kw)
+            if self._live:
+                self._live.update(self._table())
+            elif kw.get('status') in ('OK', 'EMPTY', 'SKIP', 'HTTP', 'ERROR'):
+                r = self.rows[sid]
+                print(f"  [{r['status']:<5}] {r['name'][:38]:<38} "
+                      f"抓到 {r['found']:>4} 命中 {r['kept']:>4}  {r['detail'][:50]}")
+
+
+_MARKUP_RE = re.compile(r'\[/\]|\[/?[a-z][a-z ]*\]')   # 需同时吃掉 [bold green] 和裸 [/]
+
+
+def say(msg, style=''):
+    if _HAS_RICH:
+        Console().print(msg, style=style)
+    else:
+        print(_MARKUP_RE.sub('', str(msg)))
+
+
+def log_line(msg):
+    """追加一行到运行日志。日志失败不影响主流程。"""
+    try:
+        os.makedirs(OUT_DIR, exist_ok=True)
+        stamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        clean = _MARKUP_RE.sub('', str(msg))
+        with open(os.path.join(OUT_DIR, 'job_scan_log.txt'), 'a', encoding='utf-8') as f:
+            f.write(f'[{stamp}] {clean}\n')
+    except Exception:
+        pass
+
+
+# ══════════════════════════════════════════════════════════════════
+#  HTTP
+# ══════════════════════════════════════════════════════════════════
+
+class Http:
+    """带重试和按域名限速的 requests 封装。"""
+
+    def __init__(self):
+        self.s = requests.Session()
+        self.s.headers.update({'User-Agent': USER_AGENT,
+                               'Accept-Language': 'en-US,en;q=0.9'})
+        if Retry is not None:
+            retry = Retry(total=2, backoff_factor=1.5,
+                          status_forcelist=[429, 500, 502, 503, 504],
+                          allowed_methods=frozenset(['GET', 'POST']))
+            self.s.mount('https://', HTTPAdapter(max_retries=retry, pool_maxsize=MAX_WORKERS * 2))
+            self.s.mount('http://', HTTPAdapter(max_retries=retry, pool_maxsize=MAX_WORKERS * 2))
+        self._last = {}
+        self._lock = threading.Lock()
+        self._robots = {}
+
+    def _throttle(self, url):
+        host = urlparse.urlparse(url).netloc
+        with self._lock:
+            prev = self._last.get(host, 0)
+            wait = PER_HOST_DELAY - (time.time() - prev)
+            if wait > 0:
+                time.sleep(wait)
+            self._last[host] = time.time()
+
+    def get(self, url, **kw):
+        self._throttle(url)
+        kw.setdefault('timeout', HTTP_TIMEOUT)
+        return self.s.get(url, **kw)
+
+    def post(self, url, **kw):
+        self._throttle(url)
+        kw.setdefault('timeout', HTTP_TIMEOUT)
+        return self.s.post(url, **kw)
+
+    def robots_ok(self, url):
+        """只用于 type=html 的源，尊重 robots.txt。取不到 robots.txt 时放行。"""
+        p = urlparse.urlparse(url)
+        base = f'{p.scheme}://{p.netloc}'
+        with self._lock:
+            rp = self._robots.get(base)
+        if rp is None:
+            rp = robotparser.RobotFileParser()
+            rp.set_url(base + '/robots.txt')
+            try:
+                rp.read()
+            except Exception:
+                rp = 'allow-all'
+            with self._lock:
+                self._robots[base] = rp
+        if rp == 'allow-all':
+            return True
+        try:
+            return rp.can_fetch(USER_AGENT, url)
+        except Exception:
+            return True
+
+
+# ══════════════════════════════════════════════════════════════════
+#  文本工具
+# ══════════════════════════════════════════════════════════════════
+
+_TAG_RE     = re.compile(r'<[^>]+>')
+_WS_RE      = re.compile(r'[ \t ]+')
+_NL_RE      = re.compile(r'\n{3,}')
+_BR_RE      = re.compile(r'<\s*(br|/p|/div|/li|/tr)\s*/?\s*>', re.I)
+_SCRIPT_RE  = re.compile(r'<(script|style)[^>]*>.*?</\1>', re.I | re.S)
+_PUNCT_RE   = re.compile(r'[^\w\s/&-]')
+
+
+def strip_html(s):
+    if not s:
+        return ''
+    s = _SCRIPT_RE.sub(' ', str(s))
+    s = _BR_RE.sub('\n', s)
+    s = _TAG_RE.sub(' ', s)
+    s = html.unescape(s)
+    s = _WS_RE.sub(' ', s)
+    s = _NL_RE.sub('\n\n', s)
+    return s.strip()
+
+
+def norm_title(s):
+    """标题归一化：小写、去标点（保留 / & -）、压空格。"""
+    s = html.unescape(str(s or '')).lower()
+    s = s.replace('–', '-').replace('—', '-')
+    s = _PUNCT_RE.sub(' ', s)
+    return _WS_RE.sub(' ', s).strip()
+
+
+TRACKING_PARAMS = {'utm_source', 'utm_medium', 'utm_campaign', 'utm_term',
+                   'utm_content', 'trackid', 'src', 'source', 'ref', 'gh_src'}
+
+
+def canon_url(url):
+    """URL 归一化，用于去重：小写域名、去追踪参数、去末尾斜杠。"""
+    if not url:
+        return ''
+    try:
+        p = urlparse.urlsplit(url.strip())
+        q = [(k, v) for k, v in urlparse.parse_qsl(p.query, keep_blank_values=True)
+             if k.lower() not in TRACKING_PARAMS]
+        q.sort()
+        path = p.path.rstrip('/') or '/'
+        return urlparse.urlunsplit((p.scheme.lower() or 'https', p.netloc.lower(),
+                                    path, urlparse.urlencode(q), ''))
+    except Exception:
+        return url.strip()
+
+
+def job_id_of(job):
+    key = canon_url(job.get('url')) or '|'.join(
+        [norm_title(job.get('title')), norm_title(job.get('org')), norm_title(job.get('location'))])
+    return hashlib.sha1(key.encode('utf-8', 'replace')).hexdigest()[:16]
+
+
+US_STATES = {
+    'alabama','alaska','arizona','arkansas','california','colorado','connecticut','delaware',
+    'florida','georgia','hawaii','idaho','illinois','indiana','iowa','kansas','kentucky',
+    'louisiana','maine','maryland','massachusetts','michigan','minnesota','mississippi',
+    'missouri','montana','nebraska','nevada','new hampshire','new jersey','new mexico',
+    'new york','north carolina','north dakota','ohio','oklahoma','oregon','pennsylvania',
+    'rhode island','south carolina','south dakota','tennessee','texas','utah','vermont',
+    'virginia','washington','west virginia','wisconsin','wyoming','district of columbia',
+}
+US_ABBR = {'al','ak','az','ar','ca','co','ct','de','fl','ga','hi','id','il','in','ia','ks',
+           'ky','la','me','md','ma','mi','mn','ms','mo','mt','ne','nv','nh','nj','nm','ny',
+           'nc','nd','oh','ok','or','pa','ri','sc','sd','tn','tx','ut','vt','va','wa','wv',
+           'wi','wy','dc'}
+CA_PROV = {'ontario','quebec','québec','british columbia','alberta','manitoba','saskatchewan',
+           'nova scotia','new brunswick','newfoundland','prince edward island'}
+CA_ABBR = {'on','qc','bc','ab','mb','sk','ns','nb','nl','pe','yt','nt','nu'}
+
+
+_SEG_SPLIT = re.compile(r'[,/|;\n·•]+')
+_ZIP_RE    = re.compile(r'\b\d[\w-]*\b')
+
+
+def _clean_seg(s):
+    """清洗单个地点片段：小写、去标点、去邮编等数字串、压空格。"""
+    s = re.sub(r'[^\w\s-]', ' ', str(s).lower())
+    s = _ZIP_RE.sub(' ', s)
+    return re.sub(r'\s+', ' ', s).strip()
+
+
+def guess_country(location, default=''):
+    """从地点字符串猜国别。认不出时返回 default（源自带的 country）。
+
+    注意：必须在剥掉逗号之前按分隔符切片，否则 "Gainesville, FL" 会粘成一个
+    token 而永远匹配不到州缩写。州/省全称是多词的（south dakota、british
+    columbia），所以除整片段外还要比对末尾的 2-3 词 n-gram。
+    """
+    raw = str(location or '')
+    if not raw.strip():
+        return default
+
+    whole = _clean_seg(raw)
+    if re.search(r'\bcanada\b', whole):
+        return 'CA'
+    if re.search(r'\b(usa|united states)\b', whole):
+        return 'US'
+
+    cands = []
+    for seg in _SEG_SPLIT.split(raw):
+        seg = _clean_seg(seg)
+        if not seg:
+            continue
+        cands.append(seg)
+        w = seg.split()
+        for n in (3, 2, 1):                 # 末尾 n-gram，覆盖 "brookings south dakota"
+            if len(w) >= n:
+                cands.append(' '.join(w[-n:]))
+
+    # 先比全称（无歧义），再比缩写——'on'/'in'/'or' 这类缩写同时也是英文常用词，
+    # 让它们排在全称之后可以避免抢答。
+    for c in cands:
+        if c in CA_PROV:
+            return 'CA'
+        if c in US_STATES:
+            return 'US'
+    for c in cands:
+        if c in CA_ABBR:
+            return 'CA'
+        if c in US_ABBR:
+            return 'US'
+    return default
+
+
+# ══════════════════════════════════════════════════════════════════
+#  职位名称匹配
+# ══════════════════════════════════════════════════════════════════
+
+class Matcher:
+    def __init__(self, spec):
+        self.settings = spec.get('settings', {})
+        self.fuzzy_threshold = self.settings.get('fuzzy_threshold', 88)
+        self.require_domain_for_generic = self.settings.get('require_domain_for_generic', True)
+
+        self.categories = []
+        for c in spec['categories']:
+            self.categories.append({
+                'id': c['id'], 'label': c['label'], 'generic': c.get('generic', False),
+                'regexes': [re.compile(p, re.I) for p in c['patterns']],
+                'norm_label': norm_title(c['label']),
+            })
+        self.negatives = [re.compile(p, re.I) for p in spec.get('negative_title_patterns', [])]
+
+        self.domain = {}
+        for group, words in spec.get('domain_keywords', {}).items():
+            self.domain[group] = [(w, re.compile(r'(?<![a-z])' + re.escape(w) + r'(?![a-z])', re.I))
+                                  for w in words]
+
+        self.citizenship = [re.compile(p, re.I) for p in spec.get('citizenship_patterns', [])]
+        self.sponsorship = [re.compile(p, re.I) for p in spec.get('sponsorship_patterns', [])]
+        self.deadlines = [re.compile(p, re.I) for p in spec.get('deadline_patterns', [])]
+
+        try:
+            from rapidfuzz import fuzz
+            self._fuzz = fuzz.token_set_ratio
+        except ImportError:
+            import difflib
+            self._fuzz = lambda a, b: difflib.SequenceMatcher(None, a, b).ratio() * 100
+
+    # -- 主入口 ----------------------------------------------------
+    def classify(self, title, description=''):
+        """返回 (category_label, matched_keywords, reject_reason)。
+        category_label 为 None 表示不匹配。"""
+        t = title or ''
+        for neg in self.negatives:
+            if neg.search(t):
+                return None, [], 'negative-title'
+
+        nt = norm_title(t)
+        if not nt:
+            return None, [], 'empty-title'
+
+        cat = None
+        for c in self.categories:              # 顺序敏感：具体的排在前面
+            if any(rx.search(t) for rx in c['regexes']):
+                cat = c
+                break
+
+        if cat is None:                        # 正则没中，走模糊兜底
+            best, best_score = None, 0
+            for c in self.categories:
+                sc = self._fuzz(nt, c['norm_label'])
+                if sc > best_score:
+                    best, best_score = c, sc
+            if best is not None and best_score >= self.fuzzy_threshold:
+                cat = best
+
+        if cat is None:
+            return None, [], 'no-title-match'
+
+        kws = self.keywords(t + '\n' + (description or ''))
+        if cat['generic'] and self.require_domain_for_generic and not kws:
+            return None, kws, 'generic-title-without-domain'
+
+        return cat['label'], kws, ''
+
+    def keywords(self, text):
+        if not text:
+            return []
+        hits = []
+        for group, words in self.domain.items():
+            for w, rx in words:
+                if rx.search(text):
+                    hits.append(w)
+        # 去掉被更长关键词包含的短词，例如同时命中 "gis" 和 "geospatial" 都保留，
+        # 但 "remote sensing" 命中时不必再列 "sensing"
+        hits = sorted(set(hits), key=lambda w: (-len(w), w))
+        kept = []
+        for w in hits:
+            if not any(w != k and w in k for k in kept):
+                kept.append(w)
+        return sorted(kept)
+
+    def citizenship_flag(self, text):
+        return 'YES' if text and any(rx.search(text) for rx in self.citizenship) else ''
+
+    def sponsorship_flag(self, text):
+        return 'YES' if text and any(rx.search(text) for rx in self.sponsorship) else ''
+
+    def find_deadline(self, text):
+        if not text:
+            return ''
+        for rx in self.deadlines:
+            m = rx.search(text)
+            if m:
+                return (m.group(1) if m.lastindex else m.group(0)).strip()
+        return ''
+
+
+# ══════════════════════════════════════════════════════════════════
+#  抓取器
+# ══════════════════════════════════════════════════════════════════
+
+class SourceSkip(Exception):
+    """源被有意跳过（例如缺 API key），不算错误。"""
+
+
+def _mk(src, title, url, org='', dept='', location='', posted='', desc='', raw=None):
+    return {
+        'title': strip_html(title), 'url': (url or '').strip(),
+        'org': strip_html(org) or src.get('name', ''), 'department': strip_html(dept),
+        'location': strip_html(location), 'posted_date': posted or '',
+        'description': strip_html(desc), 'source_id': src['id'],
+        'source_name': src.get('name', src['id']),
+        'country_hint': src.get('country', ''), 'raw': raw or {},
+    }
+
+
+def _urls_for(src, cfg):
+    """把 {q} 展开成多个 URL。"""
+    url = src.get('url', '')
+    if '{q}' not in url:
+        return [url]
+    qs = cfg['query_sets'].get(src.get('q_set', 'narrow'), [])
+    return [url.replace('{q}', urlparse.quote_plus(q)) for q in qs] or [url]
+
+
+def fetch_rss(src, ctx):
+    try:
+        import feedparser
+    except ImportError:
+        raise SourceSkip('未安装 feedparser（pip install feedparser）')
+    out = []
+    for url in _urls_for(src, ctx['cfg']):
+        r = ctx['http'].get(url)
+        r.raise_for_status()
+        feed = feedparser.parse(r.content)
+        for e in feed.entries:
+            desc = e.get('summary') or e.get('description') or ''
+            if e.get('content'):
+                desc = e['content'][0].get('value', desc)
+            posted = ''
+            if e.get('published_parse'):
+                posted = time.strftime('%Y-%m-%d', e['published_parse'])
+            out.append(_mk(src, e.get('title', ''), e.get('link', ''),
+                           org=e.get('author', '') or feed.feed.get('title', ''),
+                           posted=posted, desc=desc, raw=dict(e)))
+    return out
+
+
+def fetch_greenhouse(src, ctx):
+    url = f"https://boards-api.greenhouse.io/v1/boards/{src['token']}/jobs?content=true"
+    r = ctx['http'].get(url)
+    r.raise_for_status()
+    out = []
+    for j in r.json().get('jobs', []):
+        out.append(_mk(src, j.get('title', ''), j.get('absolute_url', ''),
+                       org=src.get('name', ''),
+                       location=(j.get('location') or {}).get('name', ''),
+                       posted=(j.get('updated_at') or '')[:10],
+                       desc=j.get('content', ''), raw=j))
+    return out
+
+
+def fetch_lever(src, ctx):
+    url = f"https://api.lever.co/v0/postings/{src['token']}?mode=json"
+    r = ctx['http'].get(url)
+    r.raise_for_status()
+    out = []
+    for j in r.json():
+        cat = j.get('categories') or {}
+        posted = ''
+        if j.get('createdAt'):
+            posted = datetime.fromtimestamp(j['createdAt'] / 1000, timezone.utc).strftime('%Y-%m-%d')
+        out.append(_mk(src, j.get('text', ''), j.get('hostedUrl', ''),
+                       org=src.get('name', ''), dept=cat.get('team', ''),
+                       location=cat.get('location', ''), posted=posted,
+                       desc=j.get('descriptionPlain') or j.get('description', ''), raw=j))
+    return out
+
+
+def fetch_ashby(src, ctx):
+    url = f"https://api.ashbyhq.com/posting-api/job-board/{src['token']}?includeCompensation=false"
+    r = ctx['http'].get(url)
+    r.raise_for_status()
+    out = []
+    for j in r.json().get('jobs', []):
+        out.append(_mk(src, j.get('title', ''), j.get('jobUrl', ''),
+                       org=src.get('name', ''), dept=j.get('department', ''),
+                       location=j.get('location', ''),
+                       posted=(j.get('publishedAt') or '')[:10],
+                       desc=j.get('descriptionPlain') or j.get('descriptionHtml', ''), raw=j))
+    return out
+
+
+def fetch_smartrecruiters(src, ctx):
+    url = f"https://api.smartrecruiters.com/v1/companies/{src['token']}/postings?limit=100"
+    r = ctx['http'].get(url)
+    r.raise_for_status()
+    out = []
+    for j in r.json().get('content', []):
+        loc = j.get('location') or {}
+        out.append(_mk(src, j.get('name', ''),
+                       f"https://jobs.smartrecruiters.com/{src['token']}/{j.get('id','')}",
+                       org=src.get('name', ''),
+                       location=', '.join(filter(None, [loc.get('city'), loc.get('region'), loc.get('country')])),
+                       posted=(j.get('releasedDate') or '')[:10],
+                       desc=json.dumps(j.get('jobAd', {}), ensure_ascii=False), raw=j))
+    return out
+
+
+def fetch_workable(src, ctx):
+    url = f"https://apply.workable.com/api/v1/widget/accounts/{src['token']}?details=true"
+    r = ctx['http'].get(url)
+    r.raise_for_status()
+    out = []
+    for j in r.json().get('jobs', []):
+        out.append(_mk(src, j.get('title', ''), j.get('url', ''),
+                       org=src.get('name', ''), dept=j.get('department', ''),
+                       location=', '.join(filter(None, [j.get('city'), j.get('state'), j.get('country')])),
+                       posted=(j.get('published_on') or '')[:10],
+                       desc=j.get('description', ''), raw=j))
+    return out
+
+
+def fetch_recruitee(src, ctx):
+    url = f"https://{src['token']}.recruitee.com/api/offers/"
+    r = ctx['http'].get(url)
+    r.raise_for_status()
+    out = []
+    for j in r.json().get('offers', []):
+        out.append(_mk(src, j.get('title', ''), j.get('careers_url', ''),
+                       org=src.get('name', ''), dept=j.get('department', ''),
+                       location=j.get('location', ''), posted=(j.get('published_at') or '')[:10],
+                       desc=j.get('description', ''), raw=j))
+    return out
+
+
+def fetch_workday(src, ctx):
+    """Workday CxS 接口：POST 分页 JSON。大量高校和公司在用。"""
+    host, tenant, site = src['host'], src['tenant'], src['site']
+    api = f'https://{host}/wday/cxs/{tenant}/{site}/jobs'
+    out, seen = [], set()
+    for q in ctx['cfg']['query_sets'].get(src.get('q_set', 'narrow'), ['']):
+        offset = 0
+        while offset < 200:                     # 每个关键词最多取 200 条
+            body = {'appliedFacets': {}, 'limit': 20, 'offset': offset, 'searchText': q}
+            r = ctx['http'].post(api, json=body,
+                                 headers={'Accept': 'application/json',
+                                          'Content-Type': 'application/json'})
+            r.raise_for_status()
+            data = r.json()
+            posts = data.get('jobPostings', [])
+            if not posts:
+                break
+            for j in posts:
+                path = j.get('externalPath', '')
+                link = f'https://{host}/{site}{path}' if path else ''
+                if link in seen:
+                    continue
+                seen.add(link)
+                out.append(_mk(src, j.get('title', ''), link, org=src.get('name', ''),
+                               location=j.get('locationsText', ''),
+                               posted=j.get('postedOn', ''),
+                               desc=j.get('bulletFields') and ' '.join(map(str, j['bulletFields'])) or '',
+                               raw=j))
+            if len(posts) < 20:
+                break
+            offset += 20
+    return out
+
+
+def fetch_peopleadmin(src, ctx):
+    """PeopleAdmin 站点通常提供 /postings/search.atom。"""
+    try:
+        import feedparser
+    except ImportError:
+        raise SourceSkip('未安装 feedparser')
+    base = src['url'].rstrip('/')
+    out = []
+    for q in ctx['cfg']['query_sets'].get(src.get('q_set', 'narrow'), ['']):
+        url = f'{base}/postings/search.atom?query={urlparse.quote_plus(q)}'
+        r = ctx['http'].get(url)
+        r.raise_for_status()
+        for e in feedparser.parse(r.content).entries:
+            out.append(_mk(src, e.get('title', ''), e.get('link', ''),
+                           org=src.get('name', ''),
+                           posted=time.strftime('%Y-%m-%d', e['published_parse'])
+                                  if e.get('published_parse') else '',
+                           desc=e.get('summary', ''), raw=dict(e)))
+    return out
+
+
+def fetch_pageup(src, ctx):
+    """PageUp（如 UF explore.jobs）。优先试 JSON 接口，失败则回退 HTML 解析。"""
+    base = src['url'].rstrip('/')
+    out = []
+    for q in ctx['cfg']['query_sets'].get(src.get('q_set', 'narrow'), ['']):
+        url = f'{base}/en-us/search?keywords={urlparse.quote_plus(q)}'
+        r = ctx['http'].get(url, headers={'Accept': 'application/json, text/html'})
+        r.raise_for_status()
+        ctype = r.headers.get('Content-Type', '')
+        if 'json' in ctype:
+            for j in (r.json().get('SearchResults') or r.json().get('jobs') or []):
+                out.append(_mk(src, j.get('Title') or j.get('title', ''),
+                               urlparse.urljoin(base, j.get('Url') or j.get('url', '')),
+                               org=src.get('name', ''),
+                               location=j.get('Location') or j.get('location', ''),
+                               desc=j.get('Summary', ''), raw=j))
+        else:
+            out.extend(_parse_links(src, r.text, base))
+    return out
+
+
+def fetch_oracle_hcm(src, ctx):
+    host = src['host'].rstrip('/')
+    site = src.get('site', 'CX')
+    out = []
+    for q in ctx['cfg']['query_sets'].get(src.get('q_set', 'narrow'), ['']):
+        params = ('onlyData=true&expand=requisitionList.secondaryLocations'
+                  f'&finder=findReqs;siteNumber={site},keyword="{urlparse.quote(q)}",limit=100')
+        url = f'https://{host}/hcmRestApi/resources/latest/recruitingCEJobRequisitions?{params}'
+        r = ctx['http'].get(url, headers={'Accept': 'application/json'})
+        r.raise_for_status()
+        for item in r.json().get('items', []):
+            for j in item.get('requisitionList', []):
+                out.append(_mk(src, j.get('Title', ''),
+                               f"https://{host}/{site}/job/{j.get('Id','')}",
+                               org=src.get('name', ''),
+                               location=j.get('PrimaryLocation', ''),
+                               posted=(j.get('PostedDate') or '')[:10],
+                               desc=j.get('ShortDescriptionStr', ''), raw=j))
+    return out
+
+
+def fetch_icims(src, ctx):
+    base = src['url'].rstrip('/')
+    out = []
+    for q in ctx['cfg']['query_sets'].get(src.get('q_set', 'narrow'), ['']):
+        url = f'{base}/jobs/search?searchKeyword={urlparse.quote_plus(q)}&in_iframe=1'
+        r = ctx['http'].get(url)
+        r.raise_for_status()
+        out.extend(_parse_links(src, r.text, base))
+    return out
+
+
+def fetch_adzuna(src, ctx):
+    app_id = ctx['cfg']['config'].get('adzuna_app_id', '').strip()
+    app_key = ctx['cfg']['config'].get('adzuna_app_key', '').strip()
+    if not app_id or not app_key:
+        raise SourceSkip('未配置 adzuna_app_id / adzuna_app_key（填入 job_config.json 后生效）')
+    tmpl = src['url']
+    out = []
+    for q in ctx['cfg']['query_sets'].get(src.get('q_set', 'core'), []):
+        for page in (1, 2):
+            url = tmpl.replace('{page}', str(page))
+            r = ctx['http'].get(url, params={
+                'app_id': app_id, 'app_key': app_key, 'what': q,
+                'results_per_page': 50, 'content-type': 'application/json',
+            })
+            if r.status_code == 429:
+                break
+            r.raise_for_status()
+            results = r.json().get('results', [])
+            for j in results:
+                out.append(_mk(src, j.get('title', ''), j.get('redirect_url', ''),
+                               org=(j.get('company') or {}).get('display_name', ''),
+                               location=(j.get('location') or {}).get('display_name', ''),
+                               posted=(j.get('created') or '')[:10],
+                               desc=j.get('description', ''), raw=j))
+            if len(results) < 50:
+                break
+    return out
+
+
+def fetch_usajobs(src, ctx):
+    key = ctx['cfg']['config'].get('usajobs_api_key', '').strip()
+    email = ctx['cfg']['config'].get('usajobs_email', '').strip()
+    if not key or not email:
+        raise SourceSkip('未配置 usajobs_api_key / usajobs_email')
+    out = []
+    for q in ctx['cfg']['query_sets'].get(src.get('q_set', 'core'), []):
+        r = ctx['http'].get(src['url'],
+                            headers={'Host': 'data.usajobs.gov', 'User-Agent': email,
+                                     'Authorization-Key': key},
+                            params={'Keyword': q, 'ResultsPerPage': 100})
+        r.raise_for_status()
+        items = r.json().get('SearchResult', {}).get('SearchResultItems', [])
+        for it in items:
+            j = it.get('MatchedObjectDescriptor', {})
+            locs = '; '.join(l.get('LocationName', '') for l in j.get('PositionLocation', []))
+            ud = j.get('UserArea', {}).get('Details', {})
+            out.append(_mk(src, j.get('PositionTitle', ''), j.get('PositionURI', ''),
+                           org=j.get('OrganizationName', ''),
+                           dept=j.get('DepartmentName', ''), location=locs,
+                           posted=(j.get('PublicationStartDate') or '')[:10],
+                           desc=' '.join(filter(None, [ud.get('JobSummary', ''),
+                                                       ud.get('MajorDuties') and
+                                                       ' '.join(ud['MajorDuties']) or ''])),
+                           raw=j))
+    return out
+
+
+_LINK_RE = re.compile(r'<a\s[^>]*href=["\']([^"\']+)["\'][^>]*>(.*?)</a>', re.I | re.S)
+
+
+def _parse_links(src, htmltext, base):
+    """从 HTML 里粗提取 <a> 文本作为候选标题。标题匹配阶段会把噪声滤掉。"""
+    out, seen = [], set()
+    for href, text in _LINK_RE.findall(htmltext or ''):
+        title = strip_html(text)
+        if not title or len(title) < 6 or len(title) > 200:
+            continue
+        url = urlparse.urljoin(base, html.unescape(href))
+        if url in seen:
+            continue
+        seen.add(url)
+        out.append(_mk(src, title, url, org=src.get('name', '')))
+    return out
+
+
+def fetch_html(src, ctx):
+    urls = _urls_for(src, ctx['cfg'])
+    out = []
+    for url in urls:
+        if not ctx['http'].robots_ok(url):
+            raise SourceSkip('robots.txt 不允许抓取')
+        r = ctx['http'].get(url)
+        r.raise_for_status()
+        out.extend(_parse_links(src, r.text, url))
+    return out
+
+
+FETCHERS = {
+    'rss': fetch_rss, 'greenhouse': fetch_greenhouse, 'lever': fetch_lever,
+    'ashby': fetch_ashby, 'smartrecruiters': fetch_smartrecruiters,
+    'workable': fetch_workable, 'recruitee': fetch_recruitee,
+    'workday': fetch_workday, 'peopleadmin': fetch_peopleadmin,
+    'pageup': fetch_pageup, 'oracle_hcm': fetch_oracle_hcm, 'icims': fetch_icims,
+    'adzuna': fetch_adzuna, 'usajobs': fetch_usajobs, 'html': fetch_html,
+}
+
+
+# ══════════════════════════════════════════════════════════════════
+#  存储
+# ══════════════════════════════════════════════════════════════════
+
+SCHEMA = """
+CREATE TABLE IF NOT EXISTS jobs (
+    job_id        TEXT PRIMARY KEY,
+    title         TEXT, title_category TEXT, org TEXT, department TEXT,
+    location      TEXT, country TEXT, posted_date TEXT, deadline TEXT,
+    citizenship   TEXT, sponsorship TEXT, url TEXT,
+    source_id     TEXT, source_name TEXT, keywords TEXT,
+    description   TEXT, raw_json TEXT,
+    first_seen    TEXT, last_seen TEXT, missing_runs INTEGER DEFAULT 0,
+    status        TEXT DEFAULT 'active'
+);
+CREATE INDEX IF NOT EXISTS idx_jobs_status ON jobs(status);
+CREATE INDEX IF NOT EXISTS idx_jobs_first  ON jobs(first_seen);
+CREATE TABLE IF NOT EXISTS runs (
+    run_at TEXT PRIMARY KEY, sources_ok INTEGER, sources_bad INTEGER,
+    fetched INTEGER, matched INTEGER, new_jobs INTEGER
+);
+"""
+
+
+class Store:
+    def __init__(self, path=DB_FILE):
+        self.db = sqlite3.connect(path)
+        self.db.row_factory = sqlite3.Row
+        self.db.executescript(SCHEMA)
+        self.db.commit()
+
+    def upsert(self, jobs, today):
+        """写入本次抓到的岗位，返回今日新增的 job_id 集合。"""
+        new_ids = set()
+        cur = self.db.cursor()
+        for j in jobs:
+            jid = j['job_id']
+            row = cur.execute('SELECT job_id FROM jobs WHERE job_id=?', (jid,)).fetchone()
+            if row is None:
+                new_ids.add(jid)
+                cur.execute("""INSERT INTO jobs
+                    (job_id,title,title_category,org,department,location,country,posted_date,
+                     deadline,citizenship,sponsorship,url,source_id,source_name,keywords,
+                     description,raw_json,first_seen,last_seen,missing_runs,status)
+                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0,'active')""",
+                    (jid, j['title'], j['title_category'], j['org'], j['department'],
+                     j['location'], j['country'], j['posted_date'], j['deadline'],
+                     j['citizenship'], j['sponsorship'], j['url'], j['source_id'],
+                     j['source_name'], j['keywords'], j['description'],
+                     json.dumps(j.get('raw', {}), ensure_ascii=False, default=str),
+                     today, today))
+            else:
+                cur.execute("""UPDATE jobs SET last_seen=?, missing_runs=0, status='active',
+                               deadline=COALESCE(NULLIF(?,''),deadline),
+                               description=COALESCE(NULLIF(?,''),description)
+                               WHERE job_id=?""",
+                            (today, j['deadline'], j['description'], jid))
+        self.db.commit()
+        return new_ids
+
+    def age_out(self, ok_source_ids, seen_ids, today):
+        """只对本次抓取成功的源做老化，避免某个源挂掉就把岗位误判为已消失。"""
+        if not ok_source_ids:
+            return 0
+        qmarks = ','.join('?' * len(ok_source_ids))
+        rows = self.db.execute(
+            f"SELECT job_id FROM jobs WHERE status='active' AND source_id IN ({qmarks})",
+            tuple(ok_source_ids)).fetchall()
+        stale = [r['job_id'] for r in rows if r['job_id'] not in seen_ids]
+        if not stale:
+            return 0
+        cur = self.db.cursor()
+        cur.executemany('UPDATE jobs SET missing_runs = missing_runs + 1 WHERE job_id=?',
+                        [(i,) for i in stale])
+        cur.execute(f"UPDATE jobs SET status='gone' WHERE status='active' AND missing_runs>=?",
+                    (GONE_AFTER,))
+        gone = cur.rowcount
+        self.db.commit()
+        return gone
+
+    def select(self, where, params=()):
+        return [dict(r) for r in self.db.execute(
+            f'SELECT * FROM jobs WHERE {where} ORDER BY first_seen DESC, org, title', params)]
+
+    def log_run(self, **kw):
+        self.db.execute("""INSERT OR REPLACE INTO runs
+            (run_at,sources_ok,sources_bad,fetched,matched,new_jobs) VALUES (?,?,?,?,?,?)""",
+            (datetime.now().strftime('%Y-%m-%d %H:%M:%S'), kw['ok'], kw['bad'],
+             kw['fetched'], kw['matched'], kw['new']))
+        self.db.commit()
+
+
+# ══════════════════════════════════════════════════════════════════
+#  xlsx 输出
+# ══════════════════════════════════════════════════════════════════
+
+COLUMNS = [
+    ('job_title', '岗位名称', 46), ('title_category', '类型', 30),
+    ('org', '机构', 30), ('department', '院系', 24),
+    ('location', '地点', 26), ('country', '国别', 7),
+    ('posted_date', '发布日', 12), ('deadline', '截止信息', 22),
+    ('citizenship', '限公民', 8), ('sponsorship', '可担保签证', 10),
+    ('url', '申请网址', 52), ('source_name', '来源', 26),
+    ('matched_keywords', '命中关键词', 40), ('first_seen', '首次发现', 12),
+    ('description', '职位描述', 90),
+]
+
+
+def write_xlsx(path, sheets, source_rows):
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, Alignment, PatternFill
+    from openpyxl.utils import get_column_letter
+
+    wb = Workbook()
+    wb.remove(wb.active)
+
+    head_font = Font(bold=True, color='FFFFFF')
+    head_fill = PatternFill('solid', fgColor='2F5D3A')
+    link_font = Font(color='1F5FA9', underline='single')
+
+    for sheet_name, rows in sheets.items():
+        ws = wb.create_sheet(sheet_name[:31])
+        ws.append([c[1] for c in COLUMNS])
+        for i, (_, _, width) in enumerate(COLUMNS, start=1):
+            ws.column_dimensions[get_column_letter(i)].width = width
+            cell = ws.cell(row=1, column=i)
+            cell.font, cell.fill = head_font, head_fill
+            cell.alignment = Alignment(vertical='center')
+        url_col = [c[0] for c in COLUMNS].index('url') + 1
+        for r in rows:
+            ws.append([_cell_value(r, key) for key, _, _ in COLUMNS])
+            c = ws.cell(row=ws.max_row, column=url_col)
+            if c.value and str(c.value).startswith('http'):
+                c.hyperlink, c.font = str(c.value), link_font
+        ws.freeze_panes = 'A2'
+        if ws.max_row >= 1:
+            ws.auto_filter.ref = f'A1:{get_column_letter(len(COLUMNS))}{max(ws.max_row,1)}'
+
+    ws = wb.create_sheet('源健康度')
+    ws.append(['源', '类型', '状态', '抓到', '命中', '说明'])
+    for i, w in enumerate([36, 14, 10, 8, 8, 80], start=1):
+        ws.column_dimensions[get_column_letter(i)].width = w
+        ws.cell(row=1, column=i).font = head_font
+        ws.cell(row=1, column=i).fill = head_fill
+    for r in source_rows:
+        ws.append([r['name'], r['type'], r['status'], r['found'], r['kept'], r['detail']])
+    ws.freeze_panes = 'A2'
+
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    wb.save(path)
+    return path
+
+
+def _cell_value(row, key):
+    if key == 'job_title':
+        return row.get('title', '')
+    if key == 'matched_keywords':
+        return row.get('keywords', '')
+    v = row.get(key, '')
+    if key == 'description':
+        v = (v or '')[:DESC_LIMIT]
+    return v if v is not None else ''
+
+
+# ══════════════════════════════════════════════════════════════════
+#  主流程
+# ══════════════════════════════════════════════════════════════════
+
+def load_json(path):
+    with open(path, encoding='utf-8') as f:
+        return json.load(f)
+
+
+def load_config():
+    if os.path.exists(CONFIG_FILE):
+        try:
+            return load_json(CONFIG_FILE)
+        except Exception as e:
+            say(f'[yellow]job_config.json 解析失败，按空配置继续：{e}[/]')
+    return {}
+
+
+def run_source(src, ctx):
+    fn = FETCHERS.get(src.get('type'))
+    if fn is None:
+        return 'ERROR', [], f"未知类型 {src.get('type')}"
+    try:
+        jobs = fn(src, ctx)
+        return ('OK' if jobs else 'EMPTY'), jobs, ('' if jobs else '返回 0 条')
+    except SourceSkip as e:
+        return 'SKIP', [], str(e)
+    except requests.HTTPError as e:
+        code = e.response.status_code if e.response is not None else '?'
+        return 'HTTP', [], f'HTTP {code}'
+    except requests.RequestException as e:
+        return 'ERROR', [], f'{type(e).__name__}: {str(e)[:90]}'
+    except Exception as e:
+        return 'ERROR', [], f'{type(e).__name__}: {str(e)[:90]}'
+
+
+def process(jobs, matcher, keep_countries, domain_filter):
+    """标题匹配 + 字段抽取。返回 (通过的记录, 丢弃计数)。"""
+    kept, dropped = [], 0
+    for j in jobs:
+        cat, kws, _reason = matcher.classify(j['title'], j['description'])
+        if cat is None:
+            dropped += 1
+            continue
+        if domain_filter and not kws:
+            dropped += 1
+            continue
+        country = guess_country(j['location'], j.get('country_hint', ''))
+        if keep_countries and country and country not in keep_countries:
+            dropped += 1
+            continue
+        blob = f"{j['title']}\n{j['description']}"
+        kept.append({
+            'job_id': job_id_of(j), 'title': j['title'], 'title_category': cat,
+            'org': j['org'], 'department': j['department'], 'location': j['location'],
+            'country': country, 'posted_date': j['posted_date'],
+            'deadline': matcher.find_deadline(blob),
+            'citizenship': matcher.citizenship_flag(blob),
+            'sponsorship': matcher.sponsorship_flag(blob),
+            'url': j['url'], 'source_id': j['source_id'], 'source_name': j['source_name'],
+            'keywords': '; '.join(kws), 'description': j['description'],
+            'raw': j.get('raw', {}),
+        })
+    return kept, dropped
+
+
+def main():
+    ap = argparse.ArgumentParser(description='美国/加拿大学术科研岗位每日扫描')
+    ap.add_argument('--check-sources', action='store_true', help='只探测各源健康度，不写库不出表')
+    ap.add_argument('--only', metavar='ID', help='只跑指定源（可用逗号分隔多个）')
+    ap.add_argument('--self-test', action='store_true', help='离线自测，不联网')
+    ap.add_argument('--domain-filter', action='store_true',
+                    help='要求所有岗位都命中领域关键词（默认只对宽泛职位要求）')
+    ap.add_argument('--country', default='US,CA', help='保留的国别，逗号分隔；留空则不过滤')
+    ap.add_argument('--workers', type=int, default=MAX_WORKERS)
+    args = ap.parse_args()
+
+    if args.self_test:
+        return self_test()
+
+    titles = load_json(TITLES_FILE)
+    sources_spec = load_json(SOURCES_FILE)
+    matcher = Matcher(titles)
+
+    sources = [s for s in sources_spec['sources'] if s.get('enabled', True)]
+    if args.only:
+        wanted = {x.strip() for x in args.only.split(',')}
+        sources = [s for s in sources if s['id'] in wanted]
+    if not sources:
+        say('[red]没有启用的源。检查 job_sources.json 里的 enabled 字段。[/]')
+        return 1
+
+    ctx = {'http': Http(),
+           'cfg': {'query_sets': sources_spec.get('query_sets', {}), 'config': load_config()}}
+
+    keep_countries = {c.strip().upper() for c in args.country.split(',') if c.strip()}
+    today = datetime.now().strftime('%Y-%m-%d')
+    title = '源健康度探测' if args.check_sources else f'岗位扫描 {today}'
+
+    all_kept, source_rows, ok_ids = [], [], []
+    fetched_total = dropped_total = 0
+
+    with Dashboard(sources, title) as dash:
+        with ThreadPoolExecutor(max_workers=args.workers) as pool:
+            futures = {}
+            for s in sources:
+                dash.update(s['id'], status='RUNNING')
+                futures[pool.submit(run_source, s, ctx)] = s
+            for fut in as_completed(futures):
+                s = futures[fut]
+                status, jobs, detail = fut.result()
+                fetched_total += len(jobs)
+                kept, dropped = ([], 0)
+                if jobs and not args.check_sources:
+                    kept, dropped = process(jobs, matcher, keep_countries, args.domain_filter)
+                    all_kept.extend(kept)
+                    dropped_total += dropped
+                elif jobs:
+                    kept, dropped = process(jobs, matcher, keep_countries, args.domain_filter)
+                if status == 'OK':
+                    ok_ids.append(s['id'])
+                    if not detail:
+                        detail = f'丢弃 {dropped} 条（标题/国别不符）' if dropped else ''
+                dash.update(s['id'], status=status, found=len(jobs),
+                            kept=len(kept), detail=detail)
+                source_rows.append({'name': s.get('name', s['id']), 'type': s.get('type', ''),
+                                    'status': status, 'found': len(jobs), 'kept': len(kept),
+                                    'detail': detail})
+
+    ok = sum(1 for r in source_rows if r['status'] == 'OK')
+    bad = sum(1 for r in source_rows if r['status'] in ('HTTP', 'ERROR'))
+
+    if args.check_sources:
+        say(f'\n[bold]探测完成[/]  正常 {ok} · 空 '
+            f"{sum(1 for r in source_rows if r['status']=='EMPTY')} · "
+            f"跳过 {sum(1 for r in source_rows if r['status']=='SKIP')} · 失败 {bad}")
+        say('把状态不是 OK 的条目在 job_sources.json 里修正或改 enabled=false。')
+        return 0
+
+    # 同一岗位可能被多个源抓到，先按 job_id 去重（保留描述最长的那条）
+    merged = {}
+    for j in all_kept:
+        prev = merged.get(j['job_id'])
+        if prev is None or len(j['description']) > len(prev['description']):
+            merged[j['job_id']] = j
+    jobs = list(merged.values())
+
+    store = Store()
+    new_ids = store.upsert(jobs, today)
+    gone = store.age_out(ok_ids, set(merged.keys()), today)
+
+    sheets = {
+        '今日新增': store.select('status="active" AND first_seen=?', (today,)),
+        '全部在招': store.select('status="active"'),
+        '已消失':   store.select('status="gone"'),
+    }
+    os.makedirs(OUT_DIR, exist_ok=True)
+    latest = os.path.join(OUT_DIR, 'job_scan_latest.xlsx')
+    dated  = os.path.join(OUT_DIR, f'job_scan_{today}.xlsx')
+    write_xlsx(latest, sheets, source_rows)
+    write_xlsx(dated, sheets, source_rows)
+    store.log_run(ok=ok, bad=bad, fetched=fetched_total, matched=len(jobs), new=len(new_ids))
+
+    summary = (f'扫描完成  源 {ok} 正常 / {bad} 失败 · 抓取 {fetched_total} 条 · '
+               f'标题命中 {len(jobs)} 条 · 今日新增 {len(new_ids)} · 新判定已消失 {gone}')
+    say('')
+    say(f'[bold green]扫描完成[/]  源 {ok} 正常 / {bad} 失败 · '
+        f'抓取 {fetched_total} 条 · 标题命中 {len(jobs)} 条 · '
+        f'[bold]今日新增 {len(new_ids)}[/] · 新判定已消失 {gone}')
+    say(f'输出: {latest}')
+    say(f'      {dated}')
+    log_line(summary)
+    if bad:
+        failed = [r['name'] for r in source_rows if r['status'] in ('HTTP', 'ERROR')]
+        say(f'[yellow]有 {bad} 个源失败。跑 --check-sources 看明细，'
+            f'然后在 job_sources.json 里修正。[/]')
+        log_line('失败的源: ' + ', '.join(failed))
+    return 0
+
+
+# ══════════════════════════════════════════════════════════════════
+#  离线自测
+# ══════════════════════════════════════════════════════════════════
+
+def self_test():
+    say('[bold]离线自测（不联网）[/]\n')
+    titles = load_json(TITLES_FILE)
+    m = Matcher(titles)
+    failures = []
+
+    cases = [
+        ('Assistant or Associate Professor in Remote Sensing', 'Assistant/Associate Professor'),
+        ('Assistant Professor - Precision Agriculture', 'Assistant Professor'),
+        ('Asst. Prof. of Biosystems Engineering', 'Assistant Professor'),
+        ('Research Assistant Professor, Plant Phenotyping', 'Research Assistant Professor'),
+        ('Assistant Research Professor (Remote Sensing)', 'Assistant Research Professor'),
+        ('Teaching Assistant Professor in Agronomy', 'Teaching Assistant Professor'),
+        ('Extension Assistant Professor - Precision Ag', 'Extension Assistant Professor'),
+        ('Assistant Professor and Extension Specialist, Digital Agriculture',
+         'Assistant Professor and Extension Specialist'),
+        ('Postdoctoral Research Associate - UAV Phenotyping', 'Postdoctoral Research Associate'),
+        ('Post-Doctoral Researcher in Remote Sensing', 'Postdoctoral Researcher'),
+        ('Postdoctoral Fellow, Precision Livestock Farming', 'Postdoctoral Fellow'),
+        ('Postdoctoral Scholar - Remote Sensing and Data Science', 'Postdoctoral Scholar'),
+        ('Presidential Postdoctoral Fellowship in Plant Science',
+         'Presidential / Provost Postdoctoral Fellow'),
+        ('Senior Research Associate, Crop Modeling', 'Senior Research Associate'),
+        ('Research Associate - Hyperspectral Imaging', 'Research Associate'),
+        ('Extension Associate, Agronomy', 'Extension Associate'),
+        ('Extension Specialist - Precision Agriculture Technologies', 'Extension Specialist'),
+        ('Research Data Scientist, Agriculture', 'Research Data Scientist'),
+        ('Research Scientist - Remote Sensing', 'Research Scientist'),
+        ('Assistant Scientist, Plant Phenotyping', 'Assistant Scientist'),
+        ('Associate Scientist - Crop Science', 'Associate Scientist'),
+        ('Staff Scientist, Geospatial Analytics', 'Staff Scientist'),
+        ('Research Engineer - Agricultural Robotics', 'Research Engineer'),
+        ('Computational Scientist, Plant Genomics', 'Computational Scientist'),
+        ('Research Program Manager - Digital Agriculture', 'Research Program Manager'),
+        ('Phenotyping Facility Manager', 'Phenotyping Facility Manager'),
+        ('Core Facility Manager, Imaging', 'Core Facility Manager'),
+        ('Field Research Manager - Crop Trials', 'Field Research Manager'),
+        ('UAS Program Manager, Agricultural Operations', 'UAS Program Manager'),
+        ('Laboratory Manager - Soil and Plant Analysis', 'Laboratory Manager'),
+        ('Remote Sensing Specialist', 'Remote Sensing Specialist'),
+        ('GIS Specialist, Agriculture and Natural Resources', 'GIS Specialist'),
+        ('Research Fellow in Precision Agriculture', 'Research Fellow'),
+        ('Lecturer in Agricultural Engineering', 'Lecturer'),
+        ('Instructor - Precision Agriculture Technology', 'Instructor'),
+        ('Research Specialist - UAV Imagery', 'Research Specialist'),
+    ]
+    say(f'[bold]1. 职位名称匹配[/]（{len(cases)} 个用例，覆盖全部类别及常见变体）')
+    for title, expect in cases:
+        got, kws, reason = m.classify(title, 'remote sensing precision agriculture')
+        if got != expect:
+            failures.append(f'  标题匹配: {title!r}\n     期望 {expect!r} 实得 {got!r} ({reason})')
+    say(f'   {len(cases)-len([f for f in failures if "标题匹配" in f])}/{len(cases)} 通过')
+
+    say('\n[bold]2. 应当被拒绝的标题[/]')
+    rejects = [
+        ('Clinical Nurse Educator', 'negative'),
+        ('Assistant Professor of Medieval History', 'negative'),
+        ('Lecturer in Music Theory', 'negative'),
+        ('Lecturer', 'generic-no-domain'),
+        ('Research Associate', 'generic-no-domain'),
+        ('Administrative Assistant', 'no-match'),
+    ]
+    for title, why in rejects:
+        got, _, reason = m.classify(title, '')
+        if got is not None:
+            failures.append(f'  应拒绝但通过了: {title!r} -> {got!r} ({why})')
+    say(f'   {len(rejects)-len([f for f in failures if "应拒绝" in f])}/{len(rejects)} 通过')
+
+    say('\n[bold]3. 宽泛职位 + 领域关键词应当通过[/]')
+    got, kws, _ = m.classify('Research Associate', 'Work on UAV hyperspectral imagery of maize canopies.')
+    if got != 'Research Associate' or not kws:
+        failures.append(f'  宽泛职位带领域词应通过: 实得 {got!r} kws={kws}')
+    else:
+        say(f'   通过，命中关键词: {"; ".join(kws)}')
+
+    say('\n[bold]4. 字段抽取[/]')
+    blob = ('Review of applications will begin October 15, 2026. '
+            'U.S. citizenship is required for this position.')
+    dl, cz = m.find_deadline(blob), m.citizenship_flag(blob)
+    if 'October 15, 2026' not in dl:
+        failures.append(f'  截止日期抽取失败: {dl!r}')
+    if cz != 'YES':
+        failures.append(f'  公民身份标记失败: {cz!r}')
+    blob2 = 'Open until filled. Visa sponsorship is available for exceptional candidates.'
+    if 'until filled' not in m.find_deadline(blob2).lower():
+        failures.append('  open-until-filled 抽取失败')
+    if m.sponsorship_flag(blob2) != 'YES':
+        failures.append('  签证担保标记失败')
+    say(f'   截止={dl!r}  限公民={cz!r}  滚动={m.find_deadline(blob2)!r}')
+
+    say('\n[bold]5. URL 归一化与去重[/]')
+    a = canon_url('https://Example.EDU/jobs/123/?utm_source=x&b=2&a=1')
+    b = canon_url('https://example.edu/jobs/123?a=1&b=2')
+    if a != b:
+        failures.append(f'  URL 归一化不一致:\n     {a}\n     {b}')
+    say(f'   {a}')
+
+    say('\n[bold]6. 国别识别[/]')
+    for loc, exp in [('Gainesville, FL', 'US'), ('Guelph, ON, Canada', 'CA'),
+                     ('Brookings, South Dakota', 'US'), ('Zurich, Switzerland', '')]:
+        got = guess_country(loc, '')
+        if got != exp:
+            failures.append(f'  国别识别: {loc!r} 期望 {exp!r} 实得 {got!r}')
+    say('   4 个用例')
+
+    say('\n[bold]7. 入库、去重与「已消失」老化[/]')
+    tmpdb = os.path.join(OUT_DIR, '_selftest.db')
+    os.makedirs(OUT_DIR, exist_ok=True)
+    if os.path.exists(tmpdb):
+        os.remove(tmpdb)
+    st = Store(tmpdb)
+    fixtures = [
+        _mk({'id': 'src_a', 'name': 'Test A'}, 'Assistant Professor of Precision Agriculture',
+            'https://a.edu/jobs/1', location='Ames, IA',
+            desc='UAV remote sensing. Applications due October 1, 2026.'),
+        _mk({'id': 'src_a', 'name': 'Test A'}, 'Postdoctoral Scholar - Remote Sensing',
+            'https://a.edu/jobs/2', location='Davis, CA', desc='hyperspectral phenotyping'),
+        _mk({'id': 'src_a', 'name': 'Test A'}, 'Staff Nurse', 'https://a.edu/jobs/3'),
+    ]
+    kept, dropped = process(fixtures, m, {'US', 'CA'}, False)
+    if len(kept) != 2 or dropped != 1:
+        failures.append(f'  process(): 期望 2 保留/1 丢弃，实得 {len(kept)}/{dropped}')
+    d1 = '2026-08-26'
+    new1 = st.upsert(kept, d1)
+    if len(new1) != 2:
+        failures.append(f'  首次入库应有 2 条新增，实得 {len(new1)}')
+    new2 = st.upsert(kept, d1)
+    if len(new2) != 0:
+        failures.append(f'  重复入库不应新增，实得 {len(new2)}')
+
+    kept_one = kept[:1]
+    for i in range(GONE_AFTER):
+        st.upsert(kept_one, d1)
+        st.age_out(['src_a'], {kept_one[0]['job_id']}, d1)
+    active = st.select('status="active"')
+    goners = st.select('status="gone"')
+    if len(active) != 1 or len(goners) != 1:
+        failures.append(f'  老化后应为 1 在招/1 消失，实得 {len(active)}/{len(goners)}')
+
+    st.upsert(kept, d1)
+    st.age_out([], set(), d1)          # 源全挂时不应误判
+    if len(st.select('status="gone"')) != 0:
+        failures.append('  源全部失败时不应把岗位判为已消失')
+    say(f'   在招 {len(active)} · 已消失 {len(goners)} · 源失败保护 OK')
+
+    say('\n[bold]8. xlsx 生成[/]')
+    out = os.path.join(OUT_DIR, '_selftest.xlsx')
+    write_xlsx(out, {'今日新增': st.select('status="active"'),
+                     '全部在招': st.select('status="active"'),
+                     '已消失': st.select('status="gone"')},
+               [{'name': 'Test A', 'type': 'rss', 'status': 'OK',
+                 'found': 3, 'kept': 2, 'detail': ''}])
+    from openpyxl import load_workbook
+    wb = load_workbook(out)
+    if set(wb.sheetnames) != {'今日新增', '全部在招', '已消失', '源健康度'}:
+        failures.append(f'  工作表不齐: {wb.sheetnames}')
+    ws = wb['全部在招']
+    hdr = [c.value for c in ws[1]]
+    if hdr != [c[1] for c in COLUMNS]:
+        failures.append('  表头与 COLUMNS 不一致')
+    if '评分' in hdr or 'score' in [str(h).lower() for h in hdr]:
+        failures.append('  表里不应出现评分列')
+    desc_idx = hdr.index('职位描述') + 1
+    if not ws.cell(row=2, column=desc_idx).value:
+        failures.append('  职位描述列为空——下游 AI 将无法判断相关性')
+    say(f'   工作表 {wb.sheetnames}')
+    say(f'   列数 {len(hdr)} · 无评分列 · 描述列有内容')
+
+    st.db.close()
+    for f in (tmpdb, out):
+        if os.path.exists(f):
+            os.remove(f)
+
+    say('')
+    if failures:
+        say(f'[bold red]自测失败 {len(failures)} 项[/]')
+        for f in failures:
+            say(f'[red]{f}[/]')
+        return 1
+    say('[bold green]全部自测通过[/]')
+    say('[dim]注意：自测只覆盖离线逻辑。各招聘站的接口连通性必须用 --check-sources 在联网环境验证。[/]')
+    return 0
+
+
+if __name__ == '__main__':
+    try:
+        sys.exit(main())
+    except KeyboardInterrupt:
+        say('\n[yellow]已中断[/]')
+        sys.exit(130)
+    except Exception:
+        traceback.print_exc()
+        sys.exit(1)
