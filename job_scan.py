@@ -294,6 +294,18 @@ CA_PROV = {'ontario','quebec','québec','british columbia','alberta','manitoba',
            'nova scotia','new brunswick','newfoundland','prince edward island'}
 CA_ABBR = {'on','qc','bc','ab','mb','sk','ns','nb','nl','pe','yt','nt','nu'}
 
+# 明确的境外标记。识别到就返回 'XX'，交给 --country 过滤掉。
+# 只列高置信度的国名——识别不出的仍然放行，宁可多留也不误杀。
+FOREIGN_MARKERS = {
+    'united kingdom', 'england', 'scotland', 'wales', 'ireland',
+    'netherlands', 'germany', 'france', 'spain', 'italy', 'belgium',
+    'switzerland', 'austria', 'denmark', 'sweden', 'norway', 'finland',
+    'poland', 'portugal', 'greece', 'czech republic', 'hungary',
+    'china', 'japan', 'south korea', 'singapore', 'india', 'israel',
+    'australia', 'new zealand', 'brazil', 'chile', 'argentina',
+    'mexico', 'south africa', 'saudi arabia', 'united arab emirates', 'qatar',
+}
+
 
 _SEG_SPLIT = re.compile(r'[,/|;\n·•]+')
 _ZIP_RE    = re.compile(r'\b\d[\w-]*\b')
@@ -322,6 +334,9 @@ def guess_country(location, default=''):
         return 'CA'
     if re.search(r'\b(usa|united states)\b', whole):
         return 'US'
+    for f in FOREIGN_MARKERS:
+        if re.search(r'(?<![a-z])' + re.escape(f) + r'(?![a-z])', whole):
+            return 'XX'
 
     cands = []
     for seg in _SEG_SPLIT.split(raw):
@@ -357,7 +372,9 @@ class Matcher:
     def __init__(self, spec):
         self.settings = spec.get('settings', {})
         self.fuzzy_threshold = self.settings.get('fuzzy_threshold', 88)
+        self.require_domain_for_all = self.settings.get('require_domain_for_all', True)
         self.require_domain_for_generic = self.settings.get('require_domain_for_generic', True)
+        self.thin_chars = self.settings.get('thin_description_chars', 120)
 
         self.categories = []
         for c in spec['categories']:
@@ -367,6 +384,8 @@ class Matcher:
                 'norm_label': norm_title(c['label']),
             })
         self.negatives = [re.compile(p, re.I) for p in spec.get('negative_title_patterns', [])]
+        self.neg_context = [re.compile(p, re.I)
+                            for p in spec.get('negative_context_patterns', [])]
 
         self.domain = {}
         for group, words in spec.get('domain_keywords', {}).items():
@@ -378,24 +397,33 @@ class Matcher:
         self.deadlines = [re.compile(p, re.I) for p in spec.get('deadline_patterns', [])]
 
         try:
+            # 必须用 token_sort_ratio 而非 token_set_ratio：后者对子集给满分，
+            # 会把导航链接 "Research" 判成 "Research Assistant Professor"。
             from rapidfuzz import fuzz
-            self._fuzz = fuzz.token_set_ratio
+            self._fuzz = fuzz.token_sort_ratio
         except ImportError:
             import difflib
             self._fuzz = lambda a, b: difflib.SequenceMatcher(None, a, b).ratio() * 100
 
     # -- 主入口 ----------------------------------------------------
-    def classify(self, title, description=''):
-        """返回 (category_label, matched_keywords, reject_reason)。
-        category_label 为 None 表示不匹配。"""
+    def classify(self, title, description='', department='', org='', domain_trusted=False):
+        """初筛。返回 (类别名, 命中关键词, 是否需人工确认, 拒绝原因)。
+
+        类别名为 None 表示被筛掉。四层：
+          1) 标题负面词      —— 标题里就写明了护理/音乐/社工之类
+          2) 标题必须命中目标职位
+          3) 上下文负面词    —— 标题看不出，但院系/正文明显不对口
+          4) 领域关键词      —— 必须沾边农业/遥感/作物/地理空间
+        第 4 层有两条豁免：专业板整源豁免；描述过短时保留但标记需人工确认。
+        """
         t = title or ''
         for neg in self.negatives:
             if neg.search(t):
-                return None, [], 'negative-title'
+                return None, [], False, 'negative-title'
 
         nt = norm_title(t)
         if not nt:
-            return None, [], 'empty-title'
+            return None, [], False, 'empty-title'
 
         cat = None
         for c in self.categories:              # 顺序敏感：具体的排在前面
@@ -404,22 +432,43 @@ class Matcher:
                 break
 
         if cat is None:                        # 正则没中，走模糊兜底
-            best, best_score = None, 0
-            for c in self.categories:
-                sc = self._fuzz(nt, c['norm_label'])
-                if sc > best_score:
-                    best, best_score = c, sc
-            if best is not None and best_score >= self.fuzzy_threshold:
-                cat = best
+            toks = nt.split()
+            if len(toks) >= 2:                 # 单词标题不兜底，否则 "Research" 会误判
+                best, best_score = None, 0
+                for c in self.categories:
+                    # 长度护栏：候选明显短于类别名时不比，避免子串式误命中
+                    if len(nt) < 0.6 * len(c['norm_label']):
+                        continue
+                    sc = self._fuzz(nt, c['norm_label'])
+                    if sc > best_score:
+                        best, best_score = c, sc
+                if best is not None and best_score >= self.fuzzy_threshold:
+                    cat = best
 
         if cat is None:
-            return None, [], 'no-title-match'
+            return None, [], False, 'no-title-match'
 
-        kws = self.keywords(t + '\n' + (description or ''))
-        if cat['generic'] and self.require_domain_for_generic and not kws:
-            return None, kws, 'generic-title-without-domain'
+        desc = description or ''
+        context = '\n'.join([t, department or '', org or '', desc[:600]])
+        for neg in self.neg_context:
+            if neg.search(context):
+                return None, [], False, 'negative-context'
 
-        return cat['label'], kws, ''
+        kws = self.keywords(t + '\n' + desc)
+        need_domain = self.require_domain_for_all or (
+            cat['generic'] and self.require_domain_for_generic)
+
+        if kws or not need_domain or domain_trusted:
+            return cat['label'], kws, False, ''
+
+        # 描述近乎为空（RSS 常见）时判断不了——保留并标记，交给下游细筛。
+        # 但只对「具体职位」放行：Lecturer / Research Associate 这类宽泛标题
+        # 若连一个领域词都没有，说明毫无线索，放行只会灌进噪声。
+        if not cat['generic'] and len(desc.strip()) < self.thin_chars:
+            return cat['label'], kws, True, ''
+
+        return None, kws, False, ('generic-title-without-domain'
+                                  if cat['generic'] else 'no-domain-keyword')
 
     def keywords(self, text):
         if not text:
@@ -807,7 +856,7 @@ CREATE TABLE IF NOT EXISTS jobs (
     job_id        TEXT PRIMARY KEY,
     title         TEXT, title_category TEXT, org TEXT, department TEXT,
     location      TEXT, country TEXT, posted_date TEXT, deadline TEXT,
-    citizenship   TEXT, sponsorship TEXT, url TEXT,
+    citizenship   TEXT, sponsorship TEXT, needs_review TEXT DEFAULT '', url TEXT,
     source_id     TEXT, source_name TEXT, keywords TEXT,
     description   TEXT, raw_json TEXT,
     first_seen    TEXT, last_seen TEXT, missing_runs INTEGER DEFAULT 0,
@@ -827,6 +876,10 @@ class Store:
         self.db = sqlite3.connect(path)
         self.db.row_factory = sqlite3.Row
         self.db.executescript(SCHEMA)
+        # 老库平滑升级：早期版本没有 needs_review 列
+        cols = {r[1] for r in self.db.execute('PRAGMA table_info(jobs)')}
+        if 'needs_review' not in cols:
+            self.db.execute("ALTER TABLE jobs ADD COLUMN needs_review TEXT DEFAULT ''")
         self.db.commit()
 
     def upsert(self, jobs, today):
@@ -840,13 +893,13 @@ class Store:
                 new_ids.add(jid)
                 cur.execute("""INSERT INTO jobs
                     (job_id,title,title_category,org,department,location,country,posted_date,
-                     deadline,citizenship,sponsorship,url,source_id,source_name,keywords,
-                     description,raw_json,first_seen,last_seen,missing_runs,status)
-                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0,'active')""",
+                     deadline,citizenship,sponsorship,needs_review,url,source_id,source_name,
+                     keywords,description,raw_json,first_seen,last_seen,missing_runs,status)
+                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0,'active')""",
                     (jid, j['title'], j['title_category'], j['org'], j['department'],
                      j['location'], j['country'], j['posted_date'], j['deadline'],
-                     j['citizenship'], j['sponsorship'], j['url'], j['source_id'],
-                     j['source_name'], j['keywords'], j['description'],
+                     j['citizenship'], j['sponsorship'], j['needs_review'], j['url'],
+                     j['source_id'], j['source_name'], j['keywords'], j['description'],
                      json.dumps(j.get('raw', {}), ensure_ascii=False, default=str),
                      today, today))
             else:
@@ -900,13 +953,14 @@ COLUMNS = [
     ('location', '地点', 26), ('country', '国别', 7),
     ('posted_date', '发布日', 12), ('deadline', '截止信息', 22),
     ('citizenship', '限公民', 8), ('sponsorship', '可担保签证', 10),
+    ('needs_review', '需人工确认', 11),
     ('url', '申请网址', 52), ('source_name', '来源', 26),
     ('matched_keywords', '命中关键词', 40), ('first_seen', '首次发现', 12),
     ('description', '职位描述', 90),
 ]
 
 
-def write_xlsx(path, sheets, source_rows):
+def write_xlsx(path, sheets, source_rows, rejects=None):
     from openpyxl import Workbook
     from openpyxl.styles import Font, Alignment, PatternFill
     from openpyxl.utils import get_column_letter
@@ -935,6 +989,23 @@ def write_xlsx(path, sheets, source_rows):
         ws.freeze_panes = 'A2'
         if ws.max_row >= 1:
             ws.auto_filter.ref = f'A1:{get_column_letter(len(COLUMNS))}{max(ws.max_row,1)}'
+
+    if rejects:
+        # 初筛丢弃样本：让你能一眼判断筛选是不是太狠。
+        # 最可能误杀的原因排在最前面。
+        order = {r: i for i, r in enumerate(REJECT_PRIORITY)}
+        ranked = sorted(rejects, key=lambda r: order.get(r['reason'], 99))[:300]
+        ws = wb.create_sheet('初筛丢弃样本')
+        ws.append(['丢弃原因', '岗位名称', '机构', '地点', '来源', '网址'])
+        for i, w in enumerate([30, 46, 28, 24, 26, 52], start=1):
+            ws.column_dimensions[get_column_letter(i)].width = w
+            ws.cell(row=1, column=i).font = head_font
+            ws.cell(row=1, column=i).fill = head_fill
+        for r in ranked:
+            ws.append([REJECT_LABEL.get(r['reason'], r['reason']), r['title'],
+                       r['org'], r['location'], r['source_name'], r['url']])
+        ws.freeze_panes = 'A2'
+        ws.auto_filter.ref = f'A1:F{max(ws.max_row,1)}'
 
     ws = wb.create_sheet('源健康度')
     ws.append(['源', '类型', '状态', '抓到', '命中', '说明'])
@@ -998,20 +1069,44 @@ def run_source(src, ctx):
         return 'ERROR', [], f'{type(e).__name__}: {str(e)[:90]}'
 
 
-def process(jobs, matcher, keep_countries, domain_filter):
-    """标题匹配 + 字段抽取。返回 (通过的记录, 丢弃计数)。"""
-    kept, dropped = [], 0
+REJECT_LABEL = {
+    'negative-title':   '标题含明确不相关词（护理/音乐/法学等）',
+    'negative-context': '院系或正文明确不对口',
+    'no-title-match':   '标题不属于目标职位',
+    'no-domain-keyword': '未命中任何领域关键词',
+    'generic-title-without-domain': '宽泛职位且无领域关键词',
+    'empty-title':      '空标题',
+    'country':          '不在美国/加拿大',
+    'domain-filter':    '--domain-filter 已开且无领域词',
+}
+# 前两类最可能是误杀，排在丢弃样本表最前面供你复核
+REJECT_PRIORITY = ['no-domain-keyword', 'negative-context',
+                   'generic-title-without-domain', 'country']
+
+
+def process(jobs, matcher, keep_countries, domain_filter, trusted_ids=None):
+    """初筛 + 字段抽取。返回 (通过的记录, 丢弃明细)。"""
+    trusted_ids = trusted_ids or set()
+    kept, rejects = [], []
+
+    def drop(j, reason):
+        rejects.append({'title': j['title'], 'org': j['org'],
+                        'location': j['location'], 'source_name': j['source_name'],
+                        'url': j['url'], 'reason': reason})
+
     for j in jobs:
-        cat, kws, _reason = matcher.classify(j['title'], j['description'])
+        cat, kws, needs_review, reason = matcher.classify(
+            j['title'], j['description'], j.get('department', ''), j.get('org', ''),
+            domain_trusted=j['source_id'] in trusted_ids)
         if cat is None:
-            dropped += 1
+            drop(j, reason)
             continue
         if domain_filter and not kws:
-            dropped += 1
+            drop(j, 'domain-filter')
             continue
         country = guess_country(j['location'], j.get('country_hint', ''))
         if keep_countries and country and country not in keep_countries:
-            dropped += 1
+            drop(j, 'country')
             continue
         blob = f"{j['title']}\n{j['description']}"
         kept.append({
@@ -1021,11 +1116,12 @@ def process(jobs, matcher, keep_countries, domain_filter):
             'deadline': matcher.find_deadline(blob),
             'citizenship': matcher.citizenship_flag(blob),
             'sponsorship': matcher.sponsorship_flag(blob),
+            'needs_review': 'YES' if needs_review else '',
             'url': j['url'], 'source_id': j['source_id'], 'source_name': j['source_name'],
             'keywords': '; '.join(kws), 'description': j['description'],
             'raw': j.get('raw', {}),
         })
-    return kept, dropped
+    return kept, rejects
 
 
 def main():
@@ -1061,8 +1157,9 @@ def main():
     today = datetime.now().strftime('%Y-%m-%d')
     title = '源健康度探测' if args.check_sources else f'岗位扫描 {today}'
 
-    all_kept, source_rows, ok_ids = [], [], []
-    fetched_total = dropped_total = 0
+    trusted_ids = {x['id'] for x in sources if x.get('domain_trusted')}
+    all_kept, all_rejects, source_rows, ok_ids = [], [], [], []
+    fetched_total = 0
 
     with Dashboard(sources, title) as dash:
         with ThreadPoolExecutor(max_workers=args.workers) as pool:
@@ -1074,17 +1171,17 @@ def main():
                 s = futures[fut]
                 status, jobs, detail = fut.result()
                 fetched_total += len(jobs)
-                kept, dropped = ([], 0)
-                if jobs and not args.check_sources:
-                    kept, dropped = process(jobs, matcher, keep_countries, args.domain_filter)
-                    all_kept.extend(kept)
-                    dropped_total += dropped
-                elif jobs:
-                    kept, dropped = process(jobs, matcher, keep_countries, args.domain_filter)
+                kept, rejects = [], []
+                if jobs:
+                    kept, rejects = process(jobs, matcher, keep_countries,
+                                            args.domain_filter, trusted_ids)
+                    if not args.check_sources:
+                        all_kept.extend(kept)
+                        all_rejects.extend(rejects)
                 if status == 'OK':
                     ok_ids.append(s['id'])
-                    if not detail:
-                        detail = f'丢弃 {dropped} 条（标题/国别不符）' if dropped else ''
+                    if not detail and rejects:
+                        detail = f'初筛丢弃 {len(rejects)} 条'
                 dash.update(s['id'], status=status, found=len(jobs),
                             kept=len(kept), detail=detail)
                 source_rows.append({'name': s.get('name', s['id']), 'type': s.get('type', ''),
@@ -1121,16 +1218,23 @@ def main():
     os.makedirs(OUT_DIR, exist_ok=True)
     latest = os.path.join(OUT_DIR, 'job_scan_latest.xlsx')
     dated  = os.path.join(OUT_DIR, f'job_scan_{today}.xlsx')
-    write_xlsx(latest, sheets, source_rows)
-    write_xlsx(dated, sheets, source_rows)
+    write_xlsx(latest, sheets, source_rows, all_rejects)
+    write_xlsx(dated, sheets, source_rows, all_rejects)
     store.log_run(ok=ok, bad=bad, fetched=fetched_total, matched=len(jobs), new=len(new_ids))
 
+    review_n = sum(1 for j in jobs if j.get('needs_review'))
     summary = (f'扫描完成  源 {ok} 正常 / {bad} 失败 · 抓取 {fetched_total} 条 · '
-               f'标题命中 {len(jobs)} 条 · 今日新增 {len(new_ids)} · 新判定已消失 {gone}')
+               f'初筛丢弃 {len(all_rejects)} 条 · 保留 {len(jobs)} 条'
+               f'（其中需人工确认 {review_n}）· 今日新增 {len(new_ids)} · '
+               f'新判定已消失 {gone}')
     say('')
-    say(f'[bold green]扫描完成[/]  源 {ok} 正常 / {bad} 失败 · '
-        f'抓取 {fetched_total} 条 · 标题命中 {len(jobs)} 条 · '
-        f'[bold]今日新增 {len(new_ids)}[/] · 新判定已消失 {gone}')
+    say(f'[bold green]扫描完成[/]  源 {ok} 正常 / {bad} 失败')
+    say(f'抓取 {fetched_total} 条 → 初筛丢弃 {len(all_rejects)} 条 → '
+        f'保留 {len(jobs)} 条（需人工确认 {review_n}）')
+    say(f'[bold]今日新增 {len(new_ids)}[/] · 新判定已消失 {gone}')
+    if all_rejects:
+        say('[dim]被丢弃的岗位抽样见 xlsx 的「初筛丢弃样本」表——'
+            '若发现误杀，调 job_titles.json 的 domain_keywords 即可。[/]')
     say(f'输出: {latest}')
     say(f'      {dated}')
     log_line(summary)
@@ -1194,7 +1298,7 @@ def self_test():
     ]
     say(f'[bold]1. 职位名称匹配[/]（{len(cases)} 个用例，覆盖全部类别及常见变体）')
     for title, expect in cases:
-        got, kws, reason = m.classify(title, 'remote sensing precision agriculture')
+        got, kws, _rev, reason = m.classify(title, 'remote sensing precision agriculture')
         if got != expect:
             failures.append(f'  标题匹配: {title!r}\n     期望 {expect!r} 实得 {got!r} ({reason})')
     say(f'   {len(cases)-len([f for f in failures if "标题匹配" in f])}/{len(cases)} 通过')
@@ -1209,17 +1313,91 @@ def self_test():
         ('Administrative Assistant', 'no-match'),
     ]
     for title, why in rejects:
-        got, _, reason = m.classify(title, '')
+        got, _k, _rev, reason = m.classify(title, '')
         if got is not None:
             failures.append(f'  应拒绝但通过了: {title!r} -> {got!r} ({why})')
     say(f'   {len(rejects)-len([f for f in failures if "应拒绝" in f])}/{len(rejects)} 通过')
 
     say('\n[bold]3. 宽泛职位 + 领域关键词应当通过[/]')
-    got, kws, _ = m.classify('Research Associate', 'Work on UAV hyperspectral imagery of maize canopies.')
+    got, kws, _rev, _r = m.classify('Research Associate',
+                                    'Work on UAV hyperspectral imagery of maize canopies.')
     if got != 'Research Associate' or not kws:
         failures.append(f'  宽泛职位带领域词应通过: 实得 {got!r} kws={kws}')
     else:
         say(f'   通过，命中关键词: {"; ".join(kws)}')
+
+    say('\n[bold]3b. 初筛：明显不相关的岗位必须被拦住[/]')
+    leaks = [
+        ('Assistant Professor',
+         'The Department of Music invites applications for a tenure-track position '
+         'in jazz performance and improvisation pedagogy.'),
+        ('Postdoctoral Scholar',
+         'Cancer immunotherapy research in the Department of Oncology, focusing on '
+         'CAR-T cell engineering and tumor microenvironment.'),
+        ('Research Scientist',
+         'Alzheimer disease drug discovery program. Experience with neurodegeneration '
+         'models and high-throughput compound screening required.'),
+        ('Assistant Professor of Accounting',
+         'The College of Business seeks a faculty member to teach auditing and '
+         'managerial accounting at the undergraduate and MBA levels.'),
+        ('Postdoctoral Research Associate',
+         'The Department of French and Italian seeks a postdoctoral associate in '
+         'early modern literature and poetics, with language teaching duties.'),
+        ('Staff Scientist',
+         'Clinical microbiology laboratory supporting patient care and diagnostic '
+         'testing. Board certification preferred.'),
+        ('Assistant/Associate Professor of Chemistry',
+         'Tenure-track position in organic synthesis and catalysis. Candidates must '
+         'hold a PhD in Chemistry and establish an externally funded program.'),
+        ('Research Engineer',
+         'Design and validate automotive powertrain systems including NVH testing, '
+         'transmission calibration and vehicle integration for passenger cars.'),
+        ('Assistant Professor of Nursing',
+         'The School of Nursing seeks faculty to teach in the BSN program and '
+         'supervise clinical rotations.'),
+        ('Assistant Professor - Social Work',
+         'MSW program accreditation and field placement supervision. LCSW required.'),
+    ]
+    leaked = []
+    for title, desc in leaks:
+        got, _k, _rev, why = m.classify(title, desc)
+        if got is not None:
+            leaked.append(f'  初筛泄漏: {title!r} + {desc[:34]!r} -> {got!r}')
+    failures.extend(leaked)
+    say(f'   {len(leaks)-len(leaked)}/{len(leaks)} 被正确拦住')
+
+    say('\n[bold]3c. 初筛：真实目标岗位必须保留[/]')
+    keeps = [
+        ('Assistant Professor in Remote Sensing', 'UAV hyperspectral imagery for crops.', False),
+        ('Postdoctoral Scholar - Remote Sensing and Data Science', 'machine learning crop health', False),
+        ('Assistant Professor of Precision Ag Automation Engineering',
+         'agricultural robotics and precision livestock farming', False),
+        ('Research Scientist', 'Geospatial data products from satellite remote sensing.', False),
+        ('Assistant Professor', 'Biosystems Engineering. Digital agriculture, plant phenotyping.', False),
+        ('Postdoctoral Research Associate', '', True),          # RSS 只给标题 -> 保留并标记
+        ('Extension Specialist', 'Soil fertility and nutrient management for corn growers.', False),
+    ]
+    for title, desc, want_review in keeps:
+        got, kws, rev, why = m.classify(title, desc)
+        if got is None:
+            failures.append(f'  初筛误杀: {title!r} ({why})')
+        elif rev != want_review:
+            failures.append(f'  需人工确认标记错: {title!r} 期望 {want_review} 实得 {rev}')
+    say(f'   {len(keeps)} 个用例（含 1 个无描述的、应标记需人工确认）')
+
+    say('\n[bold]3d. 初筛：domain_trusted 源整源豁免[/]')
+    got, _k, rev, why = m.classify('Assistant Professor', 'No description available.',
+                                   domain_trusted=True)
+    if got is None:
+        failures.append(f'  domain_trusted 豁免失效: {why}')
+    say('   专业板（ASABE / agristok 等）跳过领域词要求')
+
+    say('\n[bold]3e. 模糊匹配不得把导航链接当岗位[/]')
+    for junk in ['Research', 'Faculty Research', 'Our Research', 'Search Jobs', 'Contact Us']:
+        got, _k, _rev, _w = m.classify(junk, 'agriculture remote sensing')
+        if got is not None:
+            failures.append(f'  导航链接被误判为岗位: {junk!r} -> {got!r}')
+    say('   5 个 HTML 源常见噪声全部拒绝')
 
     say('\n[bold]4. 字段抽取[/]')
     blob = ('Review of applications will begin October 15, 2026. '
@@ -1245,11 +1423,14 @@ def self_test():
 
     say('\n[bold]6. 国别识别[/]')
     for loc, exp in [('Gainesville, FL', 'US'), ('Guelph, ON, Canada', 'CA'),
-                     ('Brookings, South Dakota', 'US'), ('Zurich, Switzerland', '')]:
+                     ('Brookings, South Dakota', 'US'), ('London, ON', 'CA'),
+                     ('St. Louis, MO 63132', 'US'), ('Vancouver, British Columbia', 'CA'),
+                     ('Norwich, United Kingdom', 'XX'), ('Wageningen, Netherlands', 'XX'),
+                     ('Zurich, Switzerland', 'XX'), ('Remote', '')]:
         got = guess_country(loc, '')
         if got != exp:
             failures.append(f'  国别识别: {loc!r} 期望 {exp!r} 实得 {got!r}')
-    say('   4 个用例')
+    say('   10 个用例（含境外岗位须判为 XX 以便被 --country 过滤）')
 
     say('\n[bold]7. 入库、去重与「已消失」老化[/]')
     tmpdb = os.path.join(OUT_DIR, '_selftest.db')
@@ -1265,9 +1446,11 @@ def self_test():
             'https://a.edu/jobs/2', location='Davis, CA', desc='hyperspectral phenotyping'),
         _mk({'id': 'src_a', 'name': 'Test A'}, 'Staff Nurse', 'https://a.edu/jobs/3'),
     ]
-    kept, dropped = process(fixtures, m, {'US', 'CA'}, False)
-    if len(kept) != 2 or dropped != 1:
-        failures.append(f'  process(): 期望 2 保留/1 丢弃，实得 {len(kept)}/{dropped}')
+    kept, rejects = process(fixtures, m, {'US', 'CA'}, False)
+    if len(kept) != 2 or len(rejects) != 1:
+        failures.append(f'  process(): 期望 2 保留/1 丢弃，实得 {len(kept)}/{len(rejects)}')
+    if rejects and rejects[0]['reason'] not in REJECT_LABEL:
+        failures.append(f'  丢弃原因未登记: {rejects[0]["reason"]!r}')
     d1 = '2026-08-26'
     new1 = st.upsert(kept, d1)
     if len(new1) != 2:
@@ -1297,10 +1480,11 @@ def self_test():
                      '全部在招': st.select('status="active"'),
                      '已消失': st.select('status="gone"')},
                [{'name': 'Test A', 'type': 'rss', 'status': 'OK',
-                 'found': 3, 'kept': 2, 'detail': ''}])
+                 'found': 3, 'kept': 2, 'detail': ''}],
+               rejects)
     from openpyxl import load_workbook
     wb = load_workbook(out)
-    if set(wb.sheetnames) != {'今日新增', '全部在招', '已消失', '源健康度'}:
+    if set(wb.sheetnames) != {'今日新增', '全部在招', '已消失', '初筛丢弃样本', '源健康度'}:
         failures.append(f'  工作表不齐: {wb.sheetnames}')
     ws = wb['全部在招']
     hdr = [c.value for c in ws[1]]
@@ -1311,6 +1495,11 @@ def self_test():
     desc_idx = hdr.index('职位描述') + 1
     if not ws.cell(row=2, column=desc_idx).value:
         failures.append('  职位描述列为空——下游 AI 将无法判断相关性')
+    if '需人工确认' not in hdr:
+        failures.append('  缺少「需人工确认」列')
+    rej_ws = wb['初筛丢弃样本']
+    if rej_ws.max_row < 2:
+        failures.append('  「初筛丢弃样本」表没有数据行')
     say(f'   工作表 {wb.sheetnames}')
     say(f'   列数 {len(hdr)} · 无评分列 · 描述列有内容')
 

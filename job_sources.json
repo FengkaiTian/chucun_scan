@@ -12,7 +12,8 @@
     "  enabled   false 则跳过",
     "  country   US / CA / BOTH",
     "  q_set     引用 query_sets 里的关键词组；{q} 会被逐个替换生成多个请求",
-    "  verified  是否已确认可用。你核实后请手动改成 true，方便日后区分"
+    "  verified  是否已确认可用。你核实后请手动改成 true，方便日后区分",
+    "  domain_trusted  该源整板都在你的领域内，跳过领域关键词初筛（防止摘要过短被误杀）"
   ],
 
   "query_sets": {
@@ -61,11 +62,11 @@
     { "id": "hercjobs", "name": "HERC 高校招聘联盟", "type": "rss", "enabled": true, "country": "BOTH",
       "url": "https://main.hercjobs.org/jobs/?keywords={q}&format=rss", "q_set": "narrow", "verified": false },
 
-    { "id": "asabe", "name": "ASABE Career Center（你的本行第一入口）", "type": "rss", "enabled": true, "country": "BOTH",
+    { "id": "asabe", "domain_trusted": true, "name": "ASABE Career Center（你的本行第一入口）", "type": "rss", "enabled": true, "country": "BOTH",
       "url": "https://asabe.careerwebsite.com/jobs/?keywords={q}&format=rss", "q_set": "narrow", "verified": false,
       "notes": "YM Careers 平台。若 RSS 不通，改用 type=html 抓 https://asabe.careerwebsite.com/jobs/" },
 
-    { "id": "asabe_html", "name": "ASABE Career Center（HTML 兜底）", "type": "html", "enabled": false, "country": "BOTH",
+    { "id": "asabe_html", "domain_trusted": true, "name": "ASABE Career Center（HTML 兜底）", "type": "html", "enabled": false, "country": "BOTH",
       "url": "https://asabe.careerwebsite.com/jobs/", "verified": false,
       "notes": "RSS 不通时把 enabled 改 true" },
 
@@ -78,11 +79,11 @@
     { "id": "aag_jobs", "name": "AAG 美国地理学会", "type": "rss", "enabled": true, "country": "BOTH",
       "url": "https://jobs.aag.org/jobs/?keywords={q}&format=rss", "q_set": "narrow", "verified": false },
 
-    { "id": "tamu_nrjb", "name": "Texas A&M 自然资源岗位板", "type": "rss", "enabled": true, "country": "US",
+    { "id": "tamu_nrjb", "domain_trusted": true, "name": "Texas A&M 自然资源岗位板", "type": "rss", "enabled": true, "country": "US",
       "url": "https://jobs.rwfm.tamu.edu/feed/", "verified": false,
       "notes": "农业/自然资源方向岗位密集，值得优先修好" },
 
-    { "id": "agristok", "name": "Agristok 农业与生物科学岗位", "type": "rss", "enabled": true, "country": "BOTH",
+    { "id": "agristok", "domain_trusted": true, "name": "Agristok 农业与生物科学岗位", "type": "rss", "enabled": true, "country": "BOTH",
       "url": "https://agristok.net/feed/", "verified": false,
       "notes": "WordPress 站，/feed/ 命中概率高。前一轮人工检索中反复命中 ETH、WUR、Aarhus 的博后岗" },
 
@@ -99,18 +100,18 @@
     { "id": "conservation_job_board", "name": "Conservation Job Board", "type": "rss", "enabled": true, "country": "BOTH",
       "url": "https://www.conservationjobboard.com/feed", "verified": false },
 
-    { "id": "wssa", "name": "Weed Science Society of America", "type": "rss", "enabled": true, "country": "US",
+    { "id": "wssa", "domain_trusted": true, "name": "Weed Science Society of America", "type": "rss", "enabled": true, "country": "US",
       "url": "https://wssa.net/feed/", "verified": false,
       "notes": "WordPress。前一轮检索中命中过 K-State 与 MSU 的精准农业教职" },
 
-    { "id": "crss_sct_ca", "name": "CRSS-SCT 加拿大遥感学会", "type": "html", "enabled": true, "country": "CA",
+    { "id": "crss_sct_ca", "domain_trusted": true, "name": "CRSS-SCT 加拿大遥感学会", "type": "html", "enabled": true, "country": "CA",
       "url": "https://crss-sct.ca/jobs/", "verified": false },
 
     { "id": "zintellect", "name": "Zintellect / ORISE（含 USDA-ARS fellowship）", "type": "html", "enabled": true, "country": "US",
       "url": "https://www.zintellect.com/Opportunity/Search?q=remote+sensing", "verified": false,
       "notes": "USDA-ARS 的 fellowship 全部在这里挂，但多数要求美国公民身份" },
 
-    { "id": "lcluc_umd", "name": "NASA LCLUC 公告板", "type": "html", "enabled": true, "country": "BOTH",
+    { "id": "lcluc_umd", "domain_trusted": true, "name": "NASA LCLUC 公告板", "type": "html", "enabled": true, "country": "BOTH",
       "url": "https://lcluc.umd.edu/announcements", "verified": false,
       "notes": "土地覆盖/土地利用遥感社区，前一轮检索命中过 Calgary 的 UAV 博后" },
 
@@ -192,7 +193,7 @@
     { "id": "ashby_monarchtractor", "name": "Monarch Tractor", "type": "ashby", "enabled": true, "country": "US",
       "token": "monarchtractor", "verified": false },
 
-    { "id": "danforth", "name": "Donald Danforth 植物科学中心", "type": "html", "enabled": true, "country": "US",
+    { "id": "danforth", "domain_trusted": true, "name": "Donald Danforth 植物科学中心", "type": "html", "enabled": true, "country": "US",
       "url": "https://www.danforthcenter.org/careers/", "verified": false,
       "notes": "全球最大非营利植物科学研究所，高通量表型平台与你技能栈高度重合" }
 

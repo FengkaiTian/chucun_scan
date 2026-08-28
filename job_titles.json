@@ -1,12 +1,21 @@
 {
   "_comment": "职位名称匹配规则。categories 按顺序匹配，先匹配到的胜出，所以更具体的必须排在更宽泛的前面（例如 Research Assistant Professor 必须在 Assistant Professor 之前）。patterns 为不区分大小写的正则。",
-
   "settings": {
     "fuzzy_threshold": 88,
+    "require_domain_for_all": true,
+    "_require_domain_for_all_note": [
+      "初筛主开关。true = 所有职位都必须在标题或描述里命中至少一个领域关键词。",
+      "关掉它会把全美加所有助理教授岗照单全收——实测 10 个明显不相关的岗位",
+      "（音乐系、肿瘤免疫、会计、法国文学、临床微生物、汽车工程…）会有 8 个漏进来。",
+      "两条豁免通道保证不误杀：",
+      "  1) job_sources.json 里标了 domain_trusted 的专业板（ASABE、agristok 等）整源豁免；",
+      "  2) 描述过短（见 thin_description_chars）时无法判断，保留并在表里标『需人工确认』。"
+    ],
     "require_domain_for_generic": true,
-    "_require_domain_note": "对 generic=true 的宽泛职位（Lecturer / Instructor / Research Associate 等），要求标题或描述里至少命中一个领域关键词，否则丢弃。关掉它会捞进大量护理、临床、音乐类岗位。设为 false 可完全关闭。"
+    "_require_domain_for_generic_note": "对 generic=true 的宽泛职位（Lecturer / Instructor / Research Associate 等）单独要求领域词。require_domain_for_all 已开时本项无额外作用，留作单独关闭 for_all 时的兜底。",
+    "thin_description_chars": 40,
+    "_thin_description_note": "描述短于此长度视为『信息不足』：不因缺少领域关键词而丢弃，改为保留并标记『需人工确认』。只对具体职位生效（宽泛职位如 Lecturer 不享此豁免）。设 40 是因为真正无信息的情况是 RSS 完全不给描述；一句话的描述（30-50 字）其实已足以判断。"
   },
-
   "categories": [
     {
       "id": "presidential_provost_postdoc_fellow",
@@ -29,19 +38,25 @@
       "id": "extension_assistant_professor",
       "label": "Extension Assistant Professor",
       "generic": false,
-      "patterns": ["\\bextension\\s+assist(ant|\\.)?\\s+prof(essor|\\.)?\\b"]
+      "patterns": [
+        "\\bextension\\s+assist(ant|\\.)?\\s+prof(essor|\\.)?\\b"
+      ]
     },
     {
       "id": "research_assistant_professor",
       "label": "Research Assistant Professor",
       "generic": false,
-      "patterns": ["\\bresearch\\s+assist(ant|\\.)?\\s+prof(essor|\\.)?\\b"]
+      "patterns": [
+        "\\bresearch\\s+assist(ant|\\.)?\\s+prof(essor|\\.)?\\b"
+      ]
     },
     {
       "id": "assistant_research_professor",
       "label": "Assistant Research Professor",
       "generic": false,
-      "patterns": ["\\bassist(ant|\\.)?\\s+research\\s+prof(essor|\\.)?\\b"]
+      "patterns": [
+        "\\bassist(ant|\\.)?\\s+research\\s+prof(essor|\\.)?\\b"
+      ]
     },
     {
       "id": "teaching_assistant_professor",
@@ -76,7 +91,9 @@
       "id": "postdoctoral_research_associate",
       "label": "Postdoctoral Research Associate",
       "generic": false,
-      "patterns": ["\\bpost[\\s\\-–]?doc(toral)?\\s+research\\s+assoc(iate|\\.)?\\b"]
+      "patterns": [
+        "\\bpost[\\s\\-–]?doc(toral)?\\s+research\\s+assoc(iate|\\.)?\\b"
+      ]
     },
     {
       "id": "postdoctoral_researcher",
@@ -100,7 +117,9 @@
       "id": "postdoctoral_scholar",
       "label": "Postdoctoral Scholar",
       "generic": false,
-      "patterns": ["\\bpost[\\s\\-–]?doc(toral)?\\s+scholar\\b"]
+      "patterns": [
+        "\\bpost[\\s\\-–]?doc(toral)?\\s+scholar\\b"
+      ]
     },
     {
       "id": "postdoctoral_other",
@@ -116,19 +135,25 @@
       "id": "senior_research_associate",
       "label": "Senior Research Associate",
       "generic": false,
-      "patterns": ["\\b(senior|sr\\.?|lead|principal)\\s+research\\s+assoc(iate|\\.)?\\b"]
+      "patterns": [
+        "\\b(senior|sr\\.?|lead|principal)\\s+research\\s+assoc(iate|\\.)?\\b"
+      ]
     },
     {
       "id": "research_associate",
       "label": "Research Associate",
       "generic": true,
-      "patterns": ["\\bresearch\\s+assoc(iate|\\.)?\\b"]
+      "patterns": [
+        "\\bresearch\\s+assoc(iate|\\.)?\\b"
+      ]
     },
     {
       "id": "extension_associate",
       "label": "Extension Associate",
       "generic": false,
-      "patterns": ["\\bextension\\s+assoc(iate|\\.)?\\b"]
+      "patterns": [
+        "\\bextension\\s+assoc(iate|\\.)?\\b"
+      ]
     },
     {
       "id": "extension_specialist",
@@ -162,19 +187,25 @@
       "id": "assistant_scientist",
       "label": "Assistant Scientist",
       "generic": false,
-      "patterns": ["\\bassist(ant|\\.)?\\s+scientist\\b"]
+      "patterns": [
+        "\\bassist(ant|\\.)?\\s+scientist\\b"
+      ]
     },
     {
       "id": "associate_scientist",
       "label": "Associate Scientist",
       "generic": false,
-      "patterns": ["\\bassoc(iate|\\.)?\\s+scientist\\b"]
+      "patterns": [
+        "\\bassoc(iate|\\.)?\\s+scientist\\b"
+      ]
     },
     {
       "id": "staff_scientist",
       "label": "Staff Scientist",
       "generic": false,
-      "patterns": ["\\bstaff\\s+scientist\\b"]
+      "patterns": [
+        "\\bstaff\\s+scientist\\b"
+      ]
     },
     {
       "id": "computational_scientist",
@@ -282,7 +313,9 @@
       "id": "research_fellow",
       "label": "Research Fellow",
       "generic": true,
-      "patterns": ["\\bresearch\\s+fellow(ship)?\\b"]
+      "patterns": [
+        "\\bresearch\\s+fellow(ship)?\\b"
+      ]
     },
     {
       "id": "lecturer",
@@ -297,68 +330,268 @@
       "id": "instructor",
       "label": "Instructor",
       "generic": true,
-      "patterns": ["\\binstructor\\b"]
+      "patterns": [
+        "\\binstructor\\b"
+      ]
     }
   ],
-
   "negative_title_patterns": [
-    "\\bnursing\\b", "\\bnurse\\b", "\\bclinical\\s+(nurse|trial|psycholog)",
-    "\\bdental\\b", "\\bdentistry\\b", "\\bpharmac(y|ist)\\b",
-    "\\bveterinary\\s+(technician|clinic)\\b", "\\bradiolog(y|ist)\\b",
-    "\\bsurger(y|on)\\b", "\\banesthesi", "\\bpediatric\\b", "\\boncolog",
-    "\\bpsychiatr", "\\bsocial\\s+work\\b", "\\bcounsel(ing|or)\\b",
-    "\\blaw\\s+school\\b", "\\bparalegal\\b", "\\btheolog", "\\bdivinity\\b",
-    "\\bmusic\\b", "\\bdance\\b", "\\btheat(er|re)\\b", "\\bstudio\\s+art\\b",
-    "\\bathletic\\b", "\\bcoach\\b", "\\bcustodi(an|al)\\b", "\\bgroundskeep",
-    "\\bfood\\s+service\\b", "\\bdining\\b", "\\bcashier\\b", "\\bdriver\\b",
-    "\\bk-12\\b", "\\belementary\\s+school\\b", "\\bhigh\\s+school\\s+teacher\\b",
-    "\\bmedieval\\b", "\\bphilosoph", "\\blinguistic", "\\bcreative\\s+writing\\b"
+    "\\bnursing\\b",
+    "\\bnurse\\b",
+    "\\bclinical\\s+(nurse|trial|psycholog)",
+    "\\bdental\\b",
+    "\\bdentistry\\b",
+    "\\bpharmac(y|ist)\\b",
+    "\\bveterinary\\s+(technician|clinic)\\b",
+    "\\bradiolog(y|ist)\\b",
+    "\\bsurger(y|on)\\b",
+    "\\banesthesi",
+    "\\bpediatric\\b",
+    "\\boncolog",
+    "\\bpsychiatr",
+    "\\bsocial\\s+work\\b",
+    "\\bcounsel(ing|or)\\b",
+    "\\blaw\\s+school\\b",
+    "\\bparalegal\\b",
+    "\\btheolog",
+    "\\bdivinity\\b",
+    "\\bmusic\\b",
+    "\\bdance\\b",
+    "\\btheat(er|re)\\b",
+    "\\bstudio\\s+art\\b",
+    "\\bathletic\\b",
+    "\\bcoach\\b",
+    "\\bcustodi(an|al)\\b",
+    "\\bgroundskeep",
+    "\\bfood\\s+service\\b",
+    "\\bdining\\b",
+    "\\bcashier\\b",
+    "\\bdriver\\b",
+    "\\bk-12\\b",
+    "\\belementary\\s+school\\b",
+    "\\bhigh\\s+school\\s+teacher\\b",
+    "\\bmedieval\\b",
+    "\\bphilosoph",
+    "\\blinguistic",
+    "\\bcreative\\s+writing\\b"
   ],
-
+  "_negative_context_note": [
+    "这些模式匹配 标题 + 院系 + 机构 + 描述前 600 字，用来拦住标题看不出问题、",
+    "但正文明显不对口的岗位。必须保持高精度——写得太宽会误杀真岗位，",
+    "例如不能直接放 chemistry（土壤化学是你的相关领域）或 biology。"
+  ],
+  "negative_context_patterns": [
+    "\\bschool\\s+of\\s+nursing\\b",
+    "\\bcollege\\s+of\\s+nursing\\b",
+    "\\bschool\\s+of\\s+medicine\\b",
+    "\\bmedical\\s+school\\b",
+    "\\bschool\\s+of\\s+law\\b",
+    "\\bcollege\\s+of\\s+law\\b",
+    "\\bschool\\s+of\\s+(music|dance|drama|theat(er|re))\\b",
+    "\\bdepartment\\s+of\\s+(music|philosophy|theology|religion|history|english|nursing)\\b",
+    "\\bcancer\\s+(center|centre|biology|research\\s+center)\\b",
+    "\\b(immunotherapy|oncolog|neurodegenerat|alzheimer|parkinson)",
+    "\\bclinical\\s+(trial|practice|rotation|placement)\\b",
+    "\\bpatient\\s+care\\b",
+    "\\bbedside\\b",
+    "\\bcollege\\s+of\\s+business\\b",
+    "\\bbusiness\\s+school\\b",
+    "\\b(accounting|actuarial|marketing)\\s+(program|department|faculty)\\b",
+    "\\bmsw\\s+program\\b",
+    "\\bsocial\\s+work\\s+program\\b"
+  ],
   "domain_keywords": {
     "遥感": [
-      "remote sensing", "uav", "uas", "unmanned aerial", "unmanned aircraft",
-      "drone", "suas", "aerial imagery", "aerial image", "satellite imagery",
-      "sentinel-2", "sentinel", "landsat", "planetscope", "worldview",
-      "hyperspectral", "multispectral", "thermal imagery", "thermal infrared",
-      "lidar", "photogrammetry", "radiometric", "ndvi", "vegetation index",
-      "canopy reflectance", "spectroscopy", "spectral", "earth observation",
-      "synthetic aperture radar", "structure from motion", "orthomosaic",
-      "point cloud", "agisoft", "pix4d", "metashape", "envi"
+      "remote sensing",
+      "uav",
+      "uas",
+      "unmanned aerial",
+      "unmanned aircraft",
+      "drone",
+      "suas",
+      "aerial imagery",
+      "aerial image",
+      "satellite imagery",
+      "sentinel-2",
+      "sentinel",
+      "landsat",
+      "planetscope",
+      "worldview",
+      "hyperspectral",
+      "multispectral",
+      "thermal imagery",
+      "thermal infrared",
+      "lidar",
+      "photogrammetry",
+      "radiometric",
+      "ndvi",
+      "vegetation index",
+      "canopy reflectance",
+      "spectroscopy",
+      "spectral",
+      "earth observation",
+      "synthetic aperture radar",
+      "structure from motion",
+      "orthomosaic",
+      "point cloud",
+      "agisoft",
+      "pix4d",
+      "metashape",
+      "envi"
     ],
     "精准农业": [
-      "precision agriculture", "precision ag", "digital agriculture",
-      "smart farming", "site-specific", "variable rate", "agtech", "ag tech",
-      "crop monitoring", "yield prediction", "yield mapping", "yield estimation",
-      "nitrogen management", "nutrient management", "soil sensing", "soil health",
-      "agronomy", "agronomic", "crop modeling", "crop model", "cropping system",
-      "plant phenotyping", "phenotyping", "high-throughput phenotyping",
-      "field phenotyping", "plant breeding", "crop stress", "abiotic stress",
-      "weed detection", "weed management", "disease detection", "crop emergence",
-      "biomass estimation", "canopy cover", "chlorophyll", "irrigation"
+      "precision agriculture",
+      "precision ag",
+      "digital agriculture",
+      "smart farming",
+      "site-specific",
+      "variable rate",
+      "agtech",
+      "ag tech",
+      "crop monitoring",
+      "yield prediction",
+      "yield mapping",
+      "yield estimation",
+      "nitrogen management",
+      "nutrient management",
+      "soil sensing",
+      "soil health",
+      "agronomy",
+      "agronomic",
+      "crop modeling",
+      "crop model",
+      "cropping system",
+      "plant phenotyping",
+      "phenotyping",
+      "high-throughput phenotyping",
+      "field phenotyping",
+      "plant breeding",
+      "crop stress",
+      "abiotic stress",
+      "weed detection",
+      "weed management",
+      "disease detection",
+      "crop emergence",
+      "biomass estimation",
+      "canopy cover",
+      "chlorophyll",
+      "irrigation"
     ],
     "精准畜牧": [
-      "precision livestock", "livestock", "swine", "pig production", "sow",
-      "cattle", "beef", "dairy", "poultry", "broiler", "animal behavior",
-      "animal welfare", "estrus", "animal monitoring", "animal science"
+      "precision livestock",
+      "livestock",
+      "swine",
+      "pig production",
+      "sow",
+      "cattle",
+      "beef",
+      "dairy",
+      "poultry",
+      "broiler",
+      "animal behavior",
+      "animal welfare",
+      "estrus",
+      "animal monitoring",
+      "animal science"
     ],
     "AI与工程": [
-      "machine learning", "deep learning", "computer vision",
-      "artificial intelligence", "neural network", "pytorch", "tensorflow",
-      "yolo", "ultralytics", "image analysis", "image processing",
-      "data science", "geospatial", "gis", "arcgis", "qgis",
-      "google earth engine", "robotics", "autonomous", "sensor network",
-      "edge computing", "cyber-physical", "digital twin"
+      "machine learning",
+      "deep learning",
+      "computer vision",
+      "artificial intelligence",
+      "neural network",
+      "pytorch",
+      "tensorflow",
+      "yolo",
+      "ultralytics",
+      "image analysis",
+      "image processing",
+      "data science",
+      "geospatial",
+      "gis",
+      "arcgis",
+      "qgis",
+      "google earth engine",
+      "robotics",
+      "autonomous",
+      "sensor network",
+      "edge computing",
+      "cyber-physical",
+      "digital twin"
     ],
     "学科": [
-      "biosystems engineering", "agricultural engineering",
-      "biological engineering", "agricultural and biological engineering",
-      "plant science", "plant sciences", "soil science", "horticulture",
-      "forestry", "natural resources", "environmental science", "geography",
-      "geomatics", "ecology", "entomology", "crop science", "land-grant"
+      "biosystems engineering",
+      "agricultural engineering",
+      "biological engineering",
+      "agricultural and biological engineering",
+      "plant science",
+      "plant sciences",
+      "soil science",
+      "horticulture",
+      "forestry",
+      "natural resources",
+      "environmental science",
+      "geography",
+      "geomatics",
+      "ecology",
+      "entomology",
+      "crop science",
+      "land-grant"
+    ],
+    "广义农业与地学": [
+      "agriculture",
+      "agricultural",
+      "agroecology",
+      "agroecosystem",
+      "agrifood",
+      "crop",
+      "crops",
+      "cropland",
+      "farm",
+      "farming",
+      "farmland",
+      "grower",
+      "plant",
+      "plants",
+      "vegetation",
+      "canopy",
+      "seed",
+      "cultivar",
+      "germplasm",
+      "soil",
+      "soils",
+      "rangeland",
+      "pasture",
+      "grassland",
+      "orchard",
+      "vineyard",
+      "harvest",
+      "tillage",
+      "fertilizer",
+      "pesticide",
+      "herbicide",
+      "greenhouse gas",
+      "carbon sequestration",
+      "land use",
+      "land cover",
+      "watershed",
+      "hydrology",
+      "evapotranspiration",
+      "drought",
+      "food security",
+      "sustainable production",
+      "field trial",
+      "field experiment",
+      "unmanned",
+      "aerial",
+      "imagery",
+      "sensing",
+      "sensors",
+      "spatial analysis",
+      "earth science",
+      "environmental monitoring"
     ]
   },
-
   "citizenship_patterns": [
     "u\\.?s\\.?\\s+citizen(ship)?\\s+(is\\s+)?(required|only)",
     "must\\s+be\\s+a\\s+u\\.?s\\.?\\s+citizen",
@@ -368,7 +601,6 @@
     "canadian\\s+citizens?\\s+(and|or)\\s+permanent\\s+residents?\\s+(will\\s+be\\s+)?(given\\s+)?priorit",
     "security\\s+clearance\\s+(is\\s+)?required"
   ],
-
   "sponsorship_patterns": [
     "visa\\s+sponsorship\\s+(is\\s+)?(available|provided|offered)",
     "will\\s+sponsor",
@@ -376,7 +608,6 @@
     "eligible\\s+for\\s+visa\\s+sponsorship",
     "h-?1b\\s+sponsorship"
   ],
-
   "deadline_patterns": [
     "(?:application(?:s)?\\s+(?:due|deadline|close[sd]?)|deadline\\s+(?:for\\s+application(?:s)?\\s+)?(?:is|:)?|closing\\s+date\\s*:?|apply\\s+by|must\\s+be\\s+received\\s+by)\\s*(?:on\\s+)?([A-Z][a-z]+\\.?\\s+\\d{1,2},?\\s+\\d{4})",
     "(?:application(?:s)?\\s+(?:due|deadline|close[sd]?)|closing\\s+date\\s*:?|apply\\s+by)\\s*(?:on\\s+)?(\\d{1,2}\\s+[A-Z][a-z]+\\s+\\d{4})",
