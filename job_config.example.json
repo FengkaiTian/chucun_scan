@@ -3,21 +3,39 @@
     "把本文件复制为 job_config.json 再填写。job_config.json 已被 .gitignore 排除，",
     "绝不会进入公开仓库——API key 属于凭据，不能提交。",
     "",
-    "留空的 key 不会导致报错：对应的源会在状态表里显示 SKIP 并说明原因，",
-    "其余源照常运行。"
+    "留空的 key 不会导致报错：对应的源会在状态表里显示 SKIP 并说明原因，其余源照常运行。",
+    "填好 key 之后，还要把 job_sources.json 里对应源的 enabled 改成 true。"
   ],
-
+  "user_agent": "",
+  "_user_agent_note": [
+    "留空则用内置的标准 Chrome UA。",
+    "若某些站点回 403（被反爬拦截），把你浏览器里 chrome://version 显示的 UA 原样贴进来通常能解决。",
+    "不要在 UA 末尾加联系方式——非标准 UA 反而会被 Cloudflare 判成爬虫。"
+  ],
+  "contact_email": "",
+  "_contact_email_note": "可选。填了会作为 HTTP 标准的 From 头发送，属于礼貌做法，不影响 WAF 判定。",
   "adzuna_app_id": "",
   "adzuna_app_key": "",
-  "_adzuna_note": "免费申请: https://developer.adzuna.com/ · 免费额度约 250 次/天 · 同时覆盖美国与加拿大",
-
+  "_adzuna_note": "免费申请: https://developer.adzuna.com/ · 约 250 次/天 · 覆盖美国与加拿大",
+  "rapidapi_key": "",
+  "_rapidapi_note": [
+    "用于 JSearch —— 拿到 LinkedIn / Indeed / Glassdoor / ZipRecruiter 岗位的现实途径。",
+    "这四家都已关闭面向个人求职者的公开 API（Indeed 的 Publisher API 2024 年停发 key；",
+    "LinkedIn 只对认证招聘合作伙伴开放；Glassdoor 已停用），直接爬取会被封且违反 ToS。",
+    "JSearch 由第三方聚合转售，合规责任在服务商。",
+    "申请: https://rapidapi.com/ 搜索 JSearch · 免费档约 200 次/月，付费约 $10-200/月",
+    "填好后把 job_sources.json 里 jsearch_us / jsearch_ca 的 enabled 改 true。"
+  ],
+  "careerjet_affid": "",
+  "_careerjet_note": "免费申请: https://www.careerjet.com/partners/api/ · 限速 1000 次/小时",
+  "jooble_key": "",
+  "_jooble_note": "免费申请（需简短审核）: https://jooble.org/api/about",
   "usajobs_api_key": "",
   "usajobs_email": "",
   "_usajobs_note": [
     "免费申请: https://developer.usajobs.gov/APIRequest",
     "usajobs_email 填申请时用的邮箱（该 API 要求把邮箱放在 User-Agent 头里）。",
-    "填好后还需要把 job_sources.json 里 id=usajobs 那条的 enabled 改成 true。",
-    "USDA-ARS 的正式编制岗（Research Agricultural Engineer / Research Physical",
-    "Scientist）只在 USAJOBS 挂，但绝大多数联邦岗要求美国公民身份。"
+    "填好后还需把 job_sources.json 里 id=usajobs 那条的 enabled 改成 true。",
+    "USDA-ARS 的正式编制岗只在 USAJOBS 挂，但绝大多数联邦岗要求美国公民身份。"
   ]
 }

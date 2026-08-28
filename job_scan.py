@@ -36,9 +36,13 @@ CONFIG_FILE  = os.path.join(SCRIPT_DIR, 'job_config.json')
 DB_FILE      = os.path.join(SCRIPT_DIR, 'jobs.db')
 OUT_DIR      = os.path.join(SCRIPT_DIR, 'job_output')
 
-USER_AGENT = ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
-              'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36 '
-              '(personal academic job search; contact: tianf@missouri.edu)')
+# 必须是干净的浏览器 UA。早期版本在末尾缀了联系方式，本意是礼貌，
+# 但那是个非标准 UA，Cloudflare 一类的防护会直接判成爬虫并回 403。
+# 联系方式改用 HTTP 标准的 From 头传递，见 Http.__init__。
+DEFAULT_UA = ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+              'AppleWebKit/537.36 (KHTML, like Gecko) '
+              'Chrome/124.0.0.0 Safari/537.36')
+USER_AGENT = DEFAULT_UA
 
 HTTP_TIMEOUT   = 25
 MAX_WORKERS    = 8
@@ -66,6 +70,8 @@ STATUS_STYLE = {
     'EMPTY':   'yellow',
     'SKIP':    'blue',
     'HTTP':    'red',
+    'NOTFEED': 'magenta',
+    'DNS':     'red',
     'ERROR':   'red',
     'PENDING': 'dim',
 }
@@ -163,10 +169,19 @@ def log_line(msg):
 class Http:
     """带重试和按域名限速的 requests 封装。"""
 
-    def __init__(self):
+    def __init__(self, cfg=None):
+        cfg = cfg or {}
         self.s = requests.Session()
-        self.s.headers.update({'User-Agent': USER_AGENT,
-                               'Accept-Language': 'en-US,en;q=0.9'})
+        headers = {
+            'User-Agent': cfg.get('user_agent') or DEFAULT_UA,
+            'Accept-Language': 'en-US,en;q=0.9',
+            'Accept': 'application/rss+xml, application/atom+xml, application/xml, '
+                      'application/json, text/html;q=0.9, */*;q=0.8',
+        }
+        # From 是 HTTP 标准里声明联系方式的头，WAF 不会因此拦截
+        if cfg.get('contact_email'):
+            headers['From'] = cfg['contact_email']
+        self.s.headers.update(headers)
         if Retry is not None:
             retry = Retry(total=2, backoff_factor=1.5,
                           status_forcelist=[429, 500, 502, 503, 504],
@@ -511,6 +526,15 @@ class SourceSkip(Exception):
     """源被有意跳过（例如缺 API key），不算错误。"""
 
 
+class NotAFeed(Exception):
+    """URL 返回了 200，但内容不是 feed。
+
+    最常见的成因是网站改版后旧 RSS 路径 302 到首页——此时 feedparser 解析出
+    0 条，若不单独识别就会显示成「返回 0 条」，和「今天确实没有符合的岗位」
+    完全无法区分。这个异常就是为了把两者分开。
+    """
+
+
 def _mk(src, title, url, org='', dept='', location='', posted='', desc='', raw=None):
     return {
         'title': strip_html(title), 'url': (url or '').strip(),
@@ -531,6 +555,17 @@ def _urls_for(src, cfg):
     return [url.replace('{q}', urlparse.quote_plus(q)) for q in qs] or [url]
 
 
+def _assert_is_feed(resp, feed):
+    """0 条时判断到底是「空 feed」还是「压根不是 feed」。"""
+    ctype = (resp.headers.get('Content-Type') or '').lower()
+    head = (resp.text or '')[:300].lstrip().lower()
+    looks_html = 'html' in ctype or head.startswith(('<!doctype html', '<html'))
+    if looks_html or getattr(feed, 'bozo', 0):
+        snippet = re.sub(r'\s+', ' ', strip_html((resp.text or '')[:400]))[:110]
+        raise NotAFeed(f'非 feed 内容（Content-Type: {ctype or "未声明"}，'
+                       f'最终 URL: {resp.url[:70]}）: {snippet}')
+
+
 def fetch_rss(src, ctx):
     try:
         import feedparser
@@ -541,6 +576,9 @@ def fetch_rss(src, ctx):
         r = ctx['http'].get(url)
         r.raise_for_status()
         feed = feedparser.parse(r.content)
+        if not feed.entries:
+            _assert_is_feed(r, feed)
+            continue
         for e in feed.entries:
             desc = e.get('summary') or e.get('description') or ''
             if e.get('content'):
@@ -779,6 +817,86 @@ def fetch_adzuna(src, ctx):
     return out
 
 
+def fetch_jsearch(src, ctx):
+    """JSearch（RapidAPI / OpenWeb Ninja）。
+
+    这是拿到 LinkedIn / Indeed / Glassdoor / ZipRecruiter 库存的现实路径——
+    这四家都已关闭面向个人的公开 API，JSearch 把它们聚合后转售，
+    合规责任在服务商。注意它不覆盖 ATS（Workday / Greenhouse / Lever /
+    Ashby），那部分由本注册表里的其他源负责，两者互补而非重复。
+    """
+    key = ctx['cfg']['config'].get('rapidapi_key', '').strip()
+    if not key:
+        raise SourceSkip('未配置 rapidapi_key —— 这是抓 LinkedIn/Indeed/'
+                         'Glassdoor/ZipRecruiter 的唯一途径，填入 job_config.json 后生效')
+    host = src.get('rapidapi_host', 'jsearch.p.rapidapi.com')
+    country = 'us' if src.get('country') == 'US' else 'ca'
+    out = []
+    for q in ctx['cfg']['query_sets'].get(src.get('q_set', 'core'), []):
+        r = ctx['http'].get(f'https://{host}/search',
+                            headers={'X-RapidAPI-Key': key, 'X-RapidAPI-Host': host},
+                            params={'query': f'{q} in {country}', 'page': '1',
+                                    'num_pages': str(src.get('num_pages', 1)),
+                                    'country': country, 'date_posted': 'month'})
+        r.raise_for_status()
+        for j in r.json().get('data') or []:
+            loc = ', '.join(filter(None, [j.get('job_city'), j.get('job_state'),
+                                          j.get('job_country')]))
+            out.append(_mk(src, j.get('job_title', ''),
+                           j.get('job_apply_link') or j.get('job_google_link', ''),
+                           org=j.get('employer_name', ''),
+                           dept=j.get('job_publisher', ''),      # 上游是 LinkedIn 还是 Indeed
+                           location=loc,
+                           posted=(j.get('job_posted_at_datetime_utc') or '')[:10],
+                           desc=j.get('job_description', ''), raw=j))
+    return out
+
+
+def fetch_careerjet(src, ctx):
+    """Careerjet 公开 API。免费 key，限速 1000 次/小时，覆盖美加。"""
+    affid = ctx['cfg']['config'].get('careerjet_affid', '').strip()
+    if not affid:
+        raise SourceSkip('未配置 careerjet_affid（免费申请：careerjet.com/partners/api/）')
+    locale = 'en_US' if src.get('country') == 'US' else 'en_CA'
+    out = []
+    for q in ctx['cfg']['query_sets'].get(src.get('q_set', 'core'), []):
+        r = ctx['http'].get('https://public.api.careerjet.net/search',
+                            params={'keywords': q, 'locale_code': locale,
+                                    'affid': affid, 'pagesize': 99, 'sort': 'date',
+                                    'user_ip': '1.1.1.1', 'user_agent': DEFAULT_UA})
+        r.raise_for_status()
+        data = r.json()
+        if data.get('type') != 'JOBS':
+            continue
+        for j in data.get('jobs') or []:
+            out.append(_mk(src, j.get('title', ''), j.get('url', ''),
+                           org=j.get('company', ''), location=j.get('locations', ''),
+                           posted=(j.get('date') or '')[:10],
+                           desc=j.get('description', ''), raw=j))
+    return out
+
+
+def fetch_jooble(src, ctx):
+    """Jooble 公开 API。申请制免费 key，POST JSON。"""
+    key = ctx['cfg']['config'].get('jooble_key', '').strip()
+    if not key:
+        raise SourceSkip('未配置 jooble_key（免费申请：jooble.org/api/about）')
+    region = src.get('jooble_region', 'us')
+    location = 'United States' if src.get('country') == 'US' else 'Canada'
+    out = []
+    for q in ctx['cfg']['query_sets'].get(src.get('q_set', 'core'), []):
+        r = ctx['http'].post(f'https://{region}.jooble.org/api/{key}',
+                             json={'keywords': q, 'location': location, 'page': '1'},
+                             headers={'Content-Type': 'application/json'})
+        r.raise_for_status()
+        for j in r.json().get('jobs') or []:
+            out.append(_mk(src, j.get('title', ''), j.get('link', ''),
+                           org=j.get('company', ''), location=j.get('location', ''),
+                           posted=(j.get('updated') or '')[:10],
+                           desc=j.get('snippet', ''), raw=j))
+    return out
+
+
 def fetch_usajobs(src, ctx):
     key = ctx['cfg']['config'].get('usajobs_api_key', '').strip()
     email = ctx['cfg']['config'].get('usajobs_email', '').strip()
@@ -844,6 +962,7 @@ FETCHERS = {
     'workday': fetch_workday, 'peopleadmin': fetch_peopleadmin,
     'pageup': fetch_pageup, 'oracle_hcm': fetch_oracle_hcm, 'icims': fetch_icims,
     'adzuna': fetch_adzuna, 'usajobs': fetch_usajobs, 'html': fetch_html,
+    'jsearch': fetch_jsearch, 'careerjet': fetch_careerjet, 'jooble': fetch_jooble,
 }
 
 
@@ -1042,6 +1161,36 @@ def load_json(path):
         return json.load(f)
 
 
+def check_deps():
+    """启动时自检可选依赖。缺 feedparser 会让 17 个源静默 SKIP，
+    看起来像「全都失败」——所以必须在最上方显式告警。"""
+    missing = []
+    for mod, why in (('feedparser', 'RSS 与 PeopleAdmin 类型的源（共 17 个）全部无法工作'),
+                     ('openpyxl',   '无法生成 xlsx —— 这是脚本的主要产物')):
+        try:
+            __import__(mod)
+        except ImportError:
+            missing.append((mod, why))
+    optional = []
+    for mod, why in (('rapidfuzz', '标题模糊匹配退化为标准库 difflib，准确率略降'),
+                     ('rich',      '状态看板退化为逐行打印')):
+        try:
+            __import__(mod)
+        except ImportError:
+            optional.append((mod, why))
+
+    if missing:
+        say('[bold red]缺少必需依赖 —— 这是「所有源都失败」最常见的原因[/]')
+        for mod, why in missing:
+            say(f'[red]  {mod:<12} {why}[/]')
+        say('[bold]  修复:  pip install -r requirements_jobscan.txt[/]\n')
+    if optional:
+        for mod, why in optional:
+            say(f'[dim]可选依赖 {mod} 未安装：{why}[/]')
+        say('')
+    return not missing
+
+
 def load_config():
     if os.path.exists(CONFIG_FILE):
         try:
@@ -1051,22 +1200,100 @@ def load_config():
     return {}
 
 
+# 每种 HTTP 码对应的修复方向，直接显示在状态表里，省得你再来问我
+HTTP_HINT = {
+    401: '需要认证 —— 检查 API key',
+    403: '被反爬拦截 —— 在 job_config.json 里换个 user_agent 试试，或改用该站的 RSS',
+    404: 'URL 不存在 —— 这条 endpoint 是错的，需要修正或关掉',
+    410: '接口已下线 —— 把这条 enabled 改成 false',
+    429: '限流 —— 调大 PER_HOST_DELAY 或减少 q_set 里的关键词',
+    500: '对方服务器出错 —— 过一天再看',
+    503: '对方暂时不可用 —— 过一天再看',
+}
+
+
+def probe_url(url, cfg):
+    """单独探测一个 URL，打印足够定位问题的信息。"""
+    http = Http(cfg)
+    say(f'[bold]探测[/] {url}\n')
+    say(f'[dim]User-Agent: {http.s.headers.get("User-Agent")}[/]')
+    try:
+        r = http.get(url, allow_redirects=True)
+    except Exception as e:
+        say(f'[red]请求失败: {type(e).__name__}: {str(e)[:200]}[/]')
+        return 1
+
+    say(f'状态码        {r.status_code}' + (f'  [red]{HTTP_HINT.get(r.status_code,"")}[/]'
+                                            if r.status_code >= 400 else ''))
+    say(f'Content-Type  {r.headers.get("Content-Type") or "(未声明)"}')
+    say(f'最终 URL      {r.url}')
+    if r.history:
+        say(f'重定向        {len(r.history)} 次 —— 旧路径失效时的典型征兆')
+    say(f'响应大小      {len(r.content)} 字节')
+
+    body = (r.text or '')
+    head = body[:300].lstrip().lower()
+    if head.startswith(('<!doctype html', '<html')):
+        say('[magenta]内容是 HTML 网页，不是 feed/JSON[/]')
+    try:
+        import feedparser
+        feed = feedparser.parse(r.content)
+        if feed.entries:
+            say(f'[green]解析为 feed 成功，{len(feed.entries)} 条[/]')
+            for e in feed.entries[:3]:
+                say(f'  · {e.get("title","")[:88]}')
+        elif not head.startswith(('<!doctype html', '<html')):
+            say(f'[yellow]feed 解析出 0 条（bozo={getattr(feed, "bozo", "?")}）[/]')
+    except ImportError:
+        say('[dim]未装 feedparser，跳过 feed 解析[/]')
+
+    try:
+        data = r.json()
+        say(f'[green]是合法 JSON，顶层类型 {type(data).__name__}[/]')
+        if isinstance(data, dict):
+            say(f'  顶层键: {", ".join(list(data)[:12])}')
+    except Exception:
+        pass
+
+    say('\n[dim]响应开头 400 字：[/]')
+    say(re.sub(r'\s+', ' ', strip_html(body[:800]))[:400] or '(空)')
+    return 0
+
+
 def run_source(src, ctx):
+    """跑一个源。返回 (状态, 岗位列表, 说明)。绝不抛异常——单源失败不能拖垮整体。"""
     fn = FETCHERS.get(src.get('type'))
     if fn is None:
-        return 'ERROR', [], f"未知类型 {src.get('type')}"
+        return 'ERROR', [], f"未知类型 {src.get('type')}（job_sources.json 写错了）"
     try:
         jobs = fn(src, ctx)
-        return ('OK' if jobs else 'EMPTY'), jobs, ('' if jobs else '返回 0 条')
+        if jobs:
+            return 'OK', jobs, ''
+        return 'EMPTY', [], '接口正常，但没有返回任何岗位'
     except SourceSkip as e:
         return 'SKIP', [], str(e)
+    except NotAFeed as e:
+        return 'NOTFEED', [], str(e)
     except requests.HTTPError as e:
-        code = e.response.status_code if e.response is not None else '?'
-        return 'HTTP', [], f'HTTP {code}'
+        code = e.response.status_code if e.response is not None else 0
+        hint = HTTP_HINT.get(code, '')
+        return 'HTTP', [], f'HTTP {code}' + (f' —— {hint}' if hint else '')
+    except requests.Timeout:
+        return 'ERROR', [], f'超时（>{HTTP_TIMEOUT}s）—— 对方慢或被静默丢包'
+    except requests.ConnectionError as e:
+        msg = str(e)
+        if any(k in msg for k in ('NameResolution', 'Name or service not known',
+                                  'nodename nor servname', 'getaddrinfo')):
+            return 'DNS', [], '域名解析失败 —— 主机名拼错或该站已不存在'
+        if 'ProxyError' in msg or 'Tunnel connection failed' in msg:
+            return 'ERROR', [], '代理拒绝 —— 本机/公司网络策略挡住了这个域名'
+        if 'SSLError' in msg or 'CertificateError' in msg:
+            return 'ERROR', [], 'TLS 证书校验失败 —— 可能是中间人代理'
+        return 'ERROR', [], f'连接失败: {msg[:80]}'
     except requests.RequestException as e:
-        return 'ERROR', [], f'{type(e).__name__}: {str(e)[:90]}'
+        return 'ERROR', [], f'{type(e).__name__}: {str(e)[:80]}'
     except Exception as e:
-        return 'ERROR', [], f'{type(e).__name__}: {str(e)[:90]}'
+        return 'ERROR', [], f'{type(e).__name__}: {str(e)[:80]}'
 
 
 REJECT_LABEL = {
@@ -1129,6 +1356,8 @@ def main():
     ap.add_argument('--check-sources', action='store_true', help='只探测各源健康度，不写库不出表')
     ap.add_argument('--only', metavar='ID', help='只跑指定源（可用逗号分隔多个）')
     ap.add_argument('--self-test', action='store_true', help='离线自测，不联网')
+    ap.add_argument('--probe', metavar='URL',
+                    help='单独探测一个 URL：状态码、Content-Type、重定向、内容类型、前若干字')
     ap.add_argument('--domain-filter', action='store_true',
                     help='要求所有岗位都命中领域关键词（默认只对宽泛职位要求）')
     ap.add_argument('--country', default='US,CA', help='保留的国别，逗号分隔；留空则不过滤')
@@ -1138,20 +1367,31 @@ def main():
     if args.self_test:
         return self_test()
 
+    config = load_config()
+    if args.probe:
+        return probe_url(args.probe, config)
+
+    check_deps()
+
     titles = load_json(TITLES_FILE)
     sources_spec = load_json(SOURCES_FILE)
     matcher = Matcher(titles)
 
-    sources = [s for s in sources_spec['sources'] if s.get('enabled', True)]
     if args.only:
-        wanted = {x.strip() for x in args.only.split(',')}
-        sources = [s for s in sources if s['id'] in wanted]
+        # 显式点名时忽略 enabled —— 否则刚配好 key、还没改 enabled 的源没法单独测
+        wanted = {x.strip() for x in args.only.split(',') if x.strip()}
+        sources = [s for s in sources_spec['sources'] if s['id'] in wanted]
+        unknown = wanted - {s['id'] for s in sources}
+        if unknown:
+            say(f'[yellow]job_sources.json 里没有这些 id: {", ".join(sorted(unknown))}[/]')
+    else:
+        sources = [s for s in sources_spec['sources'] if s.get('enabled', True)]
     if not sources:
         say('[red]没有启用的源。检查 job_sources.json 里的 enabled 字段。[/]')
         return 1
 
-    ctx = {'http': Http(),
-           'cfg': {'query_sets': sources_spec.get('query_sets', {}), 'config': load_config()}}
+    ctx = {'http': Http(config),
+           'cfg': {'query_sets': sources_spec.get('query_sets', {}), 'config': config}}
 
     keep_countries = {c.strip().upper() for c in args.country.split(',') if c.strip()}
     today = datetime.now().strftime('%Y-%m-%d')
@@ -1192,10 +1432,24 @@ def main():
     bad = sum(1 for r in source_rows if r['status'] in ('HTTP', 'ERROR'))
 
     if args.check_sources:
-        say(f'\n[bold]探测完成[/]  正常 {ok} · 空 '
-            f"{sum(1 for r in source_rows if r['status']=='EMPTY')} · "
-            f"跳过 {sum(1 for r in source_rows if r['status']=='SKIP')} · 失败 {bad}")
-        say('把状态不是 OK 的条目在 job_sources.json 里修正或改 enabled=false。')
+        from collections import Counter
+        tally = Counter(r['status'] for r in source_rows)
+        say('\n[bold]探测完成[/]')
+        MEANING = {
+            'OK':      ('green',   '正常，有岗位返回'),
+            'EMPTY':   ('yellow',  '接口通、但当前无岗位 —— 未必是问题'),
+            'NOTFEED': ('magenta', 'URL 返回的不是 feed —— endpoint 需要修正'),
+            'SKIP':    ('blue',    '主动跳过（多半是缺 API key）'),
+            'HTTP':    ('red',     'HTTP 错误 —— 看每行的具体码与建议'),
+            'DNS':     ('red',     '域名解析失败 —— 主机名错或站点已不存在'),
+            'ERROR':   ('red',     '连接/其他错误'),
+        }
+        for st, (color, meaning) in MEANING.items():
+            if tally.get(st):
+                say(f'  [{color}]{st:<8}[/] {tally[st]:>3} 个 —— {meaning}')
+        say('\n把 NOTFEED / HTTP 404 / DNS 的条目在 job_sources.json 里修正或改 '
+            'enabled=false；HTTP 403 先试换 user_agent。')
+        say('[dim]要单独查某个 URL：python job_scan.py --probe "<url>"[/]')
         return 0
 
     # 同一岗位可能被多个源抓到，先按 job_id 去重（保留描述最长的那条）
@@ -1473,6 +1727,65 @@ def self_test():
     if len(st.select('status="gone"')) != 0:
         failures.append('  源全部失败时不应把岗位判为已消失')
     say(f'   在招 {len(active)} · 已消失 {len(goners)} · 源失败保护 OK')
+
+    say('\n[bold]7b. 诊断：非 feed 响应必须与「空 feed」区分开[/]')
+    class _R:
+        def __init__(self, ct, body, url='https://x.test/feed'):
+            self.headers = {'Content-Type': ct}; self.text = body; self.url = url
+    class _F:
+        def __init__(self, bozo=0): self.bozo = bozo; self.entries = []
+
+    # 情况一：网站改版后 RSS 路径重定向到 HTML 首页 —— 必须报 NotAFeed
+    try:
+        _assert_is_feed(_R('text/html; charset=utf-8',
+                           '<!DOCTYPE html><html><body>Page not found</body></html>'), _F(1))
+        failures.append('  HTML 冒充 feed 未被识别')
+    except NotAFeed as e:
+        say(f'   HTML 响应 -> NOTFEED: {str(e)[:66]}…')
+    # 情况二：合法但今天没岗位的空 feed —— 不能报错
+    try:
+        _assert_is_feed(_R('application/rss+xml',
+                           '<?xml version="1.0"?><rss><channel></channel></rss>'), _F(0))
+        say('   合法空 feed -> 正常放行（不误报）')
+    except NotAFeed:
+        failures.append('  合法的空 feed 被误判为 NOTFEED')
+
+    say('\n[bold]7c. 诊断：失败类型必须细分[/]')
+    def _fake(exc):
+        return run_source({'id': 't', 'name': 't', 'type': '_fake'},
+                          {'cfg': {}, 'http': None, '_raise': exc})
+    FETCHERS['_fake'] = lambda src, ctx: (_ for _ in ()).throw(ctx['_raise'])
+    resp404 = requests.Response(); resp404.status_code = 404
+    resp403 = requests.Response(); resp403.status_code = 403
+    checks = [
+        (requests.HTTPError(response=resp404), 'HTTP', '404'),
+        (requests.HTTPError(response=resp403), 'HTTP', '403'),
+        (requests.ConnectionError('NameResolutionError host'), 'DNS', '解析'),
+        (requests.Timeout(), 'ERROR', '超时'),
+        (NotAFeed('不是 feed'), 'NOTFEED', 'feed'),
+        (SourceSkip('缺 key'), 'SKIP', 'key'),
+    ]
+    for exc, want_status, want_in in checks:
+        status, _j, detail = _fake(exc)
+        if status != want_status or want_in not in detail:
+            failures.append(f'  失败分类错: {type(exc).__name__} -> {status} / {detail!r}')
+    del FETCHERS['_fake']
+    say(f'   {len(checks)} 种失败各自归类正确，且带修复建议')
+
+    say('\n[bold]7d. 新增聚合器连接器（覆盖 LinkedIn/Indeed/Glassdoor/ZipRecruiter）[/]')
+    for t in ('jsearch', 'careerjet', 'jooble'):
+        if t not in FETCHERS:
+            failures.append(f'  抓取器未注册: {t}')
+    # 无 key 时必须干净地 SKIP，而不是报错
+    for t, sid in (('jsearch', 'jsearch_us'), ('careerjet', 'careerjet_us'),
+                   ('jooble', 'jooble_us')):
+        status, _j, detail = run_source(
+            {'id': sid, 'name': sid, 'type': t, 'country': 'US', 'q_set': 'core'},
+            {'cfg': {'query_sets': {'core': ['remote sensing']}, 'config': {}},
+             'http': None})
+        if status != 'SKIP':
+            failures.append(f'  {t} 缺 key 时应 SKIP，实得 {status}: {detail}')
+    say('   3 个连接器已注册，且缺 key 时干净跳过（不影响其余源）')
 
     say('\n[bold]8. xlsx 生成[/]')
     out = os.path.join(OUT_DIR, '_selftest.xlsx')
