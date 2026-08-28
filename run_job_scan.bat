@@ -25,4 +25,8 @@ echo.
 
 REM 保持窗口打开，让你回来还能看到状态表；6 小时后自动关闭，
 REM 避免每天一个窗口越堆越多。按任意键可立即关闭。
+REM 注意：任务计划程序有时会重定向 stdin，此时 timeout 会直接报
+REM "Input redirection is not supported" 并退出，窗口就白闪一下没了。
+REM 所以失败时回落到 pause。
 timeout /t 21600
+if %ERRORLEVEL% NEQ 0 pause

@@ -193,13 +193,20 @@ class Http:
         self._robots = {}
 
     def _throttle(self, url):
+        """按域名限速。
+
+        sleep 必须在锁外：放在锁内会让等待某个域名的线程堵住所有其他线程，
+        8 个 worker 退化成 1 个，整轮扫描（约 350 次请求）从 1 分钟变成 7 分钟。
+        """
         host = urlparse.urlparse(url).netloc
         with self._lock:
             prev = self._last.get(host, 0)
-            wait = PER_HOST_DELAY - (time.time() - prev)
-            if wait > 0:
-                time.sleep(wait)
-            self._last[host] = time.time()
+            now = time.time()
+            wait = max(0.0, PER_HOST_DELAY - (now - prev))
+            # 先把「下一次可请求时刻」占住，别的线程据此排队
+            self._last[host] = now + wait
+        if wait > 0:
+            time.sleep(wait)
 
     def get(self, url, **kw):
         self._throttle(url)
@@ -311,6 +318,9 @@ CA_ABBR = {'on','qc','bc','ab','mb','sk','ns','nb','nl','pe','yt','nt','nu'}
 
 # 明确的境外标记。识别到就返回 'XX'，交给 --country 过滤掉。
 # 只列高置信度的国名——识别不出的仍然放行，宁可多留也不误杀。
+# 只有这三个是合法的国别取值。源配置里的 BOTH 不属于此列。
+VALID_COUNTRIES = {'US', 'CA', 'XX'}
+
 FOREIGN_MARKERS = {
     'united kingdom', 'england', 'scotland', 'wales', 'ireland',
     'netherlands', 'germany', 'france', 'spain', 'italy', 'belgium',
@@ -340,6 +350,9 @@ def guess_country(location, default=''):
     token 而永远匹配不到州缩写。州/省全称是多词的（south dakota、british
     columbia），所以除整片段外还要比对末尾的 2-3 词 n-gram。
     """
+    # 统一在一个地方把 default 规整成合法国别，避免下面任何一条返回路径漏掉
+    default = default if default in VALID_COUNTRIES else ''
+
     raw = str(location or '')
     if not raw.strip():
         return default
@@ -586,9 +599,17 @@ def fetch_rss(src, ctx):
             posted = ''
             if e.get('published_parse'):
                 posted = time.strftime('%Y-%m-%d', e['published_parse'])
+            # 不少招聘 feed 会用自定义元素带地点，feedparser 会原样暴露出来。
+            # 取到就能填国别列；取不到则回落到源的 country 字段。
+            loc = ''
+            for k in ('location', 'job_location', 'joblocation', 'city', 'region'):
+                v = e.get(k)
+                if isinstance(v, str) and v.strip():
+                    loc = v
+                    break
             out.append(_mk(src, e.get('title', ''), e.get('link', ''),
                            org=e.get('author', '') or feed.feed.get('title', ''),
-                           posted=posted, desc=desc, raw=dict(e)))
+                           location=loc, posted=posted, desc=desc, raw=dict(e)))
     return out
 
 
@@ -1164,13 +1185,15 @@ def load_json(path):
 def check_deps():
     """启动时自检可选依赖。缺 feedparser 会让 17 个源静默 SKIP，
     看起来像「全都失败」——所以必须在最上方显式告警。"""
-    missing = []
-    for mod, why in (('feedparser', 'RSS 与 PeopleAdmin 类型的源（共 17 个）全部无法工作'),
-                     ('openpyxl',   '无法生成 xlsx —— 这是脚本的主要产物')):
-        try:
-            __import__(mod)
-        except ImportError:
-            missing.append((mod, why))
+    fatal, degraded = [], []
+    try:
+        __import__('openpyxl')
+    except ImportError:
+        fatal.append(('openpyxl', '无法生成 xlsx —— 这是脚本的主要产物，缺了跑完也没有输出'))
+    try:
+        __import__('feedparser')
+    except ImportError:
+        degraded.append(('feedparser', 'RSS 与 PeopleAdmin 类型的源（共 17 个）全部无法工作'))
     optional = []
     for mod, why in (('rapidfuzz', '标题模糊匹配退化为标准库 difflib，准确率略降'),
                      ('rich',      '状态看板退化为逐行打印')):
@@ -1179,16 +1202,19 @@ def check_deps():
         except ImportError:
             optional.append((mod, why))
 
-    if missing:
-        say('[bold red]缺少必需依赖 —— 这是「所有源都失败」最常见的原因[/]')
-        for mod, why in missing:
+    if fatal or degraded:
+        say('[bold red]缺少依赖 —— 这是「所有源都失败」最常见的原因[/]')
+        for mod, why in fatal + degraded:
             say(f'[red]  {mod:<12} {why}[/]')
         say('[bold]  修复:  pip install -r requirements_jobscan.txt[/]\n')
     if optional:
         for mod, why in optional:
             say(f'[dim]可选依赖 {mod} 未安装：{why}[/]')
         say('')
-    return not missing
+    if fatal:
+        say('[bold red]缺 openpyxl 时不继续 —— 否则会白跑几百次网络请求再报错。[/]')
+        return False
+    return True
 
 
 def load_config():
@@ -1371,7 +1397,8 @@ def main():
     if args.probe:
         return probe_url(args.probe, config)
 
-    check_deps()
+    if not check_deps():
+        return 2
 
     titles = load_json(TITLES_FILE)
     sources_spec = load_json(SOURCES_FILE)
@@ -1686,6 +1713,26 @@ def self_test():
             failures.append(f'  国别识别: {loc!r} 期望 {exp!r} 实得 {got!r}')
     say('   10 个用例（含境外岗位须判为 XX 以便被 --country 过滤）')
 
+    # 回归：源配置里的 country 可能是 BOTH，那是「该源覆盖美加」的作用域标记，
+    # 不是国别。若把它当国别返回，13 个 BOTH 源（含 ASABE）的岗位会因为
+    # 「不在美国/加拿大」被整批静默丢掉，而 RSS 源恰恰从不携带 location。
+    if guess_country('', 'BOTH') != '':
+        failures.append('  BOTH 被当成国别返回 —— 会导致 13 个源的岗位被整批丢弃')
+    both_src = {'id': 'asabe', 'name': 'ASABE', 'country': 'BOTH'}
+    probe_jobs = [
+        (_mk(both_src, 'Assistant Professor in Remote Sensing', 'https://a.test/1',
+             desc='UAV hyperspectral imagery for precision agriculture.'), 1, '无 location 的 BOTH 源'),
+        (_mk(both_src, 'Research Scientist', 'https://a.test/2', location='Gainesville, FL',
+             desc='remote sensing of crops'), 1, 'BOTH 源 + 美国地点'),
+        (_mk(both_src, 'Research Scientist', 'https://a.test/3', location='Norwich, United Kingdom',
+             desc='remote sensing of crops'), 0, 'BOTH 源 + 英国地点'),
+    ]
+    for job, want, label in probe_jobs:
+        k, _r = process([job], m, {'US', 'CA'}, False, set())
+        if len(k) != want:
+            failures.append(f'  国别过滤: {label} 期望保留 {want} 实得 {len(k)}')
+    say('   BOTH 源回归用例 3 个（这是曾经会静默吃掉 ASABE 全部岗位的 bug）')
+
     say('\n[bold]7. 入库、去重与「已消失」老化[/]')
     tmpdb = os.path.join(OUT_DIR, '_selftest.db')
     os.makedirs(OUT_DIR, exist_ok=True)
@@ -1727,6 +1774,18 @@ def self_test():
     if len(st.select('status="gone"')) != 0:
         failures.append('  源全部失败时不应把岗位判为已消失')
     say(f'   在招 {len(active)} · 已消失 {len(goners)} · 源失败保护 OK')
+
+    say('\n[bold]7a. 限速：sleep 不得在锁内（否则 8 线程退化为 1）[/]')
+    import threading as _th
+    _h = Http()
+    _t0 = time.time()
+    _ts = [_th.Thread(target=lambda i=i: _h._throttle(f'https://host{i}.test/x')) for i in range(6)]
+    for _t in _ts: _t.start()
+    for _t in _ts: _t.join()
+    _elapsed = time.time() - _t0
+    if _elapsed > 0.5:
+        failures.append(f'  6 个不同域名首次请求耗时 {_elapsed:.2f}s —— sleep 可能仍在锁内')
+    say(f'   6 个不同域名并发限速 {_elapsed:.2f}s（应接近 0，不同域名互不阻塞）')
 
     say('\n[bold]7b. 诊断：非 feed 响应必须与「空 feed」区分开[/]')
     class _R:
