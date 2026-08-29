@@ -245,21 +245,24 @@
       "notes": "这四家都已关闭面向个人的公开 API，JSearch 是拿到它们库存的现实路径。需 RapidAPI key（免费档约 200 次/月，付费 $10-200/月）填入 job_config.json 的 rapidapi_key，然后把 enabled 改 true。注意它不覆盖 Workday/Greenhouse/Lever/Ashby——那部分由本表其他源负责，两者互补。" },
 
     { "id": "jsearch_ca", "name": "JSearch 加拿大", "type": "jsearch", "enabled": false, "country": "CA",
-      "q_set": "wide", "num_pages": 2, "verified": false },
+      "q_set": "wide", "num_pages": 2, "verified": false,
+      "notes": "待配置 rapidapi_key。填好后与 jsearch_us 一并把 enabled 改 true" },
 
     { "id": "careerjet_us", "name": "Careerjet 美国", "type": "careerjet", "enabled": false, "country": "US",
       "q_set": "wide", "verified": false,
       "notes": "免费 key，限速 1000 次/小时。广谱聚合器，与那四家的库存有相当重叠。申请：careerjet.com/partners/api/" },
 
     { "id": "careerjet_ca", "name": "Careerjet 加拿大", "type": "careerjet", "enabled": false, "country": "CA",
-      "q_set": "wide", "verified": false },
+      "q_set": "wide", "verified": false,
+      "notes": "待配置 careerjet_affid。填好后与 careerjet_us 一并启用" },
 
     { "id": "jooble_us", "name": "Jooble 美国", "type": "jooble", "enabled": false, "country": "US",
       "q_set": "wide", "jooble_region": "us", "verified": false,
       "notes": "申请制免费 key。申请：jooble.org/api/about" },
 
     { "id": "jooble_ca", "name": "Jooble 加拿大", "type": "jooble", "enabled": false, "country": "CA",
-      "q_set": "wide", "jooble_region": "ca", "verified": false },
+      "q_set": "wide", "jooble_region": "ca", "verified": false,
+      "notes": "待配置 jooble_key。填好后与 jooble_us 一并启用" },
 
     { "id": "usajobs", "name": "USAJOBS 美国联邦岗（默认关闭）", "type": "usajobs", "enabled": false, "country": "US",
       "url": "https://data.usajobs.gov/api/search", "q_set": "wide", "verified": false,
