@@ -44,61 +44,89 @@
   "sources": [
 
     { "id": "higheredjobs_agengr", "name": "HigherEdJobs · 农业工程", "type": "rss", "enabled": true, "country": "US",
-      "url": "https://www.higheredjobs.com/rss/categoryFeed.cfm?catID=111", "verified": false,
-      "notes": "catID=111 对应 Agricultural Engineering（来自搜索结果中的 JobCat=111），其余 catID 需自行确认" },
+      "url": "https://www.higheredjobs.com/rss/categoryFeed.cfm?catID=111", "verified": true,
+      "notes": "已验证可用。Agricultural Engineering，分类小、条目少属正常" },
 
-    { "id": "higheredjobs_agsci", "name": "HigherEdJobs · 农业科学与推广", "type": "rss", "enabled": true, "country": "US",
-      "url": "https://www.higheredjobs.com/rss/categoryFeed.cfm?catID=100", "verified": false,
-      "notes": "catID 待核实" },
+    { "id": "higheredjobs_biology", "name": "HigherEdJobs · 生物学", "type": "rss", "enabled": true, "country": "US",
+      "url": "https://www.higheredjobs.com/rss/categoryFeed.cfm?catID=100", "verified": true,
+      "notes": "已验证：单次返回 228 条、命中 62 条。catID=100 实为 Biology（原标注有误）" },
+
+    { "id": "higheredjobs_animalsci", "name": "HigherEdJobs · 动物科学", "type": "rss", "enabled": true, "country": "US",
+      "url": "https://www.higheredjobs.com/search/rss.cfm?JobCat=51", "verified": false,
+      "notes": "精准畜牧方向。注意这批新增用 /search/rss.cfm?JobCat= 路径（搜索结果中的真实 URL 形态），与上面两条的 /rss/categoryFeed.cfm?catID= 不同；哪种能用以 --check-sources 为准" },
+
+    { "id": "higheredjobs_envsci", "name": "HigherEdJobs · 环境科学/生态/林学", "type": "rss", "enabled": true, "country": "US",
+      "url": "https://www.higheredjobs.com/search/rss.cfm?JobCat=54", "verified": false },
+
+    { "id": "higheredjobs_geography", "name": "HigherEdJobs · 地理学", "type": "rss", "enabled": true, "country": "US",
+      "url": "https://www.higheredjobs.com/search/rss.cfm?JobCat=103", "verified": false,
+      "notes": "遥感与 GIS 教职大量挂在地理系" },
+
+    { "id": "higheredjobs_civilenv", "name": "HigherEdJobs · 土木与环境工程", "type": "rss", "enabled": true, "country": "US",
+      "url": "https://www.higheredjobs.com/search/rss.cfm?JobCat=115", "verified": false },
+
+    { "id": "higheredjobs_cs", "name": "HigherEdJobs · 计算机科学", "type": "rss", "enabled": true, "country": "US",
+      "url": "https://www.higheredjobs.com/search/rss.cfm?JobCat=102", "verified": false,
+      "notes": "UTK 那种挂在 EECS 系的 AI-for-agriculture 集群招聘会出现在这里" },
+
+    { "id": "higheredjobs_stats", "name": "HigherEdJobs · 统计学", "type": "rss", "enabled": true, "country": "US",
+      "url": "https://www.higheredjobs.com/search/rss.cfm?JobCat=107", "verified": false },
+
+    { "id": "higheredjobs_agecon", "name": "HigherEdJobs · 农业经济与农商", "type": "rss", "enabled": true, "country": "US",
+      "url": "https://www.higheredjobs.com/search/rss.cfm?JobCat=50", "verified": false },
 
     { "id": "insidehighered", "name": "Inside Higher Ed Careers", "type": "rss", "enabled": true, "country": "US",
-      "url": "https://careers.insidehighered.com/jobs/?keywords={q}&format=rss", "q_set": "core", "verified": false,
-      "notes": "Madgex 平台，通常支持 &format=rss" },
+      "url": "https://careers.insidehighered.com/jobsrss/?keywords={q}", "q_set": "core", "verified": false,
+      "notes": "Madgex 平台。真实 RSS 路径是 /jobsrss/?keywords= ——早先猜的 ?format=rss 会返回 HTML 页面（NOTFEED）" },
 
     { "id": "chronicle", "name": "Chronicle of Higher Education Jobs", "type": "rss", "enabled": true, "country": "US",
-      "url": "https://jobs.chronicle.com/jobs/?keywords={q}&format=rss", "q_set": "core", "verified": false,
+      "url": "https://jobs.chronicle.com/jobsrss/?keywords={q}", "q_set": "core", "verified": false,
       "notes": "同为 Madgex 平台" },
 
     { "id": "hercjobs", "name": "HERC 高校招聘联盟", "type": "rss", "enabled": true, "country": "BOTH",
-      "url": "https://main.hercjobs.org/jobs/?keywords={q}&format=rss", "q_set": "narrow", "verified": false },
+      "url": "https://main.hercjobs.org/jobsrss/?keywords={q}", "q_set": "narrow", "verified": false },
 
-    { "id": "asabe", "domain_trusted": true, "name": "ASABE Career Center（你的本行第一入口）", "type": "rss", "enabled": true, "country": "BOTH",
-      "url": "https://asabe.careerwebsite.com/jobs/?keywords={q}&format=rss", "q_set": "narrow", "verified": false,
-      "notes": "YM Careers 平台。若 RSS 不通，改用 type=html 抓 https://asabe.careerwebsite.com/jobs/" },
+    { "id": "asabe", "domain_trusted": true, "name": "ASABE Career Center（你的本行第一入口）", "type": "html", "enabled": true, "country": "BOTH",
+      "url": "https://careers.asabe.org/jobs/?keywords={q}", "q_set": "narrow", "verified": false,
+      "notes": "RSS 路径实测返回 HTML（NOTFEED），改走 careers.asabe.org 的 HTML 抓取。该站是 YM Careers 平台，正式域名是 careers.asabe.org 而非 asabe.careerwebsite.com。已标 domain_trusted，所以摘要短也不会被初筛误杀" },
 
-    { "id": "asabe_html", "domain_trusted": true, "name": "ASABE Career Center（HTML 兜底）", "type": "html", "enabled": false, "country": "BOTH",
+    { "id": "asabe_careerwebsite", "domain_trusted": true, "name": "ASABE Career Center（备用域名）", "type": "html", "enabled": false, "country": "BOTH",
       "url": "https://asabe.careerwebsite.com/jobs/", "verified": false,
-      "notes": "RSS 不通时把 enabled 改 true" },
+      "notes": "上面那条不通时再启用" },
 
-    { "id": "naturecareers", "name": "Nature Careers", "type": "rss", "enabled": true, "country": "BOTH",
-      "url": "https://www.nature.com/naturecareers/jobs/rss?q={q}", "q_set": "narrow", "verified": false },
+    { "id": "naturecareers", "name": "Nature Careers", "type": "html", "enabled": true, "country": "BOTH",
+      "url": "https://www.nature.com/naturecareers/jobs?q={q}", "q_set": "narrow", "verified": false,
+      "notes": "RSS 路径实测返回 HTML（NOTFEED），改走搜索页抓取" },
 
     { "id": "agu_findajob", "name": "AGU Find a Job", "type": "rss", "enabled": true, "country": "BOTH",
-      "url": "https://findajob.agu.org/jobs/?keywords={q}&format=rss", "q_set": "narrow", "verified": false },
+      "url": "https://findajob.agu.org/jobsrss/?keywords={q}", "q_set": "narrow", "verified": false },
 
     { "id": "aag_jobs", "name": "AAG 美国地理学会", "type": "rss", "enabled": true, "country": "BOTH",
-      "url": "https://jobs.aag.org/jobs/?keywords={q}&format=rss", "q_set": "narrow", "verified": false },
+      "url": "https://jobs.aag.org/jobsrss/?keywords={q}", "q_set": "narrow", "verified": false },
 
-    { "id": "tamu_nrjb", "domain_trusted": true, "name": "Texas A&M 自然资源岗位板", "type": "rss", "enabled": true, "country": "US",
-      "url": "https://jobs.rwfm.tamu.edu/feed/", "verified": false,
-      "notes": "农业/自然资源方向岗位密集，值得优先修好" },
+    { "id": "tamu_nrjb", "domain_trusted": true, "name": "Texas A&M 自然资源岗位板", "type": "html", "enabled": true, "country": "US",
+      "url": "https://jobs.rwfm.tamu.edu/", "verified": false,
+      "notes": "/feed/ 实测 404，改走首页 HTML。农业/自然资源岗位密集，值得留着" },
 
     { "id": "agristok", "domain_trusted": true, "name": "Agristok 农业与生物科学岗位", "type": "rss", "enabled": true, "country": "BOTH",
       "url": "https://agristok.net/feed/", "verified": false,
       "notes": "WordPress 站，/feed/ 命中概率高。前一轮人工检索中反复命中 ETH、WUR、Aarhus 的博后岗" },
 
-    { "id": "university_affairs_ca", "name": "University Affairs（加拿大高校）", "type": "rss", "enabled": true, "country": "CA",
+    { "id": "university_affairs_ca", "name": "University Affairs（加拿大高校）", "type": "rss", "enabled": false, "country": "CA",
       "url": "https://universityaffairs.ca/search-jobs/feed/", "verified": false,
-      "notes": "加拿大教职最主要入口" },
+      "notes": "[已关闭 403] HTTP 403 被反爬拦截。想救的话在 job_config.json 里把浏览器真实 UA 填进 user_agent 再把 enabled 改回 true" },
 
-    { "id": "academicpositions", "name": "Academic Positions", "type": "rss", "enabled": true, "country": "BOTH",
-      "url": "https://academicpositions.com/rss/jobs?query={q}", "q_set": "narrow", "verified": false },
+    { "id": "academicpositions", "name": "Academic Positions", "type": "html", "enabled": true, "country": "BOTH",
+      "url": "https://academicpositions.com/find-jobs?query={q}", "q_set": "narrow", "verified": false,
+      "notes": "RSS 路径实测返回 HTML（NOTFEED），改走搜索页抓取" },
 
-    { "id": "academicjobsonline", "name": "AcademicJobsOnline", "type": "html", "enabled": true, "country": "BOTH",
-      "url": "https://academicjobsonline.org/ajo?joblist-0-0", "verified": false },
+    { "id": "academicjobsonline", "name": "AcademicJobsOnline", "type": "html", "enabled": false, "country": "BOTH",
+      "url": "https://academicjobsonline.org/ajo?joblist-0-0", "verified": false,
+      "notes": "[已关闭 410] HTTP 410 接口已下线" },
 
-    { "id": "conservation_job_board", "name": "Conservation Job Board", "type": "rss", "enabled": true, "country": "BOTH",
-      "url": "https://www.conservationjobboard.com/feed", "verified": false },
+    { "id": "conservation_job_board", "name": "Conservation Job Board", "type": "rss", "enabled": false, "country": "BOTH",
+      "url": "https://www.conservationjobboard.com/feed", "verified": false,
+      "notes": "[已关闭 404] /feed 路径 404，正确地址未知" },
 
     { "id": "wssa", "domain_trusted": true, "name": "Weed Science Society of America", "type": "rss", "enabled": true, "country": "US",
       "url": "https://wssa.net/feed/", "verified": false,
@@ -107,13 +135,13 @@
     { "id": "crss_sct_ca", "domain_trusted": true, "name": "CRSS-SCT 加拿大遥感学会", "type": "html", "enabled": true, "country": "CA",
       "url": "https://crss-sct.ca/jobs/", "verified": false },
 
-    { "id": "zintellect", "name": "Zintellect / ORISE（含 USDA-ARS fellowship）", "type": "html", "enabled": true, "country": "US",
+    { "id": "zintellect", "name": "Zintellect / ORISE（含 USDA-ARS fellowship）", "type": "html", "enabled": false, "country": "US",
       "url": "https://www.zintellect.com/Opportunity/Search?q=remote+sensing", "verified": false,
-      "notes": "USDA-ARS 的 fellowship 全部在这里挂，但多数要求美国公民身份" },
+      "notes": "[已关闭 404] 搜索页 404。USDA-ARS 的 fellowship 在这里，但多数要求美国公民身份，优先级不高" },
 
-    { "id": "lcluc_umd", "domain_trusted": true, "name": "NASA LCLUC 公告板", "type": "html", "enabled": true, "country": "BOTH",
+    { "id": "lcluc_umd", "domain_trusted": true, "name": "NASA LCLUC 公告板", "type": "html", "enabled": false, "country": "BOTH",
       "url": "https://lcluc.umd.edu/announcements", "verified": false,
-      "notes": "土地覆盖/土地利用遥感社区，前一轮检索命中过 Calgary 的 UAV 博后" },
+      "notes": "[已关闭 404] /announcements 路径 404" },
 
     { "id": "adzuna_us", "name": "Adzuna 美国", "type": "adzuna", "enabled": true, "country": "US",
       "url": "https://api.adzuna.com/v1/api/jobs/us/search/{page}", "q_set": "core", "verified": false,
@@ -159,60 +187,71 @@
       "host": "osu.wd1.myworkdayjobs.com", "tenant": "osu", "site": "OSUCareers",
       "q_set": "narrow", "verified": false },
 
-    { "id": "wd_uga", "name": "University of Georgia", "type": "workday", "enabled": true, "country": "US",
+    { "id": "wd_uga", "name": "University of Georgia", "type": "workday", "enabled": false, "country": "US",
       "host": "uga.wd1.myworkdayjobs.com", "tenant": "uga", "site": "UGAJobSearch",
-      "q_set": "narrow", "verified": false },
+      "q_set": "narrow", "verified": false,
+      "notes": "[已关闭 422] Workday site 名称不对（Cornell/PSU/OSU 同样写法可用，说明是 site 值的问题，非抓取器问题）" },
 
-    { "id": "wd_bayer", "name": "Bayer Crop Science", "type": "workday", "enabled": true, "country": "BOTH",
+    { "id": "wd_bayer", "name": "Bayer Crop Science", "type": "workday", "enabled": false, "country": "BOTH",
       "host": "bayer.wd3.myworkdayjobs.com", "tenant": "bayer", "site": "BayerJobs",
       "q_set": "narrow", "verified": false,
-      "notes": "全球作物科学总部在 St. Louis，离哥伦比亚 2 小时车程" },
+      "notes": "[已关闭 422] 同上。Bayer 现用 jobs.bayer.com，未必是 Workday" },
 
     { "id": "wd_corteva", "name": "Corteva Agriscience", "type": "workday", "enabled": true, "country": "BOTH",
-      "host": "corteva.wd1.myworkdayjobs.com", "tenant": "corteva", "site": "Corteva_Careers",
+      "notes": "已查实为 wd5 + site=Corteva；早先写的 wd1 + Corteva_Careers 会返回 HTTP 422",
+      "host": "corteva.wd5.myworkdayjobs.com", "tenant": "corteva", "site": "Corteva",
       "q_set": "narrow", "verified": false },
 
-    { "id": "wd_deere", "name": "John Deere", "type": "workday", "enabled": true, "country": "BOTH",
+    { "id": "wd_deere", "name": "John Deere", "type": "workday", "enabled": false, "country": "BOTH",
       "host": "deere.wd1.myworkdayjobs.com", "tenant": "deere", "site": "Deere_Careers",
-      "q_set": "narrow", "verified": false },
+      "q_set": "narrow", "verified": false,
+      "notes": "[已关闭 422] 同上。John Deere 现用 jobs.deere.com" },
 
     { "id": "pa_sdbor", "name": "South Dakota Board of Regents（含 SDSU）", "type": "peopleadmin", "enabled": true, "country": "US",
       "url": "https://yourfuture.sdbor.edu", "verified": false,
       "notes": "SDSU 的 Precision Ag Automation Engineering 教职就在这里（posting 48096）" },
 
-    { "id": "pa_umes", "name": "University of Maryland Eastern Shore", "type": "peopleadmin", "enabled": true, "country": "US",
-      "url": "https://umes.peopleadmin.com", "verified": false },
+    { "id": "pa_umes", "name": "University of Maryland Eastern Shore", "type": "peopleadmin", "enabled": false, "country": "US",
+      "url": "https://umes.peopleadmin.com", "verified": false,
+      "notes": "[已关闭 DNS] umes.peopleadmin.com 域名解析失败，该站可能已迁移" },
 
     { "id": "pageup_ufl", "name": "University of Florida", "type": "pageup", "enabled": true, "country": "US",
       "url": "https://explore.jobs.ufl.edu", "q_set": "narrow", "verified": false,
       "notes": "UF 的 Assistant/Associate Professor in Remote Sensing（job 540144）在这里" },
 
-    { "id": "msu_careers", "name": "Michigan State University", "type": "html", "enabled": true, "country": "US",
-      "url": "https://careers.msu.edu/search/?q=remote+sensing", "verified": false },
+    { "id": "msu_careers", "name": "Michigan State University", "type": "html", "enabled": false, "country": "US",
+      "url": "https://careers.msu.edu/search/?q=remote+sensing", "verified": false,
+      "notes": "[已关闭 404] 搜索页 404" },
 
     { "id": "gh_carbonrobotics", "name": "Carbon Robotics", "type": "greenhouse", "enabled": true, "country": "US",
       "token": "carbonrobotics", "verified": false },
 
-    { "id": "gh_verdantrobotics", "name": "Verdant Robotics", "type": "greenhouse", "enabled": true, "country": "US",
-      "token": "verdantrobotics", "verified": false },
+    { "id": "gh_verdantrobotics", "name": "Verdant Robotics", "type": "greenhouse", "enabled": false, "country": "US",
+      "token": "verdantrobotics", "verified": false,
+      "notes": "[已关闭 404] Greenhouse token 不对" },
 
-    { "id": "gh_indigoag", "name": "Indigo Ag", "type": "greenhouse", "enabled": true, "country": "US",
-      "token": "indigoag", "verified": false },
+    { "id": "gh_indigoag", "name": "Indigo Ag", "type": "greenhouse", "enabled": false, "country": "US",
+      "token": "indigoag", "verified": false,
+      "notes": "[已关闭 404] Greenhouse token 不对" },
 
-    { "id": "gh_bensonhill", "name": "Benson Hill（St. Louis）", "type": "greenhouse", "enabled": true, "country": "US",
-      "token": "bensonhill", "verified": false },
+    { "id": "gh_bensonhill", "name": "Benson Hill（St. Louis）", "type": "greenhouse", "enabled": false, "country": "US",
+      "token": "bensonhill", "verified": false,
+      "notes": "[已关闭 404] Greenhouse token 不对" },
 
     { "id": "gh_pivotbio", "name": "Pivot Bio", "type": "greenhouse", "enabled": true, "country": "US",
       "token": "pivotbio", "verified": false },
 
-    { "id": "lever_sentera", "name": "Sentera", "type": "lever", "enabled": true, "country": "US",
-      "token": "sentera", "verified": false },
+    { "id": "lever_sentera", "name": "Sentera", "type": "lever", "enabled": false, "country": "US",
+      "token": "sentera", "verified": false,
+      "notes": "[已关闭 404] Lever token 不对，该公司可能未用 Lever" },
 
-    { "id": "lever_regrow", "name": "Regrow Ag", "type": "lever", "enabled": true, "country": "US",
-      "token": "regrow", "verified": false },
+    { "id": "lever_regrow", "name": "Regrow Ag", "type": "lever", "enabled": false, "country": "US",
+      "token": "regrow", "verified": false,
+      "notes": "[已关闭 404] Lever token 不对" },
 
-    { "id": "ashby_monarchtractor", "name": "Monarch Tractor", "type": "ashby", "enabled": true, "country": "US",
-      "token": "monarchtractor", "verified": false },
+    { "id": "ashby_monarchtractor", "name": "Monarch Tractor", "type": "ashby", "enabled": false, "country": "US",
+      "token": "monarchtractor", "verified": false,
+      "notes": "[已关闭 404] Ashby token 不对" },
 
     { "id": "danforth", "domain_trusted": true, "name": "Donald Danforth 植物科学中心", "type": "html", "enabled": true, "country": "US",
       "url": "https://www.danforthcenter.org/careers/", "verified": false,
