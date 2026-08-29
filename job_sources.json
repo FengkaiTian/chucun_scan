@@ -33,6 +33,20 @@
       "precision agriculture",
       "phenotyping"
     ],
+    "wide": [
+      "remote sensing",
+      "precision agriculture",
+      "plant phenotyping",
+      "unmanned aerial",
+      "hyperspectral",
+      "geospatial",
+      "agricultural engineering",
+      "biosystems engineering",
+      "digital agriculture",
+      "precision livestock",
+      "crop modeling",
+      "machine learning agriculture"
+    ],
     "titles": [
       "postdoctoral remote sensing",
       "assistant professor precision agriculture",
@@ -42,6 +56,37 @@
   },
 
   "sources": [
+
+    { "id": "ieee_grss", "domain_trusted": true, "name": "IEEE GRSS 地球科学与遥感学会 · 机会板", "type": "rss", "enabled": true, "country": "BOTH",
+      "url": "https://www.grss-ieee.org/category/opportunities/feed/", "verified": false,
+      "notes": "遥感领域的学会自有机会板，博后岗位密集且全部在域内。WordPress 站，分类 feed 走 /feed/。若不通改成 type=html 抓 https://www.grss-ieee.org/category/opportunities/" },
+
+    { "id": "jobrxiv_postdoc", "name": "jobRxiv · 博后专区", "type": "rss", "enabled": true, "country": "BOTH",
+      "url": "https://jobrxiv.org/job-category/postdoc/feed/", "verified": false,
+      "notes": "科学家自建的免费学术岗位板，3000+ 雇主、55+ 国家。免费发布意味着很多实验室只在这里挂，不去付费招聘站——正是通用平台漏掉的那部分" },
+
+    { "id": "jobrxiv_all", "name": "jobRxiv · 全部", "type": "rss", "enabled": true, "country": "BOTH",
+      "url": "https://jobrxiv.org/feed/", "verified": false },
+
+    { "id": "sciencesocieties", "domain_trusted": true, "name": "ASA/CSSA/SSSA 作物·土壤·农学三学会 career center", "type": "html", "enabled": true, "country": "BOTH",
+      "url": "https://careers.careerplacement.org/jobs/?keywords={q}", "q_set": "narrow", "verified": false,
+      "notes": "美国农学会 + 作物学会 + 土壤学会的联合招聘中心。你在 ASA-CSSA-SSSA 年会上做过报告，这是本行的另一个主入口" },
+
+    { "id": "academicpositions_rs", "domain_trusted": true, "name": "Academic Positions · 遥感/地球科学", "type": "html", "enabled": true, "country": "BOTH",
+      "url": "https://academicpositions.com/jobs/field/remote-sensing-geosciences", "verified": false,
+      "notes": "该站有按学科过滤的固定路径，比关键词搜索精准得多" },
+
+    { "id": "academicpositions_rs_postdoc", "domain_trusted": true, "name": "Academic Positions · 遥感博后", "type": "html", "enabled": true, "country": "BOTH",
+      "url": "https://academicpositions.com/jobs/position/post-doc/field/remote-sensing-geosciences", "verified": false,
+      "notes": "学科 + 职位双重过滤，命中率最高的一条" },
+
+    { "id": "researchgate_rs", "name": "ResearchGate · 遥感岗位", "type": "html", "enabled": true, "country": "BOTH",
+      "url": "https://www.researchgate.net/jobs/Remote_Sensing-jobs", "verified": false,
+      "notes": "很可能被反爬拦（403），但成本低，先试" },
+
+    { "id": "asprs", "domain_trusted": true, "name": "ASPRS 摄影测量与遥感学会", "type": "html", "enabled": true, "country": "US",
+      "url": "https://www.asprs.org/career-opportunities", "verified": false,
+      "notes": "路径未确认，待 --check-sources 验证" },
 
     { "id": "higheredjobs_agengr", "name": "HigherEdJobs · 农业工程", "type": "rss", "enabled": true, "country": "US",
       "url": "https://www.higheredjobs.com/rss/categoryFeed.cfm?catID=111", "verified": true,
@@ -76,15 +121,15 @@
       "url": "https://www.higheredjobs.com/search/rss.cfm?JobCat=50", "verified": false },
 
     { "id": "insidehighered", "name": "Inside Higher Ed Careers", "type": "rss", "enabled": true, "country": "US",
-      "url": "https://careers.insidehighered.com/jobsrss/?keywords={q}", "q_set": "core", "verified": false,
+      "url": "https://careers.insidehighered.com/jobsrss/?keywords={q}", "q_set": "wide", "verified": false,
       "notes": "Madgex 平台。真实 RSS 路径是 /jobsrss/?keywords= ——早先猜的 ?format=rss 会返回 HTML 页面（NOTFEED）" },
 
     { "id": "chronicle", "name": "Chronicle of Higher Education Jobs", "type": "rss", "enabled": true, "country": "US",
-      "url": "https://jobs.chronicle.com/jobsrss/?keywords={q}", "q_set": "core", "verified": false,
+      "url": "https://jobs.chronicle.com/jobsrss/?keywords={q}", "q_set": "wide", "verified": false,
       "notes": "同为 Madgex 平台" },
 
     { "id": "hercjobs", "name": "HERC 高校招聘联盟", "type": "rss", "enabled": true, "country": "BOTH",
-      "url": "https://main.hercjobs.org/jobsrss/?keywords={q}", "q_set": "narrow", "verified": false },
+      "url": "https://main.hercjobs.org/jobsrss/?keywords={q}", "q_set": "wide", "verified": false },
 
     { "id": "asabe", "domain_trusted": true, "name": "ASABE Career Center（你的本行第一入口）", "type": "html", "enabled": true, "country": "BOTH",
       "url": "https://careers.asabe.org/jobs/?keywords={q}", "q_set": "narrow", "verified": false,
@@ -99,10 +144,10 @@
       "notes": "RSS 路径实测返回 HTML（NOTFEED），改走搜索页抓取" },
 
     { "id": "agu_findajob", "name": "AGU Find a Job", "type": "rss", "enabled": true, "country": "BOTH",
-      "url": "https://findajob.agu.org/jobsrss/?keywords={q}", "q_set": "narrow", "verified": false },
+      "url": "https://findajob.agu.org/jobsrss/?keywords={q}", "q_set": "wide", "verified": false },
 
     { "id": "aag_jobs", "name": "AAG 美国地理学会", "type": "rss", "enabled": true, "country": "BOTH",
-      "url": "https://jobs.aag.org/jobsrss/?keywords={q}", "q_set": "narrow", "verified": false },
+      "url": "https://jobs.aag.org/jobsrss/?keywords={q}", "q_set": "wide", "verified": false },
 
     { "id": "tamu_nrjb", "domain_trusted": true, "name": "Texas A&M 自然资源岗位板", "type": "html", "enabled": true, "country": "US",
       "url": "https://jobs.rwfm.tamu.edu/", "verified": false,
@@ -143,36 +188,81 @@
       "url": "https://lcluc.umd.edu/announcements", "verified": false,
       "notes": "[已关闭 404] /announcements 路径 404" },
 
+    { "id": "wd_purdue", "name": "Purdue University", "type": "workday", "enabled": true, "country": "US",
+      "host": "purdue.wd1.myworkdayjobs.com", "tenant": "purdue", "site": "Purdue", "q_set": "narrow", "verified": false },
+
+    { "id": "wd_iastate", "name": "Iowa State University", "type": "workday", "enabled": true, "country": "US",
+      "host": "iastate.wd1.myworkdayjobs.com", "tenant": "iastate", "site": "IowaStateJobs", "q_set": "narrow", "verified": false },
+
+    { "id": "wd_tamu", "name": "Texas A&M University", "type": "workday", "enabled": true, "country": "US",
+      "host": "tamus.wd1.myworkdayjobs.com", "tenant": "tamus", "site": "TAMU_External", "q_set": "narrow", "verified": false },
+
+    { "id": "wd_wsu", "name": "Washington State University", "type": "workday", "enabled": true, "country": "US",
+      "host": "wsu.wd5.myworkdayjobs.com", "tenant": "wsu", "site": "WSU_Jobs", "q_set": "narrow", "verified": false },
+
+    { "id": "wd_oregonstate", "name": "Oregon State University", "type": "workday", "enabled": true, "country": "US",
+      "host": "oregonstate.wd5.myworkdayjobs.com", "tenant": "oregonstate", "site": "OSU_Jobs", "q_set": "narrow", "verified": false },
+
+    { "id": "wd_msu", "name": "Michigan State University", "type": "workday", "enabled": true, "country": "US",
+      "host": "msu.wd1.myworkdayjobs.com", "tenant": "msu", "site": "MSUCareers", "q_set": "narrow", "verified": false },
+
+    { "id": "wd_utahstate", "name": "Utah State University", "type": "workday", "enabled": true, "country": "US",
+      "host": "usu.wd5.myworkdayjobs.com", "tenant": "usu", "site": "USU_Careers", "q_set": "narrow", "verified": false },
+
+    { "id": "pa_ncsu", "name": "North Carolina State University", "type": "peopleadmin", "enabled": true, "country": "US",
+      "url": "https://jobs.ncsu.edu", "q_set": "narrow", "verified": false,
+      "notes": "此前人工检索见过 jobs.ncsu.edu/postings/231143 —— /postings/编号 正是 PeopleAdmin 的形态，置信度较高" },
+
+    { "id": "pa_unl", "name": "University of Nebraska-Lincoln", "type": "peopleadmin", "enabled": true, "country": "US",
+      "url": "https://employment.unl.edu", "q_set": "narrow", "verified": false },
+
+    { "id": "pa_uga", "name": "University of Georgia", "type": "peopleadmin", "enabled": true, "country": "US",
+      "url": "https://www.ugajobsearch.com", "q_set": "narrow", "verified": false,
+      "notes": "UGA 的 Workday 尝试返回 422，改试 PeopleAdmin" },
+
+    { "id": "pa_auburn", "name": "Auburn University", "type": "peopleadmin", "enabled": true, "country": "US",
+      "url": "https://www.auemployment.com", "q_set": "narrow", "verified": false },
+
+    { "id": "pageup_kstate", "name": "Kansas State University", "type": "pageup", "enabled": true, "country": "US",
+      "url": "https://careers.k-state.edu", "q_set": "narrow", "verified": false },
+
+    { "id": "pageup_msstate", "name": "Mississippi State University", "type": "pageup", "enabled": true, "country": "US",
+      "url": "https://explore.msujobs.msstate.edu", "q_set": "narrow", "verified": false },
+
+    { "id": "ucdavis_recruit", "name": "UC Davis 学术岗位 (AP Recruit)", "type": "html", "enabled": true, "country": "US",
+      "url": "https://recruit.ucdavis.edu/JPF", "verified": false,
+      "notes": "UC 系统的学术岗位走 AP Recruit，此前人工检索命中过 recruit.ucdavis.edu/JPF07507（遥感与数据科学博后）。路径待验证" },
+
     { "id": "adzuna_us", "name": "Adzuna 美国", "type": "adzuna", "enabled": true, "country": "US",
-      "url": "https://api.adzuna.com/v1/api/jobs/us/search/{page}", "q_set": "core", "verified": false,
+      "url": "https://api.adzuna.com/v1/api/jobs/us/search/{page}", "q_set": "wide", "verified": false,
       "notes": "需在 config 里填 adzuna_app_id / adzuna_app_key，缺 key 会自动跳过并在状态表标注 SKIP" },
 
     { "id": "adzuna_ca", "name": "Adzuna 加拿大", "type": "adzuna", "enabled": true, "country": "CA",
-      "url": "https://api.adzuna.com/v1/api/jobs/ca/search/{page}", "q_set": "core", "verified": false },
+      "url": "https://api.adzuna.com/v1/api/jobs/ca/search/{page}", "q_set": "wide", "verified": false },
 
     { "id": "jsearch_us", "name": "JSearch 美国（聚合 LinkedIn/Indeed/Glassdoor/ZipRecruiter）", "type": "jsearch", "enabled": false, "country": "US",
-      "q_set": "core", "num_pages": 2, "verified": false,
+      "q_set": "wide", "num_pages": 2, "verified": false,
       "notes": "这四家都已关闭面向个人的公开 API，JSearch 是拿到它们库存的现实路径。需 RapidAPI key（免费档约 200 次/月，付费 $10-200/月）填入 job_config.json 的 rapidapi_key，然后把 enabled 改 true。注意它不覆盖 Workday/Greenhouse/Lever/Ashby——那部分由本表其他源负责，两者互补。" },
 
     { "id": "jsearch_ca", "name": "JSearch 加拿大", "type": "jsearch", "enabled": false, "country": "CA",
-      "q_set": "core", "num_pages": 2, "verified": false },
+      "q_set": "wide", "num_pages": 2, "verified": false },
 
     { "id": "careerjet_us", "name": "Careerjet 美国", "type": "careerjet", "enabled": false, "country": "US",
-      "q_set": "core", "verified": false,
+      "q_set": "wide", "verified": false,
       "notes": "免费 key，限速 1000 次/小时。广谱聚合器，与那四家的库存有相当重叠。申请：careerjet.com/partners/api/" },
 
     { "id": "careerjet_ca", "name": "Careerjet 加拿大", "type": "careerjet", "enabled": false, "country": "CA",
-      "q_set": "core", "verified": false },
+      "q_set": "wide", "verified": false },
 
     { "id": "jooble_us", "name": "Jooble 美国", "type": "jooble", "enabled": false, "country": "US",
-      "q_set": "core", "jooble_region": "us", "verified": false,
+      "q_set": "wide", "jooble_region": "us", "verified": false,
       "notes": "申请制免费 key。申请：jooble.org/api/about" },
 
     { "id": "jooble_ca", "name": "Jooble 加拿大", "type": "jooble", "enabled": false, "country": "CA",
-      "q_set": "core", "jooble_region": "ca", "verified": false },
+      "q_set": "wide", "jooble_region": "ca", "verified": false },
 
     { "id": "usajobs", "name": "USAJOBS 美国联邦岗（默认关闭）", "type": "usajobs", "enabled": false, "country": "US",
-      "url": "https://data.usajobs.gov/api/search", "q_set": "core", "verified": false,
+      "url": "https://data.usajobs.gov/api/search", "q_set": "wide", "verified": false,
       "notes": "USDA-ARS 的正式编制岗（Research Agricultural Engineer / Research Physical Scientist）只在这里挂。开启需免费注册 key 填入 config。绝大多数联邦岗要求美国公民身份。" },
 
     { "id": "wd_cornell", "name": "Cornell University", "type": "workday", "enabled": true, "country": "US",
