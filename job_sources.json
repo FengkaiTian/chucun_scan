@@ -59,7 +59,7 @@
 
     { "id": "ieee_grss", "domain_trusted": true, "name": "IEEE GRSS 地球科学与遥感学会 · 机会板", "type": "rss", "enabled": true, "country": "BOTH",
       "url": "https://www.grss-ieee.org/category/opportunities/feed/", "verified": false,
-      "notes": "遥感领域的学会自有机会板，博后岗位密集且全部在域内。WordPress 站，分类 feed 走 /feed/。若不通改成 type=html 抓 https://www.grss-ieee.org/category/opportunities/" },
+      "notes": "遥感领域的学会自有机会板，博后岗位密集且全部在域内。WordPress 站，分类 feed 走 /feed/。若不通改成 type=html 抓 https://www.grss-ieee.org/category/opportunities/。实测 HTTP 403 被反爬拦截。这是本领域的高价值源，值得救：把浏览器 chrome://version 里的完整 UA 贴进 job_config.json 的 user_agent 再试" },
 
     { "id": "jobrxiv_postdoc", "name": "jobRxiv · 博后专区", "type": "rss", "enabled": true, "country": "BOTH",
       "url": "https://jobrxiv.org/job-category/postdoc/feed/", "verified": false,
@@ -68,25 +68,25 @@
     { "id": "jobrxiv_all", "name": "jobRxiv · 全部", "type": "rss", "enabled": true, "country": "BOTH",
       "url": "https://jobrxiv.org/feed/", "verified": false },
 
-    { "id": "sciencesocieties", "domain_trusted": true, "name": "ASA/CSSA/SSSA 作物·土壤·农学三学会 career center", "type": "html", "enabled": true, "country": "BOTH",
+    { "id": "sciencesocieties", "domain_trusted": true, "name": "ASA/CSSA/SSSA 作物·土壤·农学三学会 career center", "type": "html", "enabled": false, "country": "BOTH",
       "url": "https://careers.careerplacement.org/jobs/?keywords={q}", "q_set": "narrow", "verified": false,
-      "notes": "美国农学会 + 作物学会 + 土壤学会的联合招聘中心。你在 ASA-CSSA-SSSA 年会上做过报告，这是本行的另一个主入口" },
+      "notes": "[已关闭] robots.txt 明确禁止抓取。这是网站方的意愿，不绕过。ASA/CSSA/SSSA 值得你手动去看，尤其 Academic Positions 有「遥感+博后」的双过滤页面" },
 
-    { "id": "academicpositions_rs", "domain_trusted": true, "name": "Academic Positions · 遥感/地球科学", "type": "html", "enabled": true, "country": "BOTH",
+    { "id": "academicpositions_rs", "domain_trusted": true, "name": "Academic Positions · 遥感/地球科学", "type": "html", "enabled": false, "country": "BOTH",
       "url": "https://academicpositions.com/jobs/field/remote-sensing-geosciences", "verified": false,
-      "notes": "该站有按学科过滤的固定路径，比关键词搜索精准得多" },
+      "notes": "[已关闭] robots.txt 明确禁止抓取。这是网站方的意愿，不绕过。Academic Positions 遥感 值得你手动去看，尤其 Academic Positions 有「遥感+博后」的双过滤页面" },
 
-    { "id": "academicpositions_rs_postdoc", "domain_trusted": true, "name": "Academic Positions · 遥感博后", "type": "html", "enabled": true, "country": "BOTH",
+    { "id": "academicpositions_rs_postdoc", "domain_trusted": true, "name": "Academic Positions · 遥感博后", "type": "html", "enabled": false, "country": "BOTH",
       "url": "https://academicpositions.com/jobs/position/post-doc/field/remote-sensing-geosciences", "verified": false,
-      "notes": "学科 + 职位双重过滤，命中率最高的一条" },
+      "notes": "[已关闭] robots.txt 明确禁止抓取。这是网站方的意愿，不绕过。Academic Positions 遥感博后 值得你手动去看，尤其 Academic Positions 有「遥感+博后」的双过滤页面" },
 
-    { "id": "researchgate_rs", "name": "ResearchGate · 遥感岗位", "type": "html", "enabled": true, "country": "BOTH",
+    { "id": "researchgate_rs", "name": "ResearchGate · 遥感岗位", "type": "html", "enabled": false, "country": "BOTH",
       "url": "https://www.researchgate.net/jobs/Remote_Sensing-jobs", "verified": false,
-      "notes": "很可能被反爬拦（403），但成本低，先试" },
+      "notes": "[已关闭] robots.txt 明确禁止抓取。这是网站方的意愿，不绕过。ResearchGate 值得你手动去看，尤其 Academic Positions 有「遥感+博后」的双过滤页面" },
 
-    { "id": "asprs", "domain_trusted": true, "name": "ASPRS 摄影测量与遥感学会", "type": "html", "enabled": true, "country": "US",
+    { "id": "asprs", "domain_trusted": true, "name": "ASPRS 摄影测量与遥感学会", "type": "html", "enabled": false, "country": "US",
       "url": "https://www.asprs.org/career-opportunities", "verified": false,
-      "notes": "路径未确认，待 --check-sources 验证" },
+      "notes": "[已关闭] robots.txt 明确禁止抓取。这是网站方的意愿，不绕过。ASPRS 值得你手动去看，尤其 Academic Positions 有「遥感+博后」的双过滤页面" },
 
     { "id": "higheredjobs_agengr", "name": "HigherEdJobs · 农业工程", "type": "rss", "enabled": true, "country": "US",
       "url": "https://www.higheredjobs.com/rss/categoryFeed.cfm?catID=111", "verified": true,
@@ -97,28 +97,28 @@
       "notes": "已验证：单次返回 228 条、命中 62 条。catID=100 实为 Biology（原标注有误）" },
 
     { "id": "higheredjobs_animalsci", "name": "HigherEdJobs · 动物科学", "type": "rss", "enabled": true, "country": "US",
-      "url": "https://www.higheredjobs.com/search/rss.cfm?JobCat=51", "verified": false,
-      "notes": "精准畜牧方向。注意这批新增用 /search/rss.cfm?JobCat= 路径（搜索结果中的真实 URL 形态），与上面两条的 /rss/categoryFeed.cfm?catID= 不同；哪种能用以 --check-sources 为准" },
+      "url": "https://www.higheredjobs.com/rss/categoryFeed.cfm?catID=51", "verified": false,
+      "notes": "精准畜牧方向。实测确认：/search/rss.cfm?JobCat= 返回 HTML，正确路径是 /rss/categoryFeed.cfm?catID=，两种路径的分类编号相同" },
 
     { "id": "higheredjobs_envsci", "name": "HigherEdJobs · 环境科学/生态/林学", "type": "rss", "enabled": true, "country": "US",
-      "url": "https://www.higheredjobs.com/search/rss.cfm?JobCat=54", "verified": false },
+      "url": "https://www.higheredjobs.com/rss/categoryFeed.cfm?catID=54", "verified": false },
 
     { "id": "higheredjobs_geography", "name": "HigherEdJobs · 地理学", "type": "rss", "enabled": true, "country": "US",
-      "url": "https://www.higheredjobs.com/search/rss.cfm?JobCat=103", "verified": false,
+      "url": "https://www.higheredjobs.com/rss/categoryFeed.cfm?catID=103", "verified": false,
       "notes": "遥感与 GIS 教职大量挂在地理系" },
 
     { "id": "higheredjobs_civilenv", "name": "HigherEdJobs · 土木与环境工程", "type": "rss", "enabled": true, "country": "US",
-      "url": "https://www.higheredjobs.com/search/rss.cfm?JobCat=115", "verified": false },
+      "url": "https://www.higheredjobs.com/rss/categoryFeed.cfm?catID=115", "verified": false },
 
     { "id": "higheredjobs_cs", "name": "HigherEdJobs · 计算机科学", "type": "rss", "enabled": true, "country": "US",
-      "url": "https://www.higheredjobs.com/search/rss.cfm?JobCat=102", "verified": false,
+      "url": "https://www.higheredjobs.com/rss/categoryFeed.cfm?catID=102", "verified": false,
       "notes": "UTK 那种挂在 EECS 系的 AI-for-agriculture 集群招聘会出现在这里" },
 
     { "id": "higheredjobs_stats", "name": "HigherEdJobs · 统计学", "type": "rss", "enabled": true, "country": "US",
-      "url": "https://www.higheredjobs.com/search/rss.cfm?JobCat=107", "verified": false },
+      "url": "https://www.higheredjobs.com/rss/categoryFeed.cfm?catID=107", "verified": false },
 
     { "id": "higheredjobs_agecon", "name": "HigherEdJobs · 农业经济与农商", "type": "rss", "enabled": true, "country": "US",
-      "url": "https://www.higheredjobs.com/search/rss.cfm?JobCat=50", "verified": false },
+      "url": "https://www.higheredjobs.com/rss/categoryFeed.cfm?catID=50", "verified": false },
 
     { "id": "insidehighered", "name": "Inside Higher Ed Careers", "type": "rss", "enabled": true, "country": "US",
       "url": "https://careers.insidehighered.com/jobsrss/?keywords={q}", "q_set": "wide", "verified": false,
@@ -128,16 +128,17 @@
       "url": "https://jobs.chronicle.com/jobsrss/?keywords={q}", "q_set": "wide", "verified": false,
       "notes": "同为 Madgex 平台" },
 
-    { "id": "hercjobs", "name": "HERC 高校招聘联盟", "type": "rss", "enabled": true, "country": "BOTH",
-      "url": "https://main.hercjobs.org/jobsrss/?keywords={q}", "q_set": "wide", "verified": false },
+    { "id": "hercjobs", "name": "HERC 高校招聘联盟", "type": "rss", "enabled": false, "country": "BOTH",
+      "url": "https://main.hercjobs.org/jobsrss/?keywords={q}", "q_set": "wide", "verified": false,
+      "notes": "[已关闭 404] /jobsrss/ 路径不通，HERC 可能不是 Madgex 平台" },
 
-    { "id": "asabe", "domain_trusted": true, "name": "ASABE Career Center（你的本行第一入口）", "type": "html", "enabled": true, "country": "BOTH",
+    { "id": "asabe", "domain_trusted": true, "name": "ASABE Career Center（你的本行第一入口）", "type": "html", "enabled": false, "country": "BOTH",
       "url": "https://careers.asabe.org/jobs/?keywords={q}", "q_set": "narrow", "verified": false,
-      "notes": "RSS 路径实测返回 HTML（NOTFEED），改走 careers.asabe.org 的 HTML 抓取。该站是 YM Careers 平台，正式域名是 careers.asabe.org 而非 asabe.careerwebsite.com。已标 domain_trusted，所以摘要短也不会被初筛误杀" },
+      "notes": "[已关闭] careers.asabe.org 实测 TLS 证书校验失败。已改用下面的 asabe_careerwebsite 备用域名" },
 
-    { "id": "asabe_careerwebsite", "domain_trusted": true, "name": "ASABE Career Center（备用域名）", "type": "html", "enabled": false, "country": "BOTH",
+    { "id": "asabe_careerwebsite", "domain_trusted": true, "name": "ASABE Career Center（备用域名）", "type": "html", "enabled": true, "country": "BOTH",
       "url": "https://asabe.careerwebsite.com/jobs/", "verified": false,
-      "notes": "上面那条不通时再启用" },
+      "notes": "careers.asabe.org 的 TLS 证书校验失败，改用这个后端域名。ASABE 是你的本行第一入口，必须想办法打通" },
 
     { "id": "naturecareers", "name": "Nature Careers", "type": "html", "enabled": true, "country": "BOTH",
       "url": "https://www.nature.com/naturecareers/jobs?q={q}", "q_set": "narrow", "verified": false,
@@ -147,7 +148,8 @@
       "url": "https://findajob.agu.org/jobsrss/?keywords={q}", "q_set": "wide", "verified": false },
 
     { "id": "aag_jobs", "name": "AAG 美国地理学会", "type": "rss", "enabled": true, "country": "BOTH",
-      "url": "https://jobs.aag.org/jobsrss/?keywords={q}", "q_set": "wide", "verified": false },
+      "url": "https://jobs.aag.org/jobsrss/?keywords={q}", "q_set": "wide", "verified": false,
+      "notes": "实测 HTTP 403 被反爬拦截。这是本领域的高价值源，值得救：把浏览器 chrome://version 里的完整 UA 贴进 job_config.json 的 user_agent 再试" },
 
     { "id": "tamu_nrjb", "domain_trusted": true, "name": "Texas A&M 自然资源岗位板", "type": "html", "enabled": true, "country": "US",
       "url": "https://jobs.rwfm.tamu.edu/", "verified": false,
@@ -161,9 +163,9 @@
       "url": "https://universityaffairs.ca/search-jobs/feed/", "verified": false,
       "notes": "[已关闭 403] HTTP 403 被反爬拦截。想救的话在 job_config.json 里把浏览器真实 UA 填进 user_agent 再把 enabled 改回 true" },
 
-    { "id": "academicpositions", "name": "Academic Positions", "type": "html", "enabled": true, "country": "BOTH",
+    { "id": "academicpositions", "name": "Academic Positions", "type": "html", "enabled": false, "country": "BOTH",
       "url": "https://academicpositions.com/find-jobs?query={q}", "q_set": "narrow", "verified": false,
-      "notes": "RSS 路径实测返回 HTML（NOTFEED），改走搜索页抓取" },
+      "notes": "[已关闭] robots.txt 明确禁止抓取。这是网站方的意愿，不绕过。Academic Positions 搜索 值得你手动去看，尤其 Academic Positions 有「遥感+博后」的双过滤页面" },
 
     { "id": "academicjobsonline", "name": "AcademicJobsOnline", "type": "html", "enabled": false, "country": "BOTH",
       "url": "https://academicjobsonline.org/ajo?joblist-0-0", "verified": false,
@@ -188,11 +190,13 @@
       "url": "https://lcluc.umd.edu/announcements", "verified": false,
       "notes": "[已关闭 404] /announcements 路径 404" },
 
-    { "id": "wd_purdue", "name": "Purdue University", "type": "workday", "enabled": true, "country": "US",
-      "host": "purdue.wd1.myworkdayjobs.com", "tenant": "purdue", "site": "Purdue", "q_set": "narrow", "verified": false },
+    { "id": "wd_purdue", "name": "Purdue University", "type": "workday", "enabled": false, "country": "US",
+      "host": "purdue.wd1.myworkdayjobs.com", "tenant": "purdue", "site": "Purdue", "q_set": "narrow", "verified": false,
+      "notes": "[已关闭 422] Workday site 名称不对。同样写法下 Cornell/PSU/OSU/TAMU/WSU 都能跑，说明是 site 值的问题。要救的话去该校招聘页看 URL 里 myworkdayjobs.com/ 后面那一段" },
 
-    { "id": "wd_iastate", "name": "Iowa State University", "type": "workday", "enabled": true, "country": "US",
-      "host": "iastate.wd1.myworkdayjobs.com", "tenant": "iastate", "site": "IowaStateJobs", "q_set": "narrow", "verified": false },
+    { "id": "wd_iastate", "name": "Iowa State University", "type": "workday", "enabled": false, "country": "US",
+      "host": "iastate.wd1.myworkdayjobs.com", "tenant": "iastate", "site": "IowaStateJobs", "q_set": "narrow", "verified": false,
+      "notes": "[已关闭 422] Workday site 名称不对。同样写法下 Cornell/PSU/OSU/TAMU/WSU 都能跑，说明是 site 值的问题。要救的话去该校招聘页看 URL 里 myworkdayjobs.com/ 后面那一段" },
 
     { "id": "wd_tamu", "name": "Texas A&M University", "type": "workday", "enabled": true, "country": "US",
       "host": "tamus.wd1.myworkdayjobs.com", "tenant": "tamus", "site": "TAMU_External", "q_set": "narrow", "verified": false },
@@ -200,14 +204,17 @@
     { "id": "wd_wsu", "name": "Washington State University", "type": "workday", "enabled": true, "country": "US",
       "host": "wsu.wd5.myworkdayjobs.com", "tenant": "wsu", "site": "WSU_Jobs", "q_set": "narrow", "verified": false },
 
-    { "id": "wd_oregonstate", "name": "Oregon State University", "type": "workday", "enabled": true, "country": "US",
-      "host": "oregonstate.wd5.myworkdayjobs.com", "tenant": "oregonstate", "site": "OSU_Jobs", "q_set": "narrow", "verified": false },
+    { "id": "wd_oregonstate", "name": "Oregon State University", "type": "workday", "enabled": false, "country": "US",
+      "host": "oregonstate.wd5.myworkdayjobs.com", "tenant": "oregonstate", "site": "OSU_Jobs", "q_set": "narrow", "verified": false,
+      "notes": "[已关闭 422] Workday site 名称不对。同样写法下 Cornell/PSU/OSU/TAMU/WSU 都能跑，说明是 site 值的问题。要救的话去该校招聘页看 URL 里 myworkdayjobs.com/ 后面那一段" },
 
-    { "id": "wd_msu", "name": "Michigan State University", "type": "workday", "enabled": true, "country": "US",
-      "host": "msu.wd1.myworkdayjobs.com", "tenant": "msu", "site": "MSUCareers", "q_set": "narrow", "verified": false },
+    { "id": "wd_msu", "name": "Michigan State University", "type": "workday", "enabled": false, "country": "US",
+      "host": "msu.wd1.myworkdayjobs.com", "tenant": "msu", "site": "MSUCareers", "q_set": "narrow", "verified": false,
+      "notes": "[已关闭 422] Workday site 名称不对。同样写法下 Cornell/PSU/OSU/TAMU/WSU 都能跑，说明是 site 值的问题。要救的话去该校招聘页看 URL 里 myworkdayjobs.com/ 后面那一段" },
 
-    { "id": "wd_utahstate", "name": "Utah State University", "type": "workday", "enabled": true, "country": "US",
-      "host": "usu.wd5.myworkdayjobs.com", "tenant": "usu", "site": "USU_Careers", "q_set": "narrow", "verified": false },
+    { "id": "wd_utahstate", "name": "Utah State University", "type": "workday", "enabled": false, "country": "US",
+      "host": "usu.wd5.myworkdayjobs.com", "tenant": "usu", "site": "USU_Careers", "q_set": "narrow", "verified": false,
+      "notes": "[已关闭 422] Workday site 名称不对。同样写法下 Cornell/PSU/OSU/TAMU/WSU 都能跑，说明是 site 值的问题。要救的话去该校招聘页看 URL 里 myworkdayjobs.com/ 后面那一段" },
 
     { "id": "pa_ncsu", "name": "North Carolina State University", "type": "peopleadmin", "enabled": true, "country": "US",
       "url": "https://jobs.ncsu.edu", "q_set": "narrow", "verified": false,
@@ -223,15 +230,17 @@
     { "id": "pa_auburn", "name": "Auburn University", "type": "peopleadmin", "enabled": true, "country": "US",
       "url": "https://www.auemployment.com", "q_set": "narrow", "verified": false },
 
-    { "id": "pageup_kstate", "name": "Kansas State University", "type": "pageup", "enabled": true, "country": "US",
-      "url": "https://careers.k-state.edu", "q_set": "narrow", "verified": false },
+    { "id": "pageup_kstate", "name": "Kansas State University", "type": "pageup", "enabled": false, "country": "US",
+      "url": "https://careers.k-state.edu", "q_set": "narrow", "verified": false,
+      "notes": "[已关闭 404] PageUp 域名不对" },
 
-    { "id": "pageup_msstate", "name": "Mississippi State University", "type": "pageup", "enabled": true, "country": "US",
-      "url": "https://explore.msujobs.msstate.edu", "q_set": "narrow", "verified": false },
+    { "id": "pageup_msstate", "name": "Mississippi State University", "type": "pageup", "enabled": false, "country": "US",
+      "url": "https://explore.msujobs.msstate.edu", "q_set": "narrow", "verified": false,
+      "notes": "[已关闭 404] PageUp 域名不对" },
 
-    { "id": "ucdavis_recruit", "name": "UC Davis 学术岗位 (AP Recruit)", "type": "html", "enabled": true, "country": "US",
+    { "id": "ucdavis_recruit", "name": "UC Davis 学术岗位 (AP Recruit)", "type": "html", "enabled": false, "country": "US",
       "url": "https://recruit.ucdavis.edu/JPF", "verified": false,
-      "notes": "UC 系统的学术岗位走 AP Recruit，此前人工检索命中过 recruit.ucdavis.edu/JPF07507（遥感与数据科学博后）。路径待验证" },
+      "notes": "[已关闭 404] AP Recruit 列表页路径不对。该系统按 JPF 编号索引，没有可抓的列表页" },
 
     { "id": "adzuna_us", "name": "Adzuna 美国", "type": "adzuna", "enabled": true, "country": "US",
       "url": "https://api.adzuna.com/v1/api/jobs/us/search/{page}", "q_set": "wide", "verified": false,
