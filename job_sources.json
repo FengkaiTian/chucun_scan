@@ -70,23 +70,23 @@
 
     { "id": "sciencesocieties", "domain_trusted": true, "name": "ASA/CSSA/SSSA 作物·土壤·农学三学会 career center", "type": "html", "enabled": false, "country": "BOTH",
       "url": "https://careers.careerplacement.org/jobs/?keywords={q}", "q_set": "narrow", "verified": false,
-      "notes": "[已关闭] robots.txt 明确禁止抓取。这是网站方的意愿，不绕过。ASA/CSSA/SSSA 值得你手动去看，尤其 Academic Positions 有「遥感+博后」的双过滤页面" },
+      "notes": "[已关闭] robots.txt 禁止抓取，不绕过。ASA/CSSA/SSSA 三学会的联合招聘中心值得你手动去看：careers.careerplacement.org" },
 
     { "id": "academicpositions_rs", "domain_trusted": true, "name": "Academic Positions · 遥感/地球科学", "type": "html", "enabled": false, "country": "BOTH",
       "url": "https://academicpositions.com/jobs/field/remote-sensing-geosciences", "verified": false,
-      "notes": "[已关闭] robots.txt 明确禁止抓取。这是网站方的意愿，不绕过。Academic Positions 遥感 值得你手动去看，尤其 Academic Positions 有「遥感+博后」的双过滤页面" },
+      "notes": "[已关闭] robots.txt 禁止抓取，不绕过。手动去看：academicpositions.com/jobs/field/remote-sensing-geosciences" },
 
     { "id": "academicpositions_rs_postdoc", "domain_trusted": true, "name": "Academic Positions · 遥感博后", "type": "html", "enabled": false, "country": "BOTH",
       "url": "https://academicpositions.com/jobs/position/post-doc/field/remote-sensing-geosciences", "verified": false,
-      "notes": "[已关闭] robots.txt 明确禁止抓取。这是网站方的意愿，不绕过。Academic Positions 遥感博后 值得你手动去看，尤其 Academic Positions 有「遥感+博后」的双过滤页面" },
+      "notes": "[已关闭] robots.txt 禁止抓取，不绕过。这条是「遥感+博后」双过滤页，最值得你手动定期刷：academicpositions.com/jobs/position/post-doc/field/remote-sensing-geosciences" },
 
     { "id": "researchgate_rs", "name": "ResearchGate · 遥感岗位", "type": "html", "enabled": false, "country": "BOTH",
       "url": "https://www.researchgate.net/jobs/Remote_Sensing-jobs", "verified": false,
-      "notes": "[已关闭] robots.txt 明确禁止抓取。这是网站方的意愿，不绕过。ResearchGate 值得你手动去看，尤其 Academic Positions 有「遥感+博后」的双过滤页面" },
+      "notes": "[已关闭] robots.txt 禁止抓取，不绕过" },
 
     { "id": "asprs", "domain_trusted": true, "name": "ASPRS 摄影测量与遥感学会", "type": "html", "enabled": false, "country": "US",
       "url": "https://www.asprs.org/career-opportunities", "verified": false,
-      "notes": "[已关闭] robots.txt 明确禁止抓取。这是网站方的意愿，不绕过。ASPRS 值得你手动去看，尤其 Academic Positions 有「遥感+博后」的双过滤页面" },
+      "notes": "[已关闭] robots.txt 禁止抓取，不绕过。ASPRS 是摄影测量与遥感学会，值得手动关注" },
 
     { "id": "higheredjobs_agengr", "name": "HigherEdJobs · 农业工程", "type": "rss", "enabled": true, "country": "US",
       "url": "https://www.higheredjobs.com/rss/categoryFeed.cfm?catID=111", "verified": true,
@@ -165,7 +165,7 @@
 
     { "id": "academicpositions", "name": "Academic Positions", "type": "html", "enabled": false, "country": "BOTH",
       "url": "https://academicpositions.com/find-jobs?query={q}", "q_set": "narrow", "verified": false,
-      "notes": "[已关闭] robots.txt 明确禁止抓取。这是网站方的意愿，不绕过。Academic Positions 搜索 值得你手动去看，尤其 Academic Positions 有「遥感+博后」的双过滤页面" },
+      "notes": "[已关闭] robots.txt 禁止抓取，不绕过" },
 
     { "id": "academicjobsonline", "name": "AcademicJobsOnline", "type": "html", "enabled": false, "country": "BOTH",
       "url": "https://academicjobsonline.org/ajo?joblist-0-0", "verified": false,
