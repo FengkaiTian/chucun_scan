@@ -1133,7 +1133,10 @@ class Store:
 #  xlsx 输出
 # ══════════════════════════════════════════════════════════════════
 
+# 前两列由 job_rate.py（Gemini）回填；job_scan 自己永远不写它们——
+# 本脚本只负责抓取与初筛，相关性判断交给下游模型。
 COLUMNS = [
+    ('rating', '匹配度', 9), ('open_status', '岗位状态', 10),
     ('job_title', '岗位名称', 46), ('title_category', '类型', 30),
     ('org', '机构', 30), ('department', '院系', 24),
     ('location', '地点', 26), ('country', '国别', 7),
@@ -1142,6 +1145,7 @@ COLUMNS = [
     ('needs_review', '需人工确认', 11),
     ('url', '申请网址', 52), ('source_name', '来源', 26),
     ('matched_keywords', '命中关键词', 40), ('first_seen', '首次发现', 12),
+    ('rating_reason', '判定理由', 54),
     ('description', '职位描述', 90),
 ]
 
@@ -1978,8 +1982,12 @@ def self_test():
     hdr = [c.value for c in ws[1]]
     if hdr != [c[1] for c in COLUMNS]:
         failures.append('  表头与 COLUMNS 不一致')
-    if '评分' in hdr or 'score' in [str(h).lower() for h in hdr]:
-        failures.append('  表里不应出现评分列')
+    # 「匹配度」列存在，但必须由 job_rate.py 回填。job_scan 自测的数据里
+    # 没有评级，所以这一列此刻应当是空的——不空就说明抓取侧偷偷打分了。
+    if '匹配度' not in hdr or '岗位状态' not in hdr:
+        failures.append('  缺少「匹配度」/「岗位状态」列（job_rate 回填用）')
+    elif ws.cell(row=2, column=hdr.index('匹配度') + 1).value:
+        failures.append('  job_scan 不应自己填「匹配度」——评级归 job_rate.py')
     desc_idx = hdr.index('职位描述') + 1
     if not ws.cell(row=2, column=desc_idx).value:
         failures.append('  职位描述列为空——下游 AI 将无法判断相关性')
@@ -1992,7 +2000,7 @@ def self_test():
     if rej_ws.max_row < 2:
         failures.append('  「初筛丢弃样本」表没有数据行')
     say(f'   工作表 {wb.sheetnames}')
-    say(f'   列数 {len(hdr)} · 无评分列 · 描述列有内容')
+    say(f'   列数 {len(hdr)} · 匹配度列留空待评 · 描述列有内容')
 
     st.db.close()
     for f in (tmpdb, out):

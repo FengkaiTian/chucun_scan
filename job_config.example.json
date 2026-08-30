@@ -14,6 +14,15 @@
   ],
   "contact_email": "",
   "_contact_email_note": "可选。填了会作为 HTTP 标准的 From 头发送，属于礼貌做法，不影响 WAF 判定。",
+  "gemini_api_key": "",
+  "gemini_model": "gemini-3.7-flash",
+  "_gemini_note": [
+    "job_rate.py 用它给每条岗位判绿/黄/红/黑，并核对岗位是否还开着。job_scan.py 不需要这个 key。",
+    "去 https://aistudio.google.com/apikey 生成。要「AIza」开头的那种。",
+    "注意：Google Cloud 控制台里生成的「AQ.」开头的 key 走的是另一套鉴权，",
+    "打 generativelanguage.googleapis.com 会回 401 —— 拿到 401 先确认 key 是不是 AIza 开头。",
+    "gemini_model 留空则用 gemini-3.7-flash。"
+  ],
   "adzuna_app_id": "",
   "adzuna_app_key": "",
   "_adzuna_note": "免费申请: https://developer.adzuna.com/ · 约 250 次/天 · 覆盖美国与加拿大",

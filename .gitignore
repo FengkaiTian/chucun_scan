@@ -7,6 +7,9 @@
 # 含 API key，属于凭据
 job_config.json
 
+# 求职者画像：含身份状况，属隐私（模板见 cv_profile.example.json）
+cv_profile.json
+
 # xlsx 与运行日志
 job_output/
 job_scan_log.txt

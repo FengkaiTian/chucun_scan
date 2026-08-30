@@ -1,0 +1,77 @@
+{
+  "_comment": [
+    "job_rate.py 用本文件作为 Gemini 的筛选条件。复制为 cv_profile.json 再改。",
+    "cv_profile.json 已被 .gitignore 排除——里面写的是你的身份状况，不该进公开仓库。",
+    "work_authorization 那一段要如实写：它决定了联邦岗/涉密岗/不给 sponsorship 的岗会不会被判黑色。"
+  ],
+  "name": "你的姓名",
+  "degree": "PhD, Biological Engineering (AI in Agriculture), University of Missouri, May 2026",
+  "other_degrees": [
+    "MS, Data Science & Analytics (High Performance Computing), Univ. of Missouri, 2023",
+    "BS, Statistics; minors in Mathematics and Business, Univ. of Missouri, 2021"
+  ],
+  "current_role": "Postdoctoral Researcher, University of Missouri (since June 2026)",
+  "core_expertise": [
+    "UAV / UAS remote sensing of field crops: RGB, VNIR-SWIR hyperspectral, thermal, LiDAR",
+    "Crop trait estimation: nitrogen content, chlorophyll, emergence, yield, herbicide injury",
+    "Machine learning and deep learning applied to agricultural imagery (PyTorch, Ultralytics, sklearn, mlr3)",
+    "Precision livestock farming: robotic imaging system for swine activity and estrus detection",
+    "Photogrammetry and geospatial processing: Agisoft Metashape, ENVI, QGIS, ArcGIS, CloudCompare",
+    "Multi-year, multi-site field experiment design and execution",
+    "Programming: Python, R, MATLAB, SAS"
+  ],
+  "credentials": [
+    "8 peer-reviewed publications (7 first-author) plus 3 in submission",
+    "1 book chapter on UAS for precision agriculture",
+    "18 conference presentations (ASABE, AGU, ASA-CSSA-SSSA, AI in Agriculture)",
+    "Reviewer for 7 journals including Computers and Electronics in Agriculture and ISPRS J.",
+    "Co-wrote a $2M USDA-NIFA AFRI proposal (under review)",
+    "Supervised 4 cohorts of students; TA for IoT in precision agriculture",
+    "FAA Remote Pilot Certificate; IBM Data Science Professional Certificate"
+  ],
+  "target_roles": [
+    "Assistant Professor / Assistant-Associate Professor (tenure-track), especially in Agricultural & Biosystems Engineering, Plant Science, Agronomy, or Geography",
+    "Postdoctoral researcher / scholar / fellow / research associate",
+    "Research Scientist, Staff Scientist, Research Engineer, Geospatial or Remote Sensing Scientist",
+    "Extension Specialist in precision agriculture technologies",
+    "Research or phenotyping facility manager, UAS program manager"
+  ],
+  "geography": "United States and Canada only",
+  "work_authorization": {
+    "status": "在此如实描述你的工作许可状况（国籍 / 签证 / 是否需要 sponsorship）",
+    "implications": [
+      "举例：需要未来 sponsorship 的话，写明「要求入职时即具备无需 sponsorship 的工作许可」的岗位不可行",
+      "举例：非美国公民的话，联邦编制岗（USAJOBS / ORISE）与涉密、受出口管制的岗位不可行",
+      "每写一条，Gemini 就会拿它逐条比对岗位正文"
+    ]
+  },
+  "strong_signals": [
+    "remote sensing",
+    "precision agriculture",
+    "digital agriculture",
+    "UAV",
+    "UAS",
+    "drone",
+    "hyperspectral",
+    "multispectral",
+    "plant phenotyping",
+    "crop monitoring",
+    "agricultural robotics",
+    "precision livestock",
+    "geospatial",
+    "GeoAI",
+    "computer vision applied to crops or livestock",
+    "agricultural or biosystems engineering",
+    "agronomy",
+    "soil sensing",
+    "yield prediction"
+  ],
+  "weak_or_wrong_signals": [
+    "wet-lab molecular biology, genomics bench work, immunology, virology, medicine, clinical research",
+    "pure theory with no field or sensing component",
+    "social sciences, humanities, business, education administration",
+    "positions requiring a licensed Professional Engineer where he has no PE",
+    "senior roles requiring 10+ years or an established funded lab (he is one year past the PhD)",
+    "purely teaching-only roles at institutions with no research expectation"
+  ]
+}
