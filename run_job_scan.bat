@@ -38,6 +38,31 @@ if not defined PY (
     exit /b 1
 )
 
+REM ── 验证这个解释器真的装了依赖 ────────────────────────────────────
+REM 关键：conda 的 base 环境通常没装 feedparser，而依赖多半是在某个子环境
+REM （如 goML）里 pip install 的。任务计划程序不带 CONDA_PREFIX，上面的探测
+REM 会选中 base —— 于是 18 个 RSS 源全部 SKIP，任务"成功"却几乎没抓到东西。
+REM 所以这里实际 import 一次；不通就去各 conda 子环境里找一个装齐的。
+"%PY%" -c "import feedparser, openpyxl" >nul 2>&1
+if %ERRORLEVEL% NEQ 0 (
+    echo   [i] %PY% 缺少依赖，正在其他 conda 环境中查找...
+    for /d %%E in ("%USERPROFILE%\anaconda3\envs\*" "%USERPROFILE%\miniconda3\envs\*" "%LOCALAPPDATA%\anaconda3\envs\*") do (
+        if exist "%%E\python.exe" (
+            "%%E\python.exe" -c "import feedparser, openpyxl" >nul 2>&1 && set "PY=%%E\python.exe"
+        )
+    )
+    "%PY%" -c "import feedparser, openpyxl" >nul 2>&1
+    if %ERRORLEVEL% NEQ 0 (
+        echo.
+        echo   [!] 所有环境都缺依赖。请在装有依赖的 Anaconda Prompt 里执行:
+        echo         where python
+        echo       把路径填到本文件的 PY_OVERRIDE= 那一行。
+        echo.
+        pause
+        exit /b 1
+    )
+)
+
 echo.
 echo   学术岗位扫描  %DATE% %TIME%
 echo   解释器: %PY%
