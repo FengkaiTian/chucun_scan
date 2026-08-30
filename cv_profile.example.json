@@ -5,38 +5,65 @@
     "work_authorization 那一段要如实写：它决定了联邦岗/涉密岗/不给 sponsorship 的岗会不会被判黑色。"
   ],
   "name": "你的姓名",
-  "degree": "PhD, Biological Engineering (AI in Agriculture), University of Missouri, May 2026",
-  "other_degrees": [
-    "MS, Data Science & Analytics (High Performance Computing), Univ. of Missouri, 2023",
-    "BS, Statistics; minors in Mathematics and Business, Univ. of Missouri, 2021"
+  "career_stage": "2026 年 5 月博士毕业，现为博后第一年。目标是入门级教职（tenure-track Assistant Professor）或博后/研究科学家，不是资深/终身教职层级。",
+  "education": [
+    "PhD, Biological Engineering — AI in Agriculture, University of Missouri, 2022-08 至 2026-05",
+    "  学位论文：From Emergence to Yield: Integrating Multi-source UAV Imagery and Machine Learning for Comprehensive Spatiotemporal Crop Assessment",
+    "MS, Data Science & Analytics — High Performance Computing, University of Missouri, 2023",
+    "  硕士论文：Quantlyzer — An R Package for Automated Exploratory and Predictive Data Analysis",
+    "BS, Statistics（辅修 Mathematics、Business）, University of Missouri, 2021"
   ],
-  "current_role": "Postdoctoral Researcher, University of Missouri (since June 2026)",
-  "core_expertise": [
-    "UAV / UAS remote sensing of field crops: RGB, VNIR-SWIR hyperspectral, thermal, LiDAR",
-    "Crop trait estimation: nitrogen content, chlorophyll, emergence, yield, herbicide injury",
-    "Machine learning and deep learning applied to agricultural imagery (PyTorch, Ultralytics, sklearn, mlr3)",
-    "Precision livestock farming: robotic imaging system for swine activity and estrus detection",
-    "Photogrammetry and geospatial processing: Agisoft Metashape, ENVI, QGIS, ArcGIS, CloudCompare",
-    "Multi-year, multi-site field experiment design and execution",
-    "Programming: Python, R, MATLAB, SAS"
+  "current_role": "Postdoctoral Researcher, University of Missouri（2026-06 至今）。带队做精准畜牧：机器人成像系统 + 深度学习，自动监测母猪活动与发情行为，并把系统从试验场推向商业猪场落地。",
+  "academic_background_narrative": [
+    "研究主线是「用无人机遥感 + 机器学习，把大田作物从出苗到产量的全生育期状态量化出来」。博士期间设计并执行了多年、多点的 UAV 田间试验，传感器覆盖 RGB、VNIR-SWIR 高光谱（400-2500 nm）、热红外与 LiDAR。",
+    "第二条主线是精准畜牧：与工程/CS 团队合作开发猪舍机器人成像系统，做母猪姿态识别、发情检测与体况监测，现正推进商业农场部署。",
+    "底子是统计与数据科学（统计本科 + 数据科学硕士，方向是高性能计算），所以偏建模、算法与软件工程的一侧比纯农学背景的候选人强；同时有 FAA 遥控驾驶执照与多年实际飞行、地面控制、点云与正射影像处理经验，偏动手的一侧也不弱。",
+    "属于「传感 + 建模 + 田间实操」三者都能自己走通的类型，而不是只做算法或只做田间试验。"
   ],
+  "research_threads": [
+    "玉米氮素与产量估算：机载/无人机 VNIR-SWIR 高光谱，高时间分辨率多期反演叶片氮含量（Precision Agriculture；在投 Computers and Electronics in Agriculture）",
+    "玉米叶绿素多时相制图：多光谱影像 + 机器学习（Smart Agricultural Technology）",
+    "棉花出苗评估：UAV 影像量化出苗率与均匀度，并解析土壤与田间条件的影响（Computers and Electronics in Agriculture）；与 USDA-ARS 合作用移动式与贯入式 ECa 传感器解释灌溉棉花的产量变异",
+    "大豆 dicamba 药害识别：UAV 影像 + 深度学习分级药害程度（Sensors；Remote Sensing）",
+    "作物株数计数的迁移学习通用模型（在投 Smart Agricultural Technology）",
+    "精准畜牧：机器人成像系统做母猪姿态识别与发情检测（Computers and Electronics in Agriculture）",
+    "数字土壤健康制图与近红外原位土壤碳估算（Smart Agricultural Technology；ASA-CSSA-SSSA）",
+    "面向多生育期作物监测的 Web 端 UAV 影像分析平台（AI in Agriculture Conference）",
+    "高光谱在大田作物氮素诊断中的综述（Frontiers in Plant Science）"
+  ],
+  "crops_and_systems": [
+    "玉米",
+    "大豆",
+    "棉花",
+    "牧草/放牧系统",
+    "生猪（精准畜牧）"
+  ],
+  "technical_skills": {
+    "sensing": "UAV RGB / 多光谱 / VNIR-SWIR 高光谱 / 热红外 / LiDAR；土壤 ECa 与近红外光谱",
+    "ml": "PyTorch、Ultralytics、sklearn、mlr3；深度学习与经典机器学习并用",
+    "geospatial": "Agisoft Metashape、ENVI、QGIS、ArcGIS、CloudCompare、Applanix POSPac",
+    "uav_ops": "UgCS、DJI Pilot、RTK 地面控制；FAA Part 107 遥控驾驶执照",
+    "programming": "Python、R、MATLAB、SAS",
+    "hardware": "Raspberry Pi、Arduino、Jetson Nano（田间与畜舍嵌入式采集系统）"
+  },
   "credentials": [
-    "8 peer-reviewed publications (7 first-author) plus 3 in submission",
-    "1 book chapter on UAS for precision agriculture",
-    "18 conference presentations (ASABE, AGU, ASA-CSSA-SSSA, AI in Agriculture)",
-    "Reviewer for 7 journals including Computers and Electronics in Agriculture and ISPRS J.",
-    "Co-wrote a $2M USDA-NIFA AFRI proposal (under review)",
-    "Supervised 4 cohorts of students; TA for IoT in precision agriculture",
-    "FAA Remote Pilot Certificate; IBM Data Science Professional Certificate"
+    "8 篇已发表同行评议论文（7 篇一作），另有 3 篇在投（其中 2 篇一作）",
+    "1 章书稿：Developments in unmanned aerial systems (UASs) for precision agriculture（Burleigh Dodds，2025）",
+    "18 次会议报告：ASABE、AGU、ASA-CSSA-SSSA、AI in Agriculture",
+    "7 本期刊审稿人，含 Computers and Electronics in Agriculture、ISPRS J. of Photogrammetry and Remote Sensing、European Journal of Agronomy",
+    "参与撰写 200 万美元 USDA-NIFA AFRI 项目申请（AI 驱动的适应性放牧与牧草杂草管理，评审中）",
+    "教学与指导：IoT for Precision Agriculture 助教；先后指导 4 批学生（本科暑研、高中生科研、精准畜牧影像项目）",
+    "学会会员：ASABE、International Society of Precision Agriculture、AGU",
+    "FAA Remote Pilot Certificate；IBM Data Science Professional Certificate"
   ],
   "target_roles": [
-    "Assistant Professor / Assistant-Associate Professor (tenure-track), especially in Agricultural & Biosystems Engineering, Plant Science, Agronomy, or Geography",
+    "Assistant Professor（tenure-track），院系方向为 Agricultural & Biosystems Engineering、Plant Science、Agronomy、Crop & Soil Science、Geography/Geospatial、Animal Science 均可",
     "Postdoctoral researcher / scholar / fellow / research associate",
-    "Research Scientist, Staff Scientist, Research Engineer, Geospatial or Remote Sensing Scientist",
-    "Extension Specialist in precision agriculture technologies",
-    "Research or phenotyping facility manager, UAS program manager"
+    "Research Scientist、Staff Scientist、Research Engineer、Geospatial 或 Remote Sensing Scientist",
+    "Extension Specialist（精准农业技术推广方向）",
+    "表型平台 / UAS 项目的管理岗（phenotyping facility manager、UAS program manager）"
   ],
-  "geography": "United States and Canada only",
+  "geography": "只看美国与加拿大",
   "work_authorization": {
     "status": "在此如实描述你的工作许可状况（国籍 / 签证 / 是否需要 sponsorship）",
     "implications": [
@@ -49,29 +76,40 @@
     "remote sensing",
     "precision agriculture",
     "digital agriculture",
+    "smart agriculture",
     "UAV",
     "UAS",
     "drone",
     "hyperspectral",
     "multispectral",
+    "thermal imagery",
+    "LiDAR",
     "plant phenotyping",
+    "high-throughput phenotyping",
     "crop monitoring",
+    "yield prediction",
+    "nitrogen management",
+    "soil sensing",
     "agricultural robotics",
     "precision livestock",
+    "animal behavior monitoring",
     "geospatial",
     "GeoAI",
-    "computer vision applied to crops or livestock",
-    "agricultural or biosystems engineering",
+    "machine learning for agriculture",
+    "computer vision",
     "agronomy",
-    "soil sensing",
-    "yield prediction"
+    "biosystems engineering",
+    "agricultural engineering",
+    "crop and soil science",
+    "extension in ag technology"
   ],
   "weak_or_wrong_signals": [
-    "wet-lab molecular biology, genomics bench work, immunology, virology, medicine, clinical research",
-    "pure theory with no field or sensing component",
-    "social sciences, humanities, business, education administration",
-    "positions requiring a licensed Professional Engineer where he has no PE",
-    "senior roles requiring 10+ years or an established funded lab (he is one year past the PhD)",
-    "purely teaching-only roles at institutions with no research expectation"
+    "湿实验室分子生物学、基因组学、免疫学、病毒学、医学与临床研究",
+    "纯理论、纯建模且完全不涉及传感或田间数据",
+    "社会科学、人文、商科、教育行政",
+    "要求注册职业工程师（PE）执照的岗位——他没有 PE",
+    "要求 10 年以上经验、或要求已有成熟资助团队的资深岗位（他刚博士毕业一年）",
+    "纯教学、无科研预期的岗位",
+    "林业/生态遥感中完全不涉及农业与作物的方向可以放宽为「沾边」，不必直接否掉"
   ]
 }

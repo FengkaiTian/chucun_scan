@@ -423,11 +423,15 @@ def self_test():
 
     js.say('[bold]1. CV 画像可加载[/]')
     cv = js.load_json(CV_FILE)
-    for k in ('core_expertise', 'target_roles', 'work_authorization', 'weak_or_wrong_signals'):
+    for k in ('academic_background_narrative', 'research_threads', 'career_stage',
+              'target_roles', 'work_authorization', 'weak_or_wrong_signals'):
         if not cv.get(k):
             failures.append(f'  cv_profile.json 缺 {k}')
-    js.say(f'   {len(cv["core_expertise"])} 条专长 · '
-           f'{len(cv["work_authorization"]["implications"])} 条身份约束')
+    if not cv.get('work_authorization', {}).get('implications'):
+        failures.append('  work_authorization.implications 为空——身份硬约束会失效')
+    js.say(f'   {len(cv.get("research_threads", []))} 条研究方向 · '
+           f'{len(cv.get("credentials", []))} 条学术成果 · '
+           f'{len(cv.get("work_authorization", {}).get("implications", []))} 条身份约束')
 
     js.say('\n[bold]2. 模型返回的各种脏 JSON 都要能解析[/]')
     cases = [
