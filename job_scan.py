@@ -447,7 +447,7 @@ class Matcher:
             self.domain[group] = [(w, re.compile(r'(?<![a-z])' + re.escape(w) + r'(?![a-z])', re.I))
                                   for w in words]
 
-        self.citizenship = [re.compile(p, re.I) for p in spec.get('citizenship_patterns', [])]
+        self.exclusion = [re.compile(p, re.I) for p in spec.get('exclusion_patterns', [])]
         self.sponsorship = [re.compile(p, re.I) for p in spec.get('sponsorship_patterns', [])]
         self.deadlines = [re.compile(p, re.I) for p in spec.get('deadline_patterns', [])]
 
@@ -546,11 +546,24 @@ class Matcher:
                 kept.append(w)
         return sorted(kept)
 
-    def citizenship_flag(self, text):
-        return 'YES' if text and any(rx.search(text) for rx in self.citizenship) else ''
+    def work_auth(self, text):
+        """判断岗位对「持 OPT、需要担保」的候选人是否可行。
 
-    def sponsorship_flag(self, text):
-        return 'YES' if text and any(rx.search(text) for rx in self.sponsorship) else ''
+        返回 (结论, 依据原文)。学术岗位大多两者都不写，此时是「未说明」——
+        那不代表不能投，高校普遍能办 H-1B/J-1；真正致命的是明确写了要公民、
+        不担保、或受出口管制的那些。
+        """
+        if not text:
+            return '未说明', ''
+        for rx in self.exclusion:
+            mm = rx.search(text)
+            if mm:
+                return '排除', re.sub(r'\s+', ' ', mm.group(0))[:90]
+        for rx in self.sponsorship:
+            mm = rx.search(text)
+            if mm:
+                return '可担保', re.sub(r'\s+', ' ', mm.group(0))[:90]
+        return '未说明', ''
 
     def find_deadline(self, text):
         if not text:
@@ -586,7 +599,8 @@ def _mk(src, title, url, org='', dept='', location='', posted='', desc='', raw=N
         'location': strip_html(location), 'posted_date': posted or '',
         'description': strip_html(desc), 'source_id': src['id'],
         'source_name': src.get('name', src['id']),
-        'country_hint': src.get('country', ''), 'raw': raw or {},
+        'country_hint': src.get('country', ''),
+        'visa_note': src.get('visa_note', ''), 'raw': raw or {},
     }
 
 
@@ -1027,7 +1041,7 @@ CREATE TABLE IF NOT EXISTS jobs (
     job_id        TEXT PRIMARY KEY,
     title         TEXT, title_category TEXT, org TEXT, department TEXT,
     location      TEXT, country TEXT, posted_date TEXT, deadline TEXT,
-    citizenship   TEXT, sponsorship TEXT, needs_review TEXT DEFAULT '', url TEXT,
+    work_auth     TEXT, work_auth_note TEXT, needs_review TEXT DEFAULT '', url TEXT,
     source_id     TEXT, source_name TEXT, keywords TEXT,
     description   TEXT, raw_json TEXT,
     first_seen    TEXT, last_seen TEXT, missing_runs INTEGER DEFAULT 0,
@@ -1049,8 +1063,9 @@ class Store:
         self.db.executescript(SCHEMA)
         # 老库平滑升级：早期版本没有 needs_review 列
         cols = {r[1] for r in self.db.execute('PRAGMA table_info(jobs)')}
-        if 'needs_review' not in cols:
-            self.db.execute("ALTER TABLE jobs ADD COLUMN needs_review TEXT DEFAULT ''")
+        for col in ('needs_review', 'work_auth', 'work_auth_note'):
+            if col not in cols:
+                self.db.execute(f"ALTER TABLE jobs ADD COLUMN {col} TEXT DEFAULT ''")
         self.db.commit()
 
     def upsert(self, jobs, today):
@@ -1064,12 +1079,12 @@ class Store:
                 new_ids.add(jid)
                 cur.execute("""INSERT INTO jobs
                     (job_id,title,title_category,org,department,location,country,posted_date,
-                     deadline,citizenship,sponsorship,needs_review,url,source_id,source_name,
+                     deadline,work_auth,work_auth_note,needs_review,url,source_id,source_name,
                      keywords,description,raw_json,first_seen,last_seen,missing_runs,status)
                     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0,'active')""",
                     (jid, j['title'], j['title_category'], j['org'], j['department'],
                      j['location'], j['country'], j['posted_date'], j['deadline'],
-                     j['citizenship'], j['sponsorship'], j['needs_review'], j['url'],
+                     j['work_auth'], j['work_auth_note'], j['needs_review'], j['url'],
                      j['source_id'], j['source_name'], j['keywords'], j['description'],
                      json.dumps(j.get('raw', {}), ensure_ascii=False, default=str),
                      today, today))
@@ -1123,7 +1138,7 @@ COLUMNS = [
     ('org', '机构', 30), ('department', '院系', 24),
     ('location', '地点', 26), ('country', '国别', 7),
     ('posted_date', '发布日', 12), ('deadline', '截止信息', 22),
-    ('citizenship', '限公民', 8), ('sponsorship', '可担保签证', 10),
+    ('work_auth', '身份可行性', 11), ('work_auth_note', '身份依据', 34),
     ('needs_review', '需人工确认', 11),
     ('url', '申请网址', 52), ('source_name', '来源', 26),
     ('matched_keywords', '命中关键词', 40), ('first_seen', '首次发现', 12),
@@ -1395,13 +1410,20 @@ def process(jobs, matcher, keep_countries, domain_filter, trusted_ids=None):
             drop(j, 'country')
             continue
         blob = f"{j['title']}\n{j['description']}"
+        auth, auth_note = matcher.work_auth(blob)
+        # 源级别的机构性限制（例如佛州 SB 846 对公立校博后的国别限制），
+        # 岗位正文里通常一个字都不会提，只能由注册表带进来。
+        src_note = j.get('visa_note', '')
+        if src_note:
+            auth_note = (auth_note + ' | ' if auth_note else '') + src_note
+            if auth == '未说明':
+                auth = '需注意'
         kept.append({
             'job_id': job_id_of(j), 'title': j['title'], 'title_category': cat,
             'org': j['org'], 'department': j['department'], 'location': j['location'],
             'country': country, 'posted_date': j['posted_date'],
             'deadline': matcher.find_deadline(blob),
-            'citizenship': matcher.citizenship_flag(blob),
-            'sponsorship': matcher.sponsorship_flag(blob),
+            'work_auth': auth, 'work_auth_note': auth_note,
             'needs_review': 'YES' if needs_review else '',
             'url': j['url'], 'source_id': j['source_id'], 'source_name': j['source_name'],
             'keywords': '; '.join(kws), 'description': j['description'],
@@ -1716,17 +1738,44 @@ def self_test():
     say('\n[bold]4. 字段抽取[/]')
     blob = ('Review of applications will begin October 15, 2026. '
             'U.S. citizenship is required for this position.')
-    dl, cz = m.find_deadline(blob), m.citizenship_flag(blob)
+    dl = m.find_deadline(blob)
     if 'October 15, 2026' not in dl:
         failures.append(f'  截止日期抽取失败: {dl!r}')
-    if cz != 'YES':
-        failures.append(f'  公民身份标记失败: {cz!r}')
     blob2 = 'Open until filled. Visa sponsorship is available for exceptional candidates.'
     if 'until filled' not in m.find_deadline(blob2).lower():
         failures.append('  open-until-filled 抽取失败')
-    if m.sponsorship_flag(blob2) != 'YES':
-        failures.append('  签证担保标记失败')
-    say(f'   截止={dl!r}  限公民={cz!r}  滚动={m.find_deadline(blob2)!r}')
+    say(f'   截止={dl!r}  滚动={m.find_deadline(blob2)!r}')
+
+    say('\n[bold]4b. 身份可行性（持 OPT 者能不能投，是硬约束）[/]')
+    auth_cases = [
+        ('U.S. citizenship is required for this position.', '排除'),
+        ('Applicants must be authorized to work in the United States without sponsorship.', '排除'),
+        ('We are unable to provide visa sponsorship for this role.', '排除'),
+        ('This is an export-controlled position; ITAR restrictions apply.', '排除'),
+        ('An active security clearance is required.', '排除'),
+        ('Visa sponsorship is available for exceptional candidates.', '可担保'),
+        ('The university will sponsor H-1B for the successful candidate.', '可担保'),
+        ('Seeking a postdoc in UAV remote sensing of crops. Start date flexible.', '未说明'),
+    ]
+    for text, want in auth_cases:
+        got, _note = m.work_auth(text)
+        if got != want:
+            failures.append(f'  身份判定: {text[:46]!r} 期望 {want!r} 实得 {got!r}')
+    say(f'   {len(auth_cases)} 个用例（排除 / 可担保 / 未说明）')
+
+    say('\n[bold]4c. 源级别的机构性限制必须带进表里[/]')
+    # 佛州 SB 846 这类限制，岗位正文里一个字都不会提，只能由注册表带进来
+    jv = _mk({'id': 'pageup_ufl', 'name': 'UF', 'country': 'US',
+              'visa_note': '佛州 SB 846：公立校博后需逐案豁免'},
+             'Postdoctoral Associate', 'https://uf.test/1',
+             location='Gainesville, FL', desc='UAV remote sensing of crops in Florida.')
+    kv, _r = process([jv], m, {'US', 'CA'}, False, set())
+    if not kv:
+        failures.append('  带 visa_note 的岗位被误丢')
+    elif 'SB 846' not in kv[0]['work_auth_note'] or kv[0]['work_auth'] != '需注意':
+        failures.append(f'  源级限制未带入: {kv[0]["work_auth"]!r} / {kv[0]["work_auth_note"]!r}')
+    else:
+        say(f'   UF 岗位 → 身份可行性={kv[0]["work_auth"]!r}，依据带入成功')
 
     say('\n[bold]5. URL 归一化与去重[/]')
     a = canon_url('https://Example.EDU/jobs/123/?utm_source=x&b=2&a=1')
@@ -1936,6 +1985,9 @@ def self_test():
         failures.append('  职位描述列为空——下游 AI 将无法判断相关性')
     if '需人工确认' not in hdr:
         failures.append('  缺少「需人工确认」列')
+    for c in ('身份可行性', '身份依据'):
+        if c not in hdr:
+            failures.append(f'  缺少「{c}」列')
     rej_ws = wb['初筛丢弃样本']
     if rej_ws.max_row < 2:
         failures.append('  「初筛丢弃样本」表没有数据行')

@@ -619,21 +619,16 @@
       "environmental monitoring"
     ]
   },
-  "citizenship_patterns": [
-    "u\\.?s\\.?\\s+citizen(ship)?\\s+(is\\s+)?(required|only)",
-    "must\\s+be\\s+a\\s+u\\.?s\\.?\\s+citizen",
-    "open\\s+to\\s+u\\.?s\\.?\\s+citizens\\s+only",
-    "restricted\\s+to\\s+u\\.?s\\.?\\s+citizens",
-    "united\\s+states\\s+citizenship\\s+(is\\s+)?required",
-    "canadian\\s+citizens?\\s+(and|or)\\s+permanent\\s+residents?\\s+(will\\s+be\\s+)?(given\\s+)?priorit",
-    "security\\s+clearance\\s+(is\\s+)?required"
-  ],
   "sponsorship_patterns": [
     "visa\\s+sponsorship\\s+(is\\s+)?(available|provided|offered)",
     "will\\s+sponsor",
     "we\\s+sponsor\\s+(h-?1b|work\\s+visas?)",
     "eligible\\s+for\\s+visa\\s+sponsorship",
-    "h-?1b\\s+sponsorship"
+    "h-?1b\\s+sponsorship",
+    "sponsorship\\s+(is\\s+)?available",
+    "(we|the\\s+university)\\s+(can|will)\\s+provide\\s+(visa\\s+)?sponsorship",
+    "\\bj-?1\\b[^.]{0,40}(visa|scholar|sponsor)",
+    "international\\s+(applicants|candidates)\\s+are\\s+(encouraged|welcome)"
   ],
   "deadline_patterns": [
     "(?:application(?:s)?\\s+(?:due|deadline|close[sd]?)|deadline\\s+(?:for\\s+application(?:s)?\\s+)?(?:is|:)?|closing\\s+date\\s*:?|apply\\s+by|must\\s+be\\s+received\\s+by)\\s*(?:on\\s+)?([A-Z][a-z]+\\.?\\s+\\d{1,2},?\\s+\\d{4})",
@@ -643,5 +638,34 @@
     "(open\\s+until\\s+filled)",
     "(until\\s+(?:the\\s+)?position\\s+is\\s+filled)",
     "(rolling\\s+basis)"
+  ],
+  "_work_auth_note": [
+    "身份可行性判定。对持 OPT / 需要担保的候选人，这是能不能投的硬约束。",
+    "exclusion_patterns 命中 → 排除；sponsorship_patterns 命中 → 可担保；都没命中 → 未说明。",
+    "学术岗位大多两者都不写，所以「未说明」是常态，不代表不能投——高校普遍能办 H-1B/J-1。",
+    "真正要小心的是：联邦岗（USDA-ARS/USAJOBS）几乎一律要求公民；受出口管制或需要",
+    "安全许可的岗位排除外籍；以及佛州 SB 846 对公立校博后的国别限制。"
+  ],
+  "exclusion_patterns": [
+    "u\\.?s\\.?\\s+citizen(ship)?\\s+(is\\s+)?(required|only)",
+    "must\\s+be\\s+a\\s+u\\.?s\\.?\\s+citizen",
+    "open\\s+to\\s+u\\.?s\\.?\\s+citizens\\s+only",
+    "restricted\\s+to\\s+u\\.?s\\.?\\s+citizens",
+    "united\\s+states\\s+citizenship\\s+(is\\s+)?required",
+    "citizenship\\s+requirement",
+    "must\\s+be\\s+authorized\\s+to\\s+work\\s+in\\s+the\\s+u(nited\\s+states|\\.?s\\.?)[^.]{0,60}without\\s+(the\\s+need\\s+for\\s+)?sponsorship",
+    "(un(able|available)|not\\s+(able|eligible))\\s+to\\s+(provide|offer|sponsor)[^.]{0,30}sponsorship",
+    "(we|the\\s+\\w+)\\s+(do(es)?\\s+not|will\\s+not|cannot|can'?t)\\s+sponsor",
+    "no\\s+(visa\\s+)?sponsorship\\s+(is\\s+)?(available|provided|offered)",
+    "sponsorship\\s+is\\s+not\\s+available",
+    "visa\\s+sponsorship\\s+(is\\s+)?not\\s+(available|offered|provided)",
+    "permanent\\s+(us\\s+)?work\\s+authorization\\s+required",
+    "\\bitar\\b",
+    "export[\\s\\-]control(led|s)?\\s+(position|research|data)",
+    "security\\s+clearance\\s+(is\\s+)?(required|needed)",
+    "must\\s+be\\s+eligible\\s+(to\\s+obtain\\s+)?(a\\s+)?security\\s+clearance",
+    "lawful\\s+permanent\\s+resident\\s+(status\\s+)?required",
+    "green\\s+card\\s+(holder\\s+)?required",
+    "(un(able)|not\\s+able)\\s+to\\s+sponsor\\b"
   ]
 }

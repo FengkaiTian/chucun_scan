@@ -195,7 +195,8 @@
 
     { "id": "zintellect", "name": "Zintellect / ORISE（含 USDA-ARS fellowship）", "type": "html", "enabled": false, "country": "US",
       "url": "https://www.zintellect.com/Opportunity/Search?q=remote+sensing", "verified": false,
-      "notes": "[已关闭 404] 搜索页 404。USDA-ARS 的 fellowship 在这里，但多数要求美国公民身份，优先级不高" },
+      "notes": "[已关闭 404] 搜索页 404。USDA-ARS 的 fellowship 在这里，但多数要求美国公民身份，优先级不高",
+      "visa_note": "USDA-ARS 的 ORISE fellowship 多数明确写 U.S. citizens only" },
 
     { "id": "lcluc_umd", "domain_trusted": true, "name": "NASA LCLUC 公告板", "type": "html", "enabled": false, "country": "BOTH",
       "url": "https://lcluc.umd.edu/announcements", "verified": false,
@@ -329,7 +330,8 @@
 
     { "id": "usajobs", "name": "USAJOBS 美国联邦岗（默认关闭）", "type": "usajobs", "enabled": false, "country": "US",
       "url": "https://data.usajobs.gov/api/search", "q_set": "wide", "verified": false,
-      "notes": "USDA-ARS 的正式编制岗（Research Agricultural Engineer / Research Physical Scientist）只在这里挂。开启需免费注册 key 填入 config。绝大多数联邦岗要求美国公民身份。" },
+      "notes": "USDA-ARS 的正式编制岗（Research Agricultural Engineer / Research Physical Scientist）只在这里挂。开启需免费注册 key 填入 config。绝大多数联邦岗要求美国公民身份。",
+      "visa_note": "联邦岗：绝大多数要求美国公民身份，OPT/H-1B 不符合。开启前先确认目标公告的 citizenship 要求" },
 
     { "id": "wd_cornell", "name": "Cornell University", "type": "workday", "enabled": true, "country": "US",
       "host": "cornell.wd1.myworkdayjobs.com", "tenant": "cornell", "site": "CornellCareerPage",
@@ -373,6 +375,7 @@
 
     { "id": "pageup_ufl", "name": "University of Florida", "type": "pageup", "enabled": true, "country": "US",
       "url": "https://explore.jobs.ufl.edu", "q_set": "narrow", "verified": false,
+      "visa_note": "佛州 SB 846：该州 12 所公立高校雇用博后/研究生助理需州理事会逐案豁免。法条锚定 domicile 而非国籍，人在美国本不该受限，但非公民非绿卡且 domicile 被认定在中国者被推定禁止——F-1/OPT 的前提正是保有本国住所，故存在被套用的风险。已有在美中国籍被据此解雇的案例，2025-02 联邦法官建议发禁令、佛州上诉中。教职受影响小于博后；投博后前建议先问 HR。",
       "notes": "UF 的 Assistant/Associate Professor in Remote Sensing（job 540144）在这里" },
 
     { "id": "msu_careers", "name": "Michigan State University", "type": "html", "enabled": false, "country": "US",
