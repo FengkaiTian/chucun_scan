@@ -376,9 +376,11 @@
     "\\bcreative\\s+writing\\b"
   ],
   "_negative_context_note": [
-    "这些模式匹配 标题 + 院系 + 机构 + 描述前 600 字，用来拦住标题看不出问题、",
+    "匹配 标题 + 院系 + 机构 + 描述前 600 字，用来拦住标题看不出问题、",
     "但正文明显不对口的岗位。必须保持高精度——写得太宽会误杀真岗位，",
-    "例如不能直接放 chemistry（土壤化学是你的相关领域）或 biology。"
+    "例如不能直接放 chemistry 或 biology（土壤化学、植物生物学是你的相关领域）。",
+    "免疫学/社会学等条目是实测补上的：Agristok 这类「农业与生物科学」板会同时",
+    "挂免疫学岗位，仅靠领域关键词拦不住标题为 Postdoctoral Researcher 的条目。"
   ],
   "negative_context_patterns": [
     "\\bschool\\s+of\\s+nursing\\b",
@@ -398,7 +400,32 @@
     "\\bbusiness\\s+school\\b",
     "\\b(accounting|actuarial|marketing)\\s+(program|department|faculty)\\b",
     "\\bmsw\\s+program\\b",
-    "\\bsocial\\s+work\\s+program\\b"
+    "\\bsocial\\s+work\\s+program\\b",
+    "\\bimmunolog",
+    "\\bvirolog",
+    "\\bmicrobiome\\s+of\\s+the\\s+human\\b",
+    "\\bt-?cell\\b",
+    "\\bhost-?pathogen\\b",
+    "\\bvaccine\\s+development\\b",
+    "\\bepidemiolog(y|ist)\\b",
+    "\\bpublic\\s+health\\b",
+    "\\bsociolog",
+    "\\banthropolog",
+    "\\bpolitical\\s+science\\b",
+    "\\beconomics\\s+department\\b",
+    "\\bpsycholog",
+    "\\bnursing\\b",
+    "\\bpharmaceutic",
+    "\\bbiomedical\\s+engineering\\b",
+    "\\bstem\\s+cell\\b",
+    "\\bgenome\\s+editing\\s+in\\s+(human|mice|mouse)\\b",
+    "\\bdrug\\s+(discovery|delivery)\\b",
+    "\\bmedicinal\\s+chemistry\\b",
+    "\\bastronom",
+    "\\bastrophysic",
+    "\\bparticle\\s+physics\\b",
+    "\\bnuclear\\s+(physics|engineering)\\b",
+    "\\bquantum\\s+comput"
   ],
   "domain_keywords": {
     "遥感": [

@@ -329,6 +329,13 @@ FOREIGN_MARKERS = {
     'china', 'japan', 'south korea', 'singapore', 'india', 'israel',
     'australia', 'new zealand', 'brazil', 'chile', 'argentina',
     'mexico', 'south africa', 'saudi arabia', 'united arab emirates', 'qatar',
+    'morocco', 'egypt', 'kenya', 'nigeria', 'ethiopia', 'ghana', 'tanzania',
+    'turkey', 'iran', 'pakistan', 'bangladesh', 'indonesia', 'malaysia',
+    'thailand', 'vietnam', 'philippines', 'taiwan', 'hong kong', 'russia',
+    'ukraine', 'romania', 'bulgaria', 'croatia', 'slovenia', 'slovakia',
+    'lithuania', 'latvia', 'estonia', 'iceland', 'luxembourg', 'cyprus',
+    'colombia', 'peru', 'uruguay', 'ecuador', 'costa rica', 'panama',
+    'jordan', 'lebanon', 'oman', 'kuwait', 'bahrain', 'kazakhstan',
 }
 
 
@@ -343,8 +350,28 @@ def _clean_seg(s):
     return re.sub(r'\s+', ' ', s).strip()
 
 
+LOC_HINT_RE = re.compile(
+    r'(?:location|based\s+in|located\s+in|position\s+(?:is\s+)?based|duty\s+station|'
+    r'place\s+of\s+work|work\s+location)\s*[:\-–]?\s*([^\n.;]{3,80})', re.I)
+
+
+def country_from_text(text):
+    """从正文里找地点线索（Location: / based in / located in …）再判国别。"""
+    if not text:
+        return ''
+    for m in LOC_HINT_RE.finditer(text[:3000]):
+        c = guess_country(m.group(1), '')
+        if c:
+            return c
+    return ''
+
+
 def guess_country(location, default=''):
-    """从地点字符串猜国别。认不出时返回 default（源自带的 country）。
+    """从地点字符串判国别。判不出返回 default。
+
+    调用方绝不应把「来源站点的 country」当 default 传进来：那是「这个源覆盖
+    哪些国家」的作用域标记，不是某个岗位的所在地。曾经这么用，导致正文写着
+    摩洛哥的岗位、因为挂在标了 US 的源上而被标成美国。
 
     注意：必须在剥掉逗号之前按分隔符切片，否则 "Gainesville, FL" 会粘成一个
     token 而永远匹配不到州缩写。州/省全称是多词的（south dakota、british
@@ -486,14 +513,18 @@ class Matcher:
         need_domain = self.require_domain_for_all or (
             cat['generic'] and self.require_domain_for_generic)
 
-        if kws or not need_domain or domain_trusted:
+        if kws or not need_domain:
             return cat['label'], kws, False, ''
 
-        # 描述近乎为空（RSS 常见）时判断不了——保留并标记，交给下游细筛。
-        # 但只对「具体职位」放行：Lecturer / Research Associate 这类宽泛标题
-        # 若连一个领域词都没有，说明毫无线索，放行只会灌进噪声。
-        if not cat['generic'] and len(desc.strip()) < self.thin_chars:
-            return cat['label'], kws, True, ''
+        # 描述近乎为空时判断不了，保留并标记，交给下游细筛。
+        thin = len(desc.strip()) < self.thin_chars
+
+        # domain_trusted 只在「描述太短、无从判断」时豁免，不是整站无条件放行。
+        # 早先的无条件放行让 Agristok（农业「与生物科学」板）把免疫学、社会学
+        # 岗位整批带了进来——描述写得清清楚楚不对口，却因为源被标了 trusted 而通过。
+        if thin:
+            if domain_trusted or not cat['generic']:
+                return cat['label'], kws, True, ''
 
         return None, kws, False, ('generic-title-without-domain'
                                   if cat['generic'] else 'no-domain-keyword')
@@ -1357,7 +1388,9 @@ def process(jobs, matcher, keep_countries, domain_filter, trusted_ids=None):
         if domain_filter and not kws:
             drop(j, 'domain-filter')
             continue
-        country = guess_country(j['location'], j.get('country_hint', ''))
+        # 顺序：地点字段 → 正文里的地点线索 → Unknown。
+        # 绝不回落到来源站的 country——那会把国外岗位标成美国。
+        country = guess_country(j['location'], '') or country_from_text(j['description'])
         if keep_countries and country and country not in keep_countries:
             drop(j, 'country')
             continue
@@ -1712,6 +1745,40 @@ def self_test():
         if got != exp:
             failures.append(f'  国别识别: {loc!r} 期望 {exp!r} 实得 {got!r}')
     say('   10 个用例（含境外岗位须判为 XX 以便被 --country 过滤）')
+
+    say('\n[bold]6b. 回归：绝不拿来源站国别当岗位国别[/]')
+    # 曾经无地点时回落到源的 country，导致正文写着摩洛哥的岗位被标成美国。
+    geo_cases = [
+        ('US', 'Remote sensing of crops. Position based in Rabat, Morocco.', 'XX', '境外岗位'),
+        ('US', 'Remote sensing of crops. Location: Gainesville, FL', 'US', '正文含美国地点'),
+        ('US', 'Remote sensing of crops. No location given anywhere here.', '', '无地点须为 Unknown'),
+        ('CA', 'UAV phenotyping work. Located in Guelph, Ontario.', 'CA', '正文含加拿大地点'),
+    ]
+    for src_c, desc, want, label in geo_cases:
+        j = _mk({'id': 's', 'name': 'S', 'country': src_c}, 'Postdoctoral Researcher',
+                'https://x.test/1', desc=desc)
+        got = guess_country(j['location'], '') or country_from_text(j['description'])
+        if got != want:
+            failures.append(f'  国别推断（{label}）: 期望 {want!r} 实得 {got!r}')
+    say(f'   {len(geo_cases)} 个用例（含「源标 US 但正文是摩洛哥」这个真实 bug）')
+
+    say('\n[bold]6c. 回归：domain_trusted 不得整源放行无关领域[/]')
+    trust_cases = [
+        ('Immunology of T-cell exhaustion in chronic viral infection studied in mouse models.',
+         False, '免疫学长描述'),
+        ('Department of Sociology seeks a scholar of rural social movements and organizing.',
+         False, '社会学长描述'),
+        ('UAV hyperspectral imagery for crop nitrogen estimation across many field sites.',
+         True, '农业遥感长描述'),
+        ('', True, '无描述（专业板常见）'),
+    ]
+    for desc, want_keep, label in trust_cases:
+        j = _mk({'id': 'trusted', 'name': 'T', 'country': 'BOTH'},
+                'Postdoctoral Researcher', 'https://x.test/2', desc=desc)
+        k, _r = process([j], m, {'US', 'CA'}, False, {'trusted'})
+        if bool(k) != want_keep:
+            failures.append(f'  domain_trusted（{label}）: 期望 {"保留" if want_keep else "拦住"}，实得相反')
+    say(f'   {len(trust_cases)} 个用例（trusted 现在只在描述过短时豁免）')
 
     # 回归：源配置里的 country 可能是 BOTH，那是「该源覆盖美加」的作用域标记，
     # 不是国别。若把它当国别返回，13 个 BOTH 源（含 ASABE）的岗位会因为

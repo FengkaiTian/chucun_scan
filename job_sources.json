@@ -34,18 +34,29 @@
       "phenotyping"
     ],
     "wide": [
-      "remote sensing",
       "precision agriculture",
+      "digital agriculture",
+      "agricultural AI",
+      "remote sensing",
+      "hyperspectral",
       "plant phenotyping",
       "unmanned aerial",
-      "hyperspectral",
-      "geospatial",
-      "agricultural engineering",
-      "biosystems engineering",
-      "digital agriculture",
+      "crop analytics",
+      "computer vision agriculture",
+      "agricultural robotics",
       "precision livestock",
+      "geospatial",
+      "GeoAI",
       "crop modeling",
-      "machine learning agriculture"
+      "soil sensing",
+      "environmental monitoring",
+      "agricultural engineering",
+      "biosystems engineering"
+    ],
+    "_wide_note": [
+      "按四条主线铺开，而不只是 remote sensing——你的定位是",
+      "AI-enabled precision agriculture / UAV 遥感 / 计算机视觉 / 农业机器人与精准畜牧。",
+      "多数招聘接口不支持布尔查询，所以拆成独立关键词逐个请求。"
     ],
     "titles": [
       "postdoctoral remote sensing",
@@ -155,9 +166,9 @@
       "url": "https://jobs.rwfm.tamu.edu/", "verified": false,
       "notes": "/feed/ 实测 404，改走首页 HTML。农业/自然资源岗位密集，值得留着" },
 
-    { "id": "agristok", "domain_trusted": true, "name": "Agristok 农业与生物科学岗位", "type": "rss", "enabled": true, "country": "BOTH",
+    { "id": "agristok", "name": "Agristok 农业与生物科学岗位", "type": "rss", "enabled": true, "country": "BOTH",
       "url": "https://agristok.net/feed/", "verified": false,
-      "notes": "WordPress 站，/feed/ 命中概率高。前一轮人工检索中反复命中 ETH、WUR、Aarhus 的博后岗" },
+      "notes": "WordPress 站，已验证可用。已撤销 domain_trusted——该板名为「农业与生物科学」，生物科学涵盖免疫学等无关方向，无条件放行会整批灌进噪声" },
 
     { "id": "university_affairs_ca", "name": "University Affairs（加拿大高校）", "type": "rss", "enabled": false, "country": "CA",
       "url": "https://universityaffairs.ca/search-jobs/feed/", "verified": false,
@@ -241,6 +252,49 @@
     { "id": "ucdavis_recruit", "name": "UC Davis 学术岗位 (AP Recruit)", "type": "html", "enabled": false, "country": "US",
       "url": "https://recruit.ucdavis.edu/JPF", "verified": false,
       "notes": "[已关闭 404] AP Recruit 列表页路径不对。该系统按 JPF 编号索引，没有可抓的列表页" },
+
+    { "id": "wd_agco", "name": "AGCO（含 PTx 精准农业）", "type": "workday", "enabled": true, "country": "BOTH",
+      "host": "agco.wd3.myworkdayjobs.com", "tenant": "agco", "site": "AGCO_Careers", "q_set": "narrow", "verified": false },
+
+    { "id": "wd_trimble", "name": "Trimble", "type": "workday", "enabled": true, "country": "BOTH",
+      "host": "trimble.wd1.myworkdayjobs.com", "tenant": "trimble", "site": "TrimbleCareers", "q_set": "narrow", "verified": false },
+
+    { "id": "wd_cnh", "name": "CNH Industrial（含 Raven）", "type": "workday", "enabled": true, "country": "BOTH",
+      "host": "cnh.wd3.myworkdayjobs.com", "tenant": "cnh", "site": "CNHCareers", "q_set": "narrow", "verified": false },
+
+    { "id": "wd_cargill", "name": "Cargill", "type": "workday", "enabled": true, "country": "BOTH",
+      "host": "cargill.wd5.myworkdayjobs.com", "tenant": "cargill", "site": "Cargill_External", "q_set": "narrow", "verified": false },
+
+    { "id": "wd_zoetis", "name": "Zoetis（动物健康）", "type": "workday", "enabled": true, "country": "BOTH",
+      "host": "zoetis.wd5.myworkdayjobs.com", "tenant": "zoetis", "site": "zoetis", "q_set": "narrow", "verified": false },
+
+    { "id": "gh_ceresimaging", "name": "Ceres Imaging（航空作物影像）", "type": "greenhouse", "enabled": true, "country": "US",
+      "token": "ceresimaging", "verified": false },
+
+    { "id": "gh_taranis", "name": "Taranis（作物影像分析）", "type": "greenhouse", "enabled": true, "country": "US",
+      "token": "taranis", "verified": false },
+
+    { "id": "gh_earthoptics", "name": "EarthOptics（土壤传感）", "type": "greenhouse", "enabled": true, "country": "US",
+      "token": "earthoptics", "verified": false },
+
+    { "id": "gh_regrow", "name": "Regrow Ag", "type": "greenhouse", "enabled": true, "country": "US",
+      "token": "regrowag", "verified": false,
+      "notes": "此前按 Lever 试过 404，改试 Greenhouse" },
+
+    { "id": "gh_sentera", "name": "Sentera（无人机作物分析）", "type": "greenhouse", "enabled": true, "country": "US",
+      "token": "sentera", "verified": false,
+      "notes": "此前按 Lever 试过 404，改试 Greenhouse。该公司有独立的机器学习/计算机视觉/数据科学团队" },
+
+    { "id": "deere_jobs", "name": "John Deere", "type": "html", "enabled": true, "country": "BOTH",
+      "url": "https://jobs.deere.com/search/?q={q}", "q_set": "narrow", "verified": false,
+      "notes": "Workday 尝试返回 422，改抓官方招聘站。含 Blue River Technology 的农机视觉岗" },
+
+    { "id": "bayer_jobs", "name": "Bayer Crop Science", "type": "html", "enabled": true, "country": "BOTH",
+      "url": "https://jobs.bayer.com/search/?q={q}", "q_set": "narrow", "verified": false,
+      "notes": "Workday 尝试返回 422，改抓官方招聘站。全球作物科学总部在 St. Louis，离哥伦比亚 2 小时" },
+
+    { "id": "syngenta_jobs", "name": "Syngenta", "type": "html", "enabled": true, "country": "BOTH",
+      "url": "https://jobs.syngenta.com/search/?q={q}", "q_set": "narrow", "verified": false },
 
     { "id": "adzuna_us", "name": "Adzuna 美国", "type": "adzuna", "enabled": true, "country": "US",
       "url": "https://api.adzuna.com/v1/api/jobs/us/search/{page}", "q_set": "wide", "verified": false,
