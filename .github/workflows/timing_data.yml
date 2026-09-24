@@ -1,0 +1,21 @@
+name: timing-data
+on:
+  push:
+    paths: [timing/data.py, .github/workflows/timing_data.yml]
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: pip install yfinance pandas requests pyarrow xlrd lxml
+      - run: python -m timing.data
+      - run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add data/timing_train.parquet
+          git commit -m "data: S&P 500 timing train set 1998-2025 (SPY total return, ^IRX)"
+          git push
