@@ -72,7 +72,7 @@ CONFIGS = [
     ('T15', '10 个月均线 × 波动率目标（21 日），不加杠杆（上限 1）', dict(trend='sma10m', vol=dict(n=21), cap=1.0)),
 ]
 CANDIDATES = ['T02', 'T03', 'T08', 'T12', 'T15']     # 训练期结束后、看验证期之前确定
-FINAL = None
+FINAL = 'T02'                                            # 候选中验证期夏普差最大（+0.11）
 CFG = {c[0]: c[2] for c in CONFIGS}
 NAME = {c[0]: c[1] for c in CONFIGS}
 
@@ -81,16 +81,74 @@ def load():
     return pd.read_parquet('data/timing_train.parquet')
 
 
+DF = None
+
+
 def evaluate(strategy, df, period):
     r, b, w = backtest(strategy, df, *period)
     k, n = criteria(r, b, df['rf'].loc[r.index])
-    return {**n, '平均仓位': w.mean(), '换手(年)': w.diff().abs().sum() / len(w) * 252,
+    return {**n, '夏普差': n['夏普'] - n['基准夏普'], '平均仓位': w.mean(), '换手(年)': w.diff().abs().sum() / len(w) * 252,
             **{kk.split()[0]: v for kk, v in k.items()}}, r, b, w
 
 
+def _job(a):
+    cid, period = a
+    return a, evaluate(make(**CFG[cid]), DF, period)
+
+
+def md(t, fmt='{:.3f}', head='配置'):
+    cell = lambda v: (('✅' if v else '—') if isinstance(v, (bool, np.bool_)) else v if isinstance(v, str)
+                      else str(v) if isinstance(v, (int, np.integer)) else fmt.format(v))
+    rows = ['| ' + ' | '.join([head] + [str(c) for c in t.columns]) + ' |', '|' + '---|' * (t.shape[1] + 1)]
+    rows += ['| ' + ' | '.join([str(i)] + [cell(v) for v in row]) + ' |' for i, row in zip(t.index, t.astype(object).values.tolist())]
+    return '\n'.join(rows)
+
+
+COLS = ['年化收益', '基准年化', '夏普', '基准夏普', '夏普差', '夏普差 p', '年化超额(算术)', '超额 p', '收益更差 p',
+        '最大回撤', '基准最大回撤', '回撤差 p', '平均仓位', '换手(年)', 'K1', 'K2', 'K3']
+
+
 if __name__ == '__main__':
-    import sys
-    df = load()
-    for cid in sys.argv[1:] or list(CFG):
-        n = evaluate(make(**CFG[cid]), df, TRAIN)[0]
-        print(cid, NAME[cid], {k: (round(v, 4) if isinstance(v, float) else v) for k, v in n.items()}, flush=True)
+    import multiprocessing as mp, warnings
+    import timing.strategy_final as S
+    warnings.filterwarnings('ignore', category=RuntimeWarning)
+    DF = load()
+    jobs = [(c, TRAIN) for c in CFG] + [(c, VAL) for c in CFG] + [(FINAL, ('2000-01-01', '2025-12-31'))]
+    with mp.get_context('fork').Pool() as pool:
+        res = {a: v for a, v in pool.map(_job, jobs)}
+    tab = lambda period, ids: pd.DataFrame({c: res[c, period][0] for c in ids}).T[COLS].rename(index=lambda c: f'{c} {NAME[c]}')
+    print('## 1. 全部配置·训练期 2000–2020（判据各自 p < 0.05/3；✅ = 成立）\n')
+    print(md(tab(TRAIN, CFG)))
+    print('\n## 2. 候选·验证期 2021–2025（用于选择：夏普差最大者当选）\n')
+    print(md(tab(VAL, CANDIDATES)))
+    pick = max(CANDIDATES, key=lambda c: (res[c, VAL][0]['夏普差'], res[c, TRAIN][0]['夏普差']))
+    assert pick == FINAL, pick
+    print(f'\n按规则选中：{pick}（验证期夏普差 {res[pick, VAL][0]["夏普差"]:+.3f}）')
+    print('\n## 3. 非候选·验证期（选定后事后披露，未参与选择）\n')
+    print(md(tab(VAL, [c for c in CFG if c not in CANDIDATES])))
+
+    # ---- 最终策略：对账 + 各期完整数值
+    print(f'\n## 4. 最终策略 timing/strategy_final.py（= {FINAL}）\n')
+    full = {}
+    for name, per in [('训练 2000–2020', TRAIN), ('训练前半 2000–2009', ('2000-01-01', '2009-12-31')),
+                      ('训练后半 2010–2020', ('2010-01-01', '2020-12-31')), ('验证 2021–2025', VAL),
+                      ('全期 2000–2025', ('2000-01-01', '2025-12-31'))]:
+        n, r, b, w = evaluate(S.target_position, DF, per)
+        full[name] = n
+        if per in (TRAIN, VAL):
+            gap = (r - res[FINAL, per][1]).abs().max()
+            assert gap < 1e-12, gap
+    print('与研究配置逐日对账（训练、验证）：最大日收益差 0\n')
+    print(md(pd.DataFrame(full).T[COLS], head='区间'))
+    n, r, b, w = evaluate(S.target_position, DF, ('2000-01-01', '2025-12-31'))
+    g = lambda s: s.groupby(s.index.year)
+    yr = pd.DataFrame({'策略': g(r).apply(lambda x: (1 + x).prod() - 1), '基准': g(b).apply(lambda x: (1 + x).prod() - 1)})
+    yr['差'] = yr['策略'] - yr['基准']
+    yr['在场比例'] = g(w).mean()
+    yr['切换次数'] = g(w.diff().abs()).sum().round().astype(int)
+    yr['策略回撤'] = g(r).apply(lambda x: (np.cumprod(1 + x) / np.maximum.accumulate(np.cumprod(1 + x)) - 1).min())
+    yr['基准回撤'] = g(b).apply(lambda x: (np.cumprod(1 + x) / np.maximum.accumulate(np.cumprod(1 + x)) - 1).min())
+    print('\n逐年（年内回撤按年内净值计算）：\n\n' + md(yr, head='年份'))
+    print(f'\n2000–2025：在场 {w.mean():.1%} 的交易日，共 {int(w.diff().abs().sum())} 次切换（每年约 {w.diff().abs().sum() / len(w) * 252:.1f} 次），'
+          f'平均每段持续 {len(w) / max(1, w.diff().abs().sum()):.0f} 个交易日')
+    print(f'2025-12-31 收盘信号：仓位 {S.target_position(DF.iloc[-600:]):.0f}')
