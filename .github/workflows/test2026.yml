@@ -1,0 +1,21 @@
+name: test2026
+on:
+  push:
+    paths: [FROZEN]            # 策略冻结后才触发；eval_2026.py 自带"只跑一次"保护
+permissions:
+  contents: write
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: pip install yfinance pandas lxml requests pyarrow
+      - run: python eval_2026.py
+      - run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add results
+          git commit -m "results: one-shot 2026 out-of-sample test"
+          git push
