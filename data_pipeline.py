@@ -11,11 +11,14 @@ def membership(path='data/membership.csv.gz'):
     """每个自然月末的成分股（long 表: month_end, ticker）"""
     t = pd.read_html(io.StringIO(requests.get(WIKI, headers={'User-Agent': 'Mozilla/5.0'}, timeout=30).text))
     fix = lambda s: s.fillna('').astype(str).str.strip().str.replace('.', '-', regex=False)
-    chg = t[1]
-    chg.columns = [' '.join(dict.fromkeys(map(str, c))) for c in chg.columns]
-    col = lambda *k: next(c for c in chg.columns if all(x in c for x in k))
-    ev = pd.DataFrame({'date': pd.to_datetime(chg[col('Date')], format='mixed', errors='coerce'),
-                       'add': fix(chg[col('Added', 'Ticker')]), 'rem': fix(chg[col('Removed', 'Ticker')])})
+    flat = lambda df: [' '.join(dict.fromkeys(map(str, c if isinstance(c, tuple) else (c,)))).lower() for c in df.columns]
+    chg = next(df for df in t if any('added' in c for c in flat(df)) and any('removed' in c for c in flat(df)))
+    chg.columns = flat(chg)
+    print('变更表列名:', list(chg.columns))
+    col = lambda k, alt=('',): next(c for c in chg.columns if k in c and any(a in c for a in alt))
+    ev = pd.DataFrame({'date': pd.to_datetime(chg[col('date')], format='mixed', errors='coerce'),
+                       'add': fix(chg[col('added', ('ticker', 'symbol'))]),
+                       'rem': fix(chg[col('removed', ('ticker', 'symbol'))])})
     ev = ev.dropna(subset=['date']).sort_values('date', ascending=False).to_dict('records')
     members, rows, i = set(fix(t[0]['Symbol'])), [], 0
     for me in pd.date_range('2008-01-31', pd.Timestamp.today(), freq='ME')[::-1]:   # 从今天往回撤销变更
