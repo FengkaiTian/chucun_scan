@@ -40,7 +40,9 @@ def series(start, end, source='spy'):
     else:
         try:
             px = close('^GSPC', start, end, False)
-            ret, used = px.pct_change() + shiller_yield().reindex(px.index, method='ffill') / 252, '^GSPC + Shiller 股息'
+            dy = shiller_yield().reindex(px.index, method='ffill')
+            assert 0.01 <= dy.median() <= 0.07, f'Shiller 股息率异常（中位数 {dy.median():.4f}）'   # 防止格式变化静默读错
+            ret, used = px.pct_change() + dy / 252, '^GSPC + Shiller 股息'
         except Exception as e:
             print(f'Shiller 不可得（{e}），按预注册退回 French 市场总收益')
             ret, used = french_market().loc[start:end], 'French 美股市场总收益（预注册备选）'
