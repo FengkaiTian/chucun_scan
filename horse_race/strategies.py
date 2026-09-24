@@ -88,7 +88,7 @@ class Clenow(Base):
         ranked = top(F['mom'][i], elig, n_top)
         order = np.flatnonzero(ranked)[np.argsort(-F['mom'][i][ranked])]
         held = w > 0
-        w[held & (~ranked | (c < F['ma100'][i]) | ~mem)] = 0
+        w[held & (~ranked | (c < F['ma100'][i]) | ~mem | np.isnan(c))] = 0
         self.S['wk'] = self.S.get('wk', -1) + 1
         if c[P['spy']] < F['spyma'][i]:
             return w
@@ -219,7 +219,7 @@ class RSI2(Base):
     def target(self, i, mem, w, P):
         F = self.F
         with np.errstate(invalid='ignore'):
-            w[(w > 0) & ((F['c'][i] > F['ph'][i]) | ~mem)] = 0
+            w[(w > 0) & ((F['c'][i] > F['ph'][i]) | ~mem | np.isnan(F['c'][i]))] = 0
             entry = stock_mask(P, mem) & (w == 0) & (F['c'][i] > F['ma'][i]) & (F['rsi'][i] < 10)
         free = 10 - int((w > 0).sum())
         new = np.flatnonzero(entry)
