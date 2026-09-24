@@ -7,11 +7,16 @@ TRAIN_END = '2025-12-31'
 WIKI = 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'
 
 
-def membership(path='data/membership.csv.gz'):
-    """每个自然月末的成分股（long 表: month_end, ticker）"""
-    t = pd.read_html(io.StringIO(requests.get(WIKI, headers={'User-Agent': 'Mozilla/5.0'}, timeout=30).text))
+def membership(path='data/membership.csv.gz', snapshot='data/wiki_sp500.html'):
+    """每个自然月末的成分股（long 表: month_end, ticker）；原始网页存档以便审计复现"""
+    html = requests.get(WIKI, headers={'User-Agent': 'Mozilla/5.0'}, timeout=30).text
+    if snapshot:
+        open(snapshot, 'w', encoding='utf-8').write(html)
+    t = pd.read_html(io.StringIO(html))
     fix = lambda s: s.fillna('').astype(str).str.strip().str.replace('.', '-', regex=False)
     flat = lambda df: [' '.join(dict.fromkeys(map(str, c if isinstance(c, tuple) else (c,)))).lower() for c in df.columns]
+    for k, df in enumerate(t):
+        print(f'table[{k}] {df.shape}:', flat(df)[:8])
     chg = next(df for df in t if any('added' in c for c in flat(df)) and any('removed' in c for c in flat(df)))
     chg.columns = flat(chg)
     print('变更表列名:', list(chg.columns))
