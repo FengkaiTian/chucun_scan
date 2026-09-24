@@ -1,0 +1,35 @@
+name: strategy
+on:
+  push:                       # 改策略代码时：跑 v5 复盘 + v6 回测（只看日志，不提交）
+    paths: [momentum.py, review_scan.py, .github/workflows/strategy.yml]
+  schedule:
+    - cron: '0 22 1 * *'      # 每月 1 日 22:00 UTC：用上月末数据生成新持仓（仅默认分支生效）
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  backtest:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: pip install yfinance pandas lxml requests
+      - run: python review_scan.py
+      - run: python momentum.py backtest
+  pick:
+    if: github.event_name != 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: pip install yfinance pandas lxml requests
+      - run: python momentum.py pick
+      - run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add momentum_picks.md
+          git diff --cached --quiet || { git commit -m "v6 momentum picks: $(date -u +%F)"; git push; }
