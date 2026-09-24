@@ -5,14 +5,17 @@ import pandas as pd, requests, yfinance as yf
 
 TRAIN_END = '2025-12-31'
 WIKI = 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'
+HIST = 'https://en.wikipedia.org/wiki/Historical_components_of_the_S%26P_500'   # 变更表所在页
 
 
-def membership(path='data/membership.csv.gz', snapshot='data/wiki_sp500.html'):
+def membership(path='data/membership.csv.gz', snapshot='data/wiki'):
     """每个自然月末的成分股（long 表: month_end, ticker）；原始网页存档以便审计复现"""
-    html = requests.get(WIKI, headers={'User-Agent': 'Mozilla/5.0'}, timeout=30).text
-    if snapshot:
-        open(snapshot, 'w', encoding='utf-8').write(html)
-    t = pd.read_html(io.StringIO(html))
+    t = []
+    for name, url in [('current', WIKI), ('historical', HIST)]:
+        html = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'}, timeout=30).text
+        if snapshot:
+            open(f'{snapshot}_{name}.html', 'w', encoding='utf-8').write(html)
+        t += pd.read_html(io.StringIO(html))
     fix = lambda s: s.fillna('').astype(str).str.strip().str.replace('.', '-', regex=False)
     flat = lambda df: [' '.join(dict.fromkeys(map(str, c if isinstance(c, tuple) else (c,)))).lower() for c in df.columns]
     for k, df in enumerate(t):

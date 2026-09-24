@@ -12,7 +12,7 @@ if os.path.exists(OUT):
     sys.exit(f'{OUT} 已存在：测试集只允许评估一次。')
 
 os.makedirs('results', exist_ok=True)
-mem = membership(path=None, snapshot='results/wiki_sp500_test.html')
+mem = membership(path=None, snapshot='results/wiki_test')
 members = {pd.Timestamp(d): set(g.ticker) for d, g in mem.groupby('month_end')}
 tickers = sorted(set().union(*(v for d, v in members.items() if d >= pd.Timestamp('2025-12-31'))))
 raw = yf.download(tickers + ['SPY'], start='2023-01-01', auto_adjust=True, progress=False, threads=True)
