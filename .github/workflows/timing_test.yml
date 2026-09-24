@@ -17,5 +17,5 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add results
-          git commit -m "results: one-shot S&P 500 timing independent test (1961-1997)"
+          git commit -m "results: one-shot S&P 500 timing test (2026 primary, 1961-1997 reference)"
           git push
