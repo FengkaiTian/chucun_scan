@@ -1,0 +1,33 @@
+name: test_v2
+on:
+  push:
+    paths: [FROZEN_V2]         # 只在提交 FROZEN_V2 时触发；eval_v2.py 自带"只跑一次"保护
+permissions:
+  contents: write
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      OMP_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: pip install yfinance pandas numpy lxml requests pyarrow
+      - run: python eval_v2.py
+      - uses: actions/upload-artifact@v4       # 备份：即使下面的 push 失败，结果也不会丢
+        if: always()
+        with:
+          name: results_v2
+          path: |
+            results/test_v2*
+            results/wiki_v2*
+      - run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add results
+          git commit -m "results: one-shot v2 out-of-sample test (train 2010-2024, test 2025-2026)"
+          git push || { git pull --rebase && git push; }
