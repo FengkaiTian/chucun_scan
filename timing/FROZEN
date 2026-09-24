@@ -1,0 +1,5 @@
+timing/strategy_final.py sha256: d681956b83396cda423b6631781bef055065c6667e6ceb2576dda9e04b140605
+research commit: 4581eb1c3935278e0dcdb40e8412b081f507e697
+frozen at: 2026-09-24T22:57:19Z
+audit: REVIEW.md 择时研究测试前审计 (PASS + diff OK)
+primary test: 2026-01-01 to last complete trading day (SPY total return)
