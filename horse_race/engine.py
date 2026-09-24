@@ -23,6 +23,12 @@ def load(prefix='data/hr_', snap='results/wiki_test_{}.html'):
     except FileNotFoundError:
         irx = pd.Series(0.0, days)
     P['rf'] = (irx.fillna(0) / 100 / 252)
+    miss = (P['U'] & P['C'].isna()).sum(axis=1) / P['U'].sum(axis=1).clip(lower=1)
+    spike = miss - miss.rolling(11, center=True, min_periods=1).median()
+    bad = miss.index[spike > 0.1]                    # 数据源单日断档（2026-09-22 缺 88%）：从日历剔除，收益并入下一交易日
+    if len(bad):
+        print('剔除数据缺陷日:', [f'{d:%F} 缺 {miss[d]:.0%}' for d in bad])
+        P = {k: (v.drop(bad) if isinstance(v, (pd.DataFrame, pd.Series)) else v) for k, v in P.items()}
     return finish(P)
 
 
