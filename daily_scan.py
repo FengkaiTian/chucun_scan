@@ -19,6 +19,7 @@ sys.stdout.reconfigure(encoding='utf-8')
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 COMBO_FILE = os.path.join(SCRIPT_DIR, 'validated_combos.json')
 OUTPUT_HTML = os.path.join(SCRIPT_DIR, 'index.html')
+HISTORY_FILE = os.path.join(SCRIPT_DIR, 'picks_history.json')
 
 # ── 指标计算 ──────────────────────────────────────────────
 
@@ -287,57 +288,59 @@ def match_grade(conds, combos):
     return best_grade, best_combo
 
 
-# ── 近期选股表现 ──────────────────────────────────────────
+# ── 选股记录与实际表现 ────────────────────────────────────
+# picks_history.json 是选股记录的唯一来源：每日扫描追加当天结果，backfill.py 负责补算缺失的日子。
+# scan_date 的含义：信号出现后的下一个交易日（即可以入场的那天），收益从这天的收盘价起算。
 
-def recent_picks(n_picks=10):
-    """从 git 历史取最近 n_picks 条选股，计算 T+1/3/5/10 实际收益。
-    返回 [{'ticker','scan_date','r1','r3','r5','r10'}]，收益为 None 表示交易日未到"""
-
-    # 1. 读 git log，每个日期取最新的 commit；优先最近 60 天，没有就退回到最后几次扫描
-    r = subprocess.run(['git', '-C', SCRIPT_DIR, 'log', '--oneline'],
-                       capture_output=True, text=True)
-    cutoff = (datetime.now().date() - timedelta(days=60)).strftime('%Y-%m-%d')
-    all_by_date = {}
-    for line in r.stdout.strip().splitlines():
-        m = re.search(r'([a-f0-9]+) .* scan: (\d{4}-\d{2}-\d{2})', line)
-        if m and m.group(2) not in all_by_date:
-            all_by_date[m.group(2)] = m.group(1)
-    commits_by_date = {d: s for d, s in all_by_date.items() if d >= cutoff} or all_by_date
-
-    if not commits_by_date:
+def load_history():
+    if not os.path.exists(HISTORY_FILE):
         return []
+    with open(HISTORY_FILE, 'r', encoding='utf-8') as f:
+        return json.load(f)
 
-    # 2. 从每个 commit 的 index.html 提取 ticker，按日期倒序取前 n_picks 条
-    all_picks = []
-    seen = set()  # 跨日期去重
-    for ds, sha in sorted(commits_by_date.items(), reverse=True):
-        html_src = subprocess.run(
-            ['git', '-C', SCRIPT_DIR, 'show', f'{sha}:index.html'],
-            capture_output=True, text=True, encoding='utf-8', errors='ignore'
-        ).stdout
-        for row_html in re.split(r'<tr[^>]*>', html_src):
+
+def save_history(history):
+    history = sorted(history, key=lambda p: (p['scan_date'], p['ticker']))
+    with open(HISTORY_FILE, 'w', encoding='utf-8', newline='\n') as f:
+        f.write('[\n' + ',\n'.join(json.dumps(p, ensure_ascii=False) for p in history) + '\n]\n')
+
+
+def git_history_picks():
+    """从 git 历史里每天最后一次扫描的 index.html 反查当时推荐的股票（旧版记录方式，仅供迁移用）"""
+    r = subprocess.run(['git', '-C', SCRIPT_DIR, 'log', '--format=%h %s'],
+                       capture_output=True, text=True, encoding='utf-8', errors='ignore')
+    by_date = {}
+    for line in r.stdout.splitlines():
+        m = re.search(r'^([a-f0-9]+) .*scan: (\d{4}-\d{2}-\d{2})', line)
+        if m and m.group(2) not in by_date:
+            by_date[m.group(2)] = m.group(1)
+    picks = []
+    for ds, sha in sorted(by_date.items()):
+        src = subprocess.run(['git', '-C', SCRIPT_DIR, 'show', f'{sha}:index.html'],
+                             capture_output=True, text=True, encoding='utf-8', errors='ignore').stdout
+        seen = set()
+        for row_html in re.split(r'<tr[^>]*>', src):
             mt = re.search(r'<td[^>]*><b>([A-Z][A-Z0-9\-]{0,5})</b>\s*\$', row_html)
             if mt and mt.group(1) not in seen:
-                all_picks.append({'ticker': mt.group(1), 'scan_date': ds})
                 seen.add(mt.group(1))
-        if len(all_picks) >= n_picks:
-            break
-    all_picks = all_picks[:n_picks]
+                picks.append({'ticker': mt.group(1), 'scan_date': ds, 'source': 'live'})
+    return picks
 
-    if not all_picks:
+
+def pick_performance(history, days=180):
+    """给最近 days 天的选股算 T+1/3/5/10 实际收益（r1..r10）和同期标普500收益（b1..b10）。
+    None 表示交易日还没到。返回按入场日倒序的列表"""
+    cutoff = (datetime.now().date() - timedelta(days=days)).strftime('%Y-%m-%d')
+    picks = [dict(p) for p in history if p['scan_date'] >= cutoff]
+    if not picks:
         return []
-
-    # 3. 下载价格（从最早的入场日往前留几天余量）
-    tickers_needed = list(set(p['ticker'] for p in all_picks))
-    earliest = min(p['scan_date'] for p in all_picks)
-    start_str = (datetime.strptime(earliest, '%Y-%m-%d').date() - timedelta(days=7)).strftime('%Y-%m-%d')
+    tickers = sorted(set(p['ticker'] for p in picks)) + ['^GSPC']
+    start = (datetime.strptime(min(p['scan_date'] for p in picks), '%Y-%m-%d').date()
+             - timedelta(days=7)).strftime('%Y-%m-%d')
     try:
-        prices = yf.download(tickers_needed, start=start_str,
-                             auto_adjust=True, progress=False)['Close']
+        prices = yf.download(tickers, start=start, auto_adjust=True, progress=False)['Close']
     except Exception:
         return []
-    if isinstance(prices, pd.Series):
-        prices = prices.to_frame(tickers_needed[0])
 
     def get_ret(ticker, scan_date, n):
         if ticker not in prices.columns:
@@ -348,11 +351,12 @@ def recent_picks(n_picks=10):
             return None
         return round(float((col[future[n]] / col[future[0]] - 1) * 100), 2)
 
-    for p in all_picks:
+    for p in picks:
         for n in (1, 3, 5, 10):
             p[f'r{n}'] = get_ret(p['ticker'], p['scan_date'], n)
-    return all_picks
-
+            p[f'b{n}'] = get_ret('^GSPC', p['scan_date'], n)
+    picks.sort(key=lambda p: (p['scan_date'], p.get('wr5', 0)), reverse=True)
+    return picks
 
 
 def main():
@@ -473,23 +477,8 @@ def main():
     # 过滤近10个交易日（约14日历天）已推荐的股票
     today_str = datetime.now().strftime('%Y-%m-%d')
     cutoff_str = (datetime.now().date() - timedelta(days=14)).strftime('%Y-%m-%d')
-    git_log_out = subprocess.run(['git', '-C', SCRIPT_DIR, 'log', '--oneline'],
-                                 capture_output=True, text=True).stdout
-    recent_commits = {}
-    for line in git_log_out.strip().split('\n'):
-        m_log = re.search(r'([a-f0-9]+) .* scan: (\d{4}-\d{2}-\d{2})', line)
-        if m_log:
-            sha, ds = m_log.group(1), m_log.group(2)
-            if cutoff_str <= ds < today_str and ds not in recent_commits:
-                recent_commits[ds] = sha
-    recent_tickers = set()
-    for sha in recent_commits.values():
-        h = subprocess.run(['git', '-C', SCRIPT_DIR, 'show', f'{sha}:index.html'],
-                           capture_output=True, text=True, encoding='utf-8', errors='ignore').stdout
-        for row_html in re.split(r'<tr[^>]*>', h):
-            mt2 = re.search(r'<td[^>]*><b>([A-Z][A-Z0-9\-]{0,5})</b>\s*\$', row_html)
-            if mt2:
-                recent_tickers.add(mt2.group(1))
+    history = load_history()
+    recent_tickers = {p['ticker'] for p in history if cutoff_str <= p['scan_date'] < today_str}
     before = len(results)
     results = [r for r in results if r['ticker'] not in recent_tickers]
     n_deduped = before - len(results)
@@ -500,7 +489,12 @@ def main():
     results.sort(key=lambda x: -x.get('win_rate_5', 0))
 
     print("生成近期选股表现...")
-    recent = recent_picks()
+    # 把今天的结果记进选股记录（同一天重跑则覆盖）
+    history = [p for p in history if p['scan_date'] != today_str]
+    history += [{'ticker': r['ticker'], 'scan_date': today_str, 'grade': r['grade'],
+                 'wr5': r['wr5'], 'source': 'live'} for r in results]
+    save_history(history)
+    recent = pick_performance(history)
 
     date_str = datetime.now().strftime('%Y-%m-%d %H:%M')
 
@@ -538,7 +532,7 @@ def main():
 
     repo_dir = SCRIPT_DIR
     try:
-        subprocess.run(['git', '-C', repo_dir, 'add', 'index.html', 'report.py', 'daily_scan.py'], check=True)
+        subprocess.run(['git', '-C', repo_dir, 'add', 'index.html', 'picks_history.json'], check=True)
         subprocess.run(['git', '-C', repo_dir, 'commit', '-m', f'v5 signal scan: {date_str}'], check=True)
         subprocess.run(['git', '-C', repo_dir, 'push', 'origin', 'main'], check=True)
         print("✅ 已推送到 GitHub Pages")

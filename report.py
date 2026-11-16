@@ -114,6 +114,11 @@ td.ret{text-align:center;font-weight:600;font-variant-numeric:tabular-nums;white
 td.ret span{display:inline-block;min-width:68px;padding:3px 8px;border-radius:6px}
 td.ret .up{background:var(--up-soft)} td.ret .down{background:var(--down-soft)}
 th.c{text-align:center}
+.scroll.tall{max-height:560px;overflow-y:auto;border-top:1px solid var(--line)}
+.scroll.tall thead th{position:sticky;top:0;z-index:1}
+.tag{margin-left:8px;padding:1px 6px;border-radius:4px;font-size:11px;background:var(--soft);color:var(--ink3)}
+table.stats{margin-bottom:6px} table.stats td{padding:9px 8px}
+table.stats th:first-child,table.stats td:first-child{padding-left:18px}
 
 .summary{display:flex;flex-wrap:wrap;gap:6px 22px;padding:0 18px 12px;font-size:13px;color:var(--ink2)}
 .summary b{color:var(--ink);font-variant-numeric:tabular-nums}
@@ -249,25 +254,49 @@ def _recent_card(picks):
 
     body = ''
     for p in picks:
-        body += (f'<tr><td><span style="font-weight:700">{p["ticker"]}</span></td>'
-                 f'<td class="num muted">{p["scan_date"]}</td>'
+        g = p.get('grade')
+        grade = f'<span class="grade g-{g}">{g}</span>' if g else '<span class="muted">—</span>'
+        tag = '<span class="tag">补算</span>' if p.get('source') == 'backfill' else ''
+        body += (f'<tr><td><span style="font-weight:700">{p["ticker"]}</span>{tag}</td>'
+                 f'<td>{grade}</td><td class="num muted">{p["scan_date"]}</td>'
                  f'{cell(p["r1"])}{cell(p["r3"])}{cell(p["r5"])}{cell(p["r10"])}</tr>')
 
-    def stat(key, label):
-        vals = [p[key] for p in picks if p[key] is not None]
-        if not vals:
-            return ''
-        wins = sum(v > 0 for v in vals)
+    # 汇总：每个持有期的上涨比例、平均收益，以及同期标普500的平均收益
+    stat_rows = ''
+    for n in (1, 3, 5, 10):
+        done = [p for p in picks if p[f'r{n}'] is not None]
+        if not done:
+            continue
+        vals = [p[f'r{n}'] for p in done]
+        bench = [p[f'b{n}'] for p in done if p.get(f'b{n}') is not None]
         avg = sum(vals) / len(vals)
-        return (f'<span>{label}：<b>{wins}/{len(vals)}</b> 上涨，平均 '
-                f'<b class="{_sign_cls(avg)}">{avg:+.2f}%</b></span>')
+        med = sorted(vals)[len(vals) // 2]
+        wins = sum(v > 0 for v in vals)
+        b_avg = sum(bench) / len(bench) if bench else None
+        excess = avg - b_avg if b_avg is not None else None
+        stat_rows += (
+            f'<tr><td><b>T+{n}</b></td><td class="n">{len(vals)}</td>'
+            f'<td class="n"><b>{wins / len(vals) * 100:.1f}%</b></td>'
+            f'<td class="n {_sign_cls(avg)}"><b>{avg:+.2f}%</b></td>'
+            f'<td class="n {_sign_cls(med)}">{med:+.2f}%</td>'
+            + (f'<td class="n {_sign_cls(b_avg)}">{b_avg:+.2f}%</td>'
+               f'<td class="n {_sign_cls(excess)}"><b>{excess:+.2f}%</b></td>' if b_avg is not None
+               else '<td class="n muted">—</td><td class="n muted">—</td>')
+            + '</tr>')
+    stats = f'''<div class="scroll"><table class="stats">
+    <thead><tr><th>持有期</th><th class="n">已出结果</th><th class="n">上涨比例</th><th class="n">平均收益</th>
+      <th class="n">中位收益</th><th class="n">同期标普500</th><th class="n">超额</th></tr></thead>
+    <tbody>{stat_rows}</tbody></table></div>''' if stat_rows else ''
 
-    summary = stat('r5', 'T+5') + stat('r10', 'T+10')
+    n_back = sum(p.get('source') == 'backfill' for p in picks)
+    first, last = picks[-1]['scan_date'], picks[0]['scan_date']
+    note = (f' · 其中 {n_back} 条是事后补算（扫描停跑期间，按当时能看到的数据逐日重放）' if n_back else '')
     return f'''<section class="card">
-  <header><h2>近期选股的实际表现</h2><p>最近 {len(picks)} 条推荐，从入场日收盘价起算的真实涨跌 · — 表示交易日还没到</p></header>
-  {f'<div class="summary">{summary}</div>' if summary else ''}
-  <div class="scroll"><table>
-    <thead><tr><th>股票</th><th>入场日</th><th class="c">T+1</th><th class="c">T+3</th><th class="c">T+5</th><th class="c">T+10</th></tr></thead>
+  <header><h2>选股的实际表现</h2><p>{first} 至 {last} 共 {len(picks)} 条，从入场日收盘价起算的真实涨跌{note}</p></header>
+  {stats}
+  <header><h2 style="font-size:14px">逐条明细</h2><p>— 表示交易日还没到</p></header>
+  <div class="scroll tall"><table>
+    <thead><tr><th>股票</th><th>评级</th><th>入场日</th><th class="c">T+1</th><th class="c">T+3</th><th class="c">T+5</th><th class="c">T+10</th></tr></thead>
     <tbody>{body}</tbody>
   </table></div>
 </section>'''

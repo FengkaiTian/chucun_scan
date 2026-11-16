@@ -18,6 +18,8 @@
 |---|---|
 | `daily_scan.py` | 主扫描脚本，运行后生成报告并推送到 GitHub Pages |
 | `report.py` | 报告页面模板（样式和版式都在这里改） |
+| `picks_history.json` | 选股记录（每日扫描自动追加，页面的实际表现从这里算） |
+| `backfill.py` | 扫描停跑后补算缺失日子的选股：`python backfill.py` |
 | `loop_scan.py` | 定时脚本，每天 04:30 AM 自动触发 |
 | `validated_combos.json` | 经6年回测验证的206种信号组合定义 |
 | `run_scan.bat` | 手动运行入口 |
