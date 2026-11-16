@@ -17,6 +17,7 @@
 | 文件 | 说明 |
 |---|---|
 | `daily_scan.py` | 主扫描脚本，运行后生成报告并推送到 GitHub Pages |
+| `report.py` | 报告页面模板（样式和版式都在这里改） |
 | `loop_scan.py` | 定时脚本，每天 04:30 AM 自动触发 |
 | `validated_combos.json` | 经6年回测验证的206种信号组合定义 |
 | `run_scan.bat` | 手动运行入口 |
@@ -29,6 +30,11 @@
 **手动运行一次：**
 ```
 python daily_scan.py
+```
+
+**只在本地生成报告，不推送、不自动开浏览器：**
+```
+python daily_scan.py --no-push --no-open
 ```
 
 **开启每日 04:30 AM 自动扫描：**

@@ -11,6 +11,7 @@ import os
 os.environ['MPLBACKEND'] = 'Agg'
 import requests, io, sys, json, webbrowser, warnings, subprocess, re, base64
 from datetime import datetime, timedelta
+from report import render_report
 
 warnings.filterwarnings('ignore')
 sys.stdout.reconfigure(encoding='utf-8')
@@ -286,80 +287,27 @@ def match_grade(conds, combos):
     return best_grade, best_combo
 
 
-# ── HTML ──────────────────────────────────────────────────
+# ── 近期选股表现 ──────────────────────────────────────────
 
-GRADE_COLOR = {
-    'SSS': '#ff6f00',
-    'S':   '#6c3483',
-    'A':   '#c0392b',
-    'B':   '#2980b9',
-}
+def recent_picks(n_picks=10):
+    """从 git 历史取最近 n_picks 条选股，计算 T+1/3/5/10 实际收益。
+    返回 [{'ticker','scan_date','r1','r3','r5','r10'}]，收益为 None 表示交易日未到"""
 
-GRADE_DESC = {
-    'SSS': '高收益区 · 样本少但均收>2% · T+1/3/5/10全超baseline',
-    'S':   '最强 · 5日胜率≥80%',
-    'A':   '强 · 5日胜率70-80%',
-    'B':   '有效 · 5日胜率65-70%',
-}
-
-def make_table(rows):
-    if not rows:
-        return '<p style="color:#aaa;padding:12px">暂无</p>'
-    cols = ['股票/板块', '匹配信号', 'T+1', 'T+3', 'T+5', 'T+10', 'RSI', 'CCI', 'CMF', 'WR', '距52W低', '成交量', '日涨跌', '止损']
-    th = ''.join(f'<th>{c}</th>' for c in cols)
-    body = ''
-    for r in rows:
-        chg_c = '#27ae60' if r['chg'] >= 0 else '#e74c3c'
-
-        sig_tags = ''
-        for s in r['matched_signals']:
-            sig_tags += f'<span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">{s}</span>'
-
-        def wr_cell(val):
-            return f'<td style="font-size:12px;font-weight:bold;color:#27ae60">{val:.1f}%</td>'
-
-        earn_tag = ''
-        if r.get('earnings_warn'):
-            earn_tag = f'<br><span style="background:#e67e22;color:white;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:bold">⚠️ 财报 {r["earnings_warn"]}</span>'
-
-        body += f'''<tr>
-          <td><b>{r["ticker"]}</b> ${r["price"]}<br><small style="color:#888">{r["sector"][:22]}</small>{earn_tag}</td>
-          <td style="font-size:11px">{sig_tags}</td>
-          {wr_cell(r.get("wr1",0))}
-          {wr_cell(r.get("wr3",0))}
-          {wr_cell(r.get("wr5",0))}
-          {wr_cell(r.get("wr10",0))}
-          <td style="font-size:13px;font-weight:bold;color:#e74c3c">{r["rsi"]}</td>
-          <td style="font-size:12px;color:#8e44ad">{r["cci"]}</td>
-          <td style="font-size:12px;color:{'#27ae60' if r['cmf']>0 else '#e74c3c'}">{r["cmf"]:+.3f}</td>
-          <td style="font-size:12px">{r["wr"]}</td>
-          <td style="font-size:12px;color:#8e44ad">+{r["dist_52w"]:.1f}%</td>
-          <td style="font-size:12px">{r["volume_status"]}</td>
-          <td style="color:{chg_c};font-weight:bold">{r["chg"]:+.2f}%</td>
-          <td style="font-size:12px">${r["stop_loss"]}</td>
-        </tr>'''
-    return f'<table class="data-table"><thead><tr>{th}</tr></thead><tbody>{body}</tbody></table>'
-
-
-def build_recent_table(n_picks=10):
-    """从 git 历史取最近 n_picks 条选股，计算 T+1/3/5/10 实际收益，返回 HTML 表格"""
-
-    # 1. 读 git log，取最近 60 天的每日最新 commit
+    # 1. 读 git log，每个日期取最新的 commit；优先最近 60 天，没有就退回到最后几次扫描
     r = subprocess.run(['git', '-C', SCRIPT_DIR, 'log', '--oneline'],
                        capture_output=True, text=True)
     cutoff = (datetime.now().date() - timedelta(days=60)).strftime('%Y-%m-%d')
-    commits_by_date = {}
-    for line in r.stdout.strip().split('\n'):
+    all_by_date = {}
+    for line in r.stdout.strip().splitlines():
         m = re.search(r'([a-f0-9]+) .* scan: (\d{4}-\d{2}-\d{2})', line)
-        if m:
-            sha, ds = m.group(1), m.group(2)
-            if ds >= cutoff and ds not in commits_by_date:
-                commits_by_date[ds] = sha
+        if m and m.group(2) not in all_by_date:
+            all_by_date[m.group(2)] = m.group(1)
+    commits_by_date = {d: s for d, s in all_by_date.items() if d >= cutoff} or all_by_date
 
     if not commits_by_date:
-        return ''
+        return []
 
-    # 2. 从每个 commit 的 index.html 提取 ticker + grade，按日期倒序取前 n_picks 条
+    # 2. 从每个 commit 的 index.html 提取 ticker，按日期倒序取前 n_picks 条
     all_picks = []
     seen = set()  # 跨日期去重
     for ds, sha in sorted(commits_by_date.items(), reverse=True):
@@ -377,18 +325,19 @@ def build_recent_table(n_picks=10):
     all_picks = all_picks[:n_picks]
 
     if not all_picks:
-        return ''
+        return []
 
-    # 3. 下载价格
+    # 3. 下载价格（从最早的入场日往前留几天余量）
     tickers_needed = list(set(p['ticker'] for p in all_picks))
-    start_str = (datetime.now().date() - timedelta(days=75)).strftime('%Y-%m-%d')
+    earliest = min(p['scan_date'] for p in all_picks)
+    start_str = (datetime.strptime(earliest, '%Y-%m-%d').date() - timedelta(days=7)).strftime('%Y-%m-%d')
     try:
         prices = yf.download(tickers_needed, start=start_str,
                              auto_adjust=True, progress=False)['Close']
     except Exception:
-        return ''
+        return []
     if isinstance(prices, pd.Series):
-        prices = prices.to_frame()
+        prices = prices.to_frame(tickers_needed[0])
 
     def get_ret(ticker, scan_date, n):
         if ticker not in prices.columns:
@@ -399,43 +348,11 @@ def build_recent_table(n_picks=10):
             return None
         return round(float((col[future[n]] / col[future[0]] - 1) * 100), 2)
 
-    def ret_cell(v):
-        if v is None:
-            return '<td style="color:#bbb;text-align:center">—</td>'
-        if v > 0.2:
-            color = '#e74c3c'   # 涨：红
-        elif v < -0.2:
-            color = '#27ae60'   # 跌：绿
-        else:
-            color = '#333'      # 平：黑
-        sign = '+' if v > 0 else ''
-        return f'<td style="color:{color};font-weight:bold;text-align:center">{sign}{v:.2f}%</td>'
-
-    # 4. 生成 HTML 表格
-    rows_html = ''
     for p in all_picks:
-        t, ds = p['ticker'], p['scan_date']
-        r1  = get_ret(t, ds, 1)
-        r3  = get_ret(t, ds, 3)
-        r5  = get_ret(t, ds, 5)
-        r10 = get_ret(t, ds, 10)
-        rows_html += f'''<tr>
-          <td style="font-weight:bold;padding:6px 10px">{t}</td>
-          <td style="color:#888;font-size:12px;padding:6px 10px">{ds}</td>
-          {ret_cell(r1)}{ret_cell(r3)}{ret_cell(r5)}{ret_cell(r10)}
-        </tr>'''
+        for n in (1, 3, 5, 10):
+            p[f'r{n}'] = get_ret(p['ticker'], p['scan_date'], n)
+    return all_picks
 
-    return f'''<table style="width:100%;border-collapse:collapse;font-size:13px">
-  <thead><tr style="background:#f5f5f5;color:#555;font-size:12px">
-    <th style="padding:8px 10px;text-align:left">股票</th>
-    <th style="padding:8px 10px;text-align:left">入场日</th>
-    <th style="padding:8px 10px;text-align:center">T+1</th>
-    <th style="padding:8px 10px;text-align:center">T+3</th>
-    <th style="padding:8px 10px;text-align:center">T+5</th>
-    <th style="padding:8px 10px;text-align:center">T+10</th>
-  </tr></thead>
-  <tbody>{rows_html}</tbody>
-</table>'''
 
 
 def main():
@@ -478,6 +395,7 @@ def main():
 
     print("扫描信号中...")
     results = []
+    n_universe = n_base = 0
 
     for ticker in tickers:
         try:
@@ -486,10 +404,12 @@ def main():
             high = td['High']; low = td['Low']; open_ = td['Open']
             if len(close) < 260:
                 continue
+            n_universe += 1
 
             result = compute_conditions(close, high, low, volume, open_)
             if result is None:
                 continue
+            n_base += 1
 
             conds, display = result
 
@@ -572,125 +492,33 @@ def main():
                 recent_tickers.add(mt2.group(1))
     before = len(results)
     results = [r for r in results if r['ticker'] not in recent_tickers]
-    if before - len(results):
+    n_deduped = before - len(results)
+    if n_deduped:
         print(f"  去重过滤: 移除 {before - len(results)} 只（近10交易日已推荐）")
 
     # 按胜率排序（不分级别）
     results.sort(key=lambda x: -x.get('win_rate_5', 0))
 
     print("生成近期选股表现...")
-    recent_table_html = build_recent_table()
+    recent = recent_picks()
 
     date_str = datetime.now().strftime('%Y-%m-%d %H:%M')
 
-    badge_html = f'<span class="badge" style="background:#2c3e50">今日信号 {len(results)}</span>'
-
-    # ── 板块统计 ──
-    from collections import defaultdict
-    sector_stats = defaultdict(lambda: {'count': 0, 'wr5_sum': 0})
-    for r in results:
-        s = r['sector']
-        sector_stats[s]['count'] += 1
-        sector_stats[s]['wr5_sum'] += r.get('wr5', 0)
-
-    sector_html = ''
-    sector_rows = sorted(sector_stats.items(), key=lambda x: -x[1]['count'])
-    if sector_rows:
-        bar_max = sector_rows[0][1]['count']
-        rows_html = ''
-        for sec, st in sector_rows:
-            avg_wr5 = st['wr5_sum'] / st['count'] if st['count'] else 0
-            bar_w = int(st['count'] / bar_max * 180)
-            rows_html += f'''<tr>
-              <td style="font-size:12px;white-space:nowrap">{sec[:32]}</td>
-              <td style="text-align:center;font-weight:bold">{st["count"]}</td>
-              <td><div style="background:#3498db;height:12px;width:{bar_w}px;border-radius:3px;display:inline-block"></div></td>
-              <td style="text-align:center;color:#27ae60;font-weight:bold">{avg_wr5:.1f}%</td>
-            </tr>'''
-        sector_html = f'''
-<div class="card">
-  <h2>📊 板块分布</h2>
-  <table style="width:100%;border-collapse:collapse;font-size:13px">
-    <thead><tr style="background:#2c3e50;color:white">
-      <th style="padding:6px 10px;text-align:left">板块</th>
-      <th style="padding:6px 10px">信号数</th>
-      <th style="padding:6px 10px;text-align:left">占比</th>
-      <th style="padding:6px 10px">均T+5胜率</th>
-    </tr></thead>
-    <tbody>{rows_html}</tbody>
-  </table>
-</div>
-'''
-
-    section_html = f'''
-<div class="card">
-  <h2>今日信号</h2>
-  {make_table(results)}
-</div>
-'''
-
-    html = f'''<!DOCTYPE html>
-<html lang="zh">
-<head>
-<meta charset="UTF-8">
-<title>信号扫描 {date_str}</title>
-<style>
-  * {{ box-sizing:border-box }}
-  body {{ font-family:-apple-system,"Microsoft YaHei",sans-serif;background:#f0f2f5;margin:0;padding:16px }}
-  .container {{ max-width:1600px;margin:auto }}
-  .card {{ background:white;border-radius:10px;padding:20px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.07) }}
-  h1 {{ color:#2c3e50;margin:0 0 4px;font-size:22px }}
-  h2 {{ color:#2c3e50;margin:0 0 14px;font-size:15px;border-left:4px solid #3498db;padding-left:10px }}
-  .stat {{ display:inline-block;margin-right:20px;font-size:13px;color:#666 }}
-  .stat b {{ color:#2c3e50;font-size:15px }}
-  .badge {{ display:inline-block;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:bold;color:white;margin-right:6px }}
-  table.data-table {{ width:100%;border-collapse:collapse;font-size:13px }}
-  table.data-table th {{ background:#2c3e50;color:white;padding:8px 10px;text-align:left;white-space:nowrap }}
-  table.data-table td {{ padding:8px 10px;border-bottom:1px solid #f0f0f0;vertical-align:top }}
-  table.data-table tr:hover td {{ background:#fafafa }}
-  .legend {{ font-size:11px;line-height:2;padding:10px;background:#f8f9fa;border-radius:6px }}
-  .note {{ color:#888;font-size:11px;margin-top:6px }}
-</style>
-</head>
-<body>
-<div class="container">
-
-<div class="card">
-  <h1>SP500 Signal Scanner v5</h1>
-  <p style="color:#aaa;margin:2px 0 10px;font-size:13px">{date_str} &nbsp;·&nbsp; 87种回测验证组合(去除C级) · T+1/3/5/10全周期超baseline</p>
-  <div class="stat">SPY <b style="color:{env_color}">{env_label}</b></div>
-  <div class="stat">SPY <b>${spy_price:.2f}</b></div>
-  <div class="stat">vs MA200 <b style="color:{env_color}">{spy_pct:+.1f}%</b></div>
-  <div class="stat">VIX <b style="color:{vix_color}">{vix_price:.1f}</b></div>
-  <br>
-  {'<div style="margin:8px 0;padding:10px 14px;background:#ffebee;border-left:4px solid #c62828;border-radius:4px;font-size:14px"><b style="color:#c62828">VIX ≥ 30 — 市场极度恐慌，信号暂停</b><br><span style="font-size:12px;color:#666">回测显示极端恐慌期超卖信号失败率极高，等VIX回落至30以下再恢复扫描</span></div>' if vix_extreme else '<div style="margin:8px 0;padding:8px 14px;background:#fff3e0;border-left:4px solid #e67e22;border-radius:4px;font-size:13px"><b style="color:#e67e22">VIX > 20 — 恐慌信号增强</b>　回测显示VIX>20时超卖反弹信号胜率提升约5-10个百分点，当前信号可信度更高</div>' if vix_high else ''}
-  <br>
-  {badge_html}
-</div>
-
-<div class="card">
-  <div class="legend">
-    <p class="note">基础信号: MACD收窄(柱状图零轴下连续3根递增) + RSI&lt;30反弹 · 叠加多项技术指标过滤，T+1/3/5/10全周期验证</p>
-  </div>
-</div>
-
-{sector_html}
-
-{section_html}
-
-<div class="card" style="border-top:3px solid #2c3e50;margin-top:30px">
-  <h2 style="border-left:4px solid #2c3e50;padding-left:10px">近期选股表现（最近10条）</h2>
-  <p style="font-size:12px;color:#aaa;margin:4px 0 12px"><span style="color:#e74c3c;font-weight:bold">■</span> 涨 &nbsp;<span style="color:#27ae60;font-weight:bold">■</span> 跌 &nbsp;<span style="color:#333;font-weight:bold">■</span> 平（±0.2%以内）&nbsp;·&nbsp; — 表示数据未到</p>
-  {recent_table_html}
-  <p style="margin-top:12px;padding-top:12px;border-top:1px solid #eee;color:#aaa;font-size:11px">
-    建议持仓：5个交易日 · 止损参考：MA20 × 0.97<br>
-    仅供研究参考，不构成投资建议。历史回测不代表未来表现。
-  </p>
-</div>
-
-</div>
-</body>
-</html>'''
+    html = render_report({
+        'date_str': date_str,
+        'n_combos': len(combos),
+        'grade_counts': grade_counts,
+        'bl': bl,
+        'is_bull': is_bull,
+        'spy_price': spy_price,
+        'spy_pct': spy_pct,
+        'vix_price': vix_price,
+        'vix_high': vix_high,
+        'vix_extreme': vix_extreme,
+        'results': results,
+        'funnel': {'universe': n_universe, 'base': n_base, 'deduped': n_deduped},
+        'recent': recent,
+    })
 
     with open(OUTPUT_HTML, 'w', encoding='utf-8') as f:
         f.write(html)
@@ -700,11 +528,17 @@ def main():
         print(f"   {r['ticker']:6} RSI={r['rsi']:5.1f} T+5胜率={r['win_rate_5']:.1f}% 匹配: {r['matched_combo']}")
     print(f"\n   总计: {len(results)} 只")
 
-    webbrowser.open(f'file:///{OUTPUT_HTML}')
+    if '--no-open' not in sys.argv:
+        webbrowser.open(f'file:///{OUTPUT_HTML}')
+
+    # --no-push：只在本地生成报告，不提交、不发布到 GitHub Pages
+    if '--no-push' in sys.argv:
+        print("已跳过推送（--no-push）")
+        return
 
     repo_dir = SCRIPT_DIR
     try:
-        subprocess.run(['git', '-C', repo_dir, 'add', 'index.html'], check=True)
+        subprocess.run(['git', '-C', repo_dir, 'add', 'index.html', 'report.py', 'daily_scan.py'], check=True)
         subprocess.run(['git', '-C', repo_dir, 'commit', '-m', f'v5 signal scan: {date_str}'], check=True)
         subprocess.run(['git', '-C', repo_dir, 'push', 'origin', 'main'], check=True)
         print("✅ 已推送到 GitHub Pages")

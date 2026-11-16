@@ -1,372 +1,207 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>信号扫描 2026-06-15 09:00</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>标普500 信号扫描 · 2026-11-16 00:41</title>
 <style>
-  * { box-sizing:border-box }
-  body { font-family:-apple-system,"Microsoft YaHei",sans-serif;background:#f0f2f5;margin:0;padding:16px }
-  .container { max-width:1600px;margin:auto }
-  .card { background:white;border-radius:10px;padding:20px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.07) }
-  h1 { color:#2c3e50;margin:0 0 4px;font-size:22px }
-  h2 { color:#2c3e50;margin:0 0 14px;font-size:15px;border-left:4px solid #3498db;padding-left:10px }
-  .stat { display:inline-block;margin-right:20px;font-size:13px;color:#666 }
-  .stat b { color:#2c3e50;font-size:15px }
-  .badge { display:inline-block;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:bold;color:white;margin-right:6px }
-  table.data-table { width:100%;border-collapse:collapse;font-size:13px }
-  table.data-table th { background:#2c3e50;color:white;padding:8px 10px;text-align:left;white-space:nowrap }
-  table.data-table td { padding:8px 10px;border-bottom:1px solid #f0f0f0;vertical-align:top }
-  table.data-table tr:hover td { background:#fafafa }
-  .legend { font-size:11px;line-height:2;padding:10px;background:#f8f9fa;border-radius:6px }
-  .note { color:#888;font-size:11px;margin-top:6px }
+:root{
+  color-scheme:light dark;
+  --bg:#f4f5f7; --card:#fff; --ink:#18212f; --ink2:#5b6676; --ink3:#8a94a3;
+  --line:#e6e8ec; --soft:#f3f4f7; --accent:#2f5bd8; --accent-soft:#e9eefc;
+  --up:#d92d20; --up-soft:#fdecea; --down:#0a8f55; --down-soft:#e5f6ee;   /* 红涨绿跌 */
+  --warn:#b54708; --warn-soft:#fff4e5; --danger:#b42318; --danger-soft:#fdecea;
+  --g-sss:#b45309; --g-s:#6d28d9; --g-a:#0e7490; --g-b:#526072;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0f1319; --card:#181d26; --ink:#e8ecf2; --ink2:#a3adbb; --ink3:#727c8b;
+  --line:#2a313d; --soft:#1f2530; --accent:#8aa6ff; --accent-soft:#222c47;
+  --up:#ff7a6e; --up-soft:#3a1f1d; --down:#4fd093; --down-soft:#17332a;
+  --warn:#fdb022; --warn-soft:#33270f; --danger:#ff7a6e; --danger-soft:#3a1f1d;
+  --g-sss:#f5a524; --g-s:#b79bff; --g-a:#5cc8de; --g-b:#9aa6b6;
+}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:14px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  -webkit-font-smoothing:antialiased}
+.wrap{max-width:1320px;margin:0 auto;padding:28px 20px 48px}
+.num,td.n,th.n{font-variant-numeric:tabular-nums}
+.up{color:var(--up)} .down{color:var(--down)} .muted{color:var(--ink3)}
+
+.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:8px 24px;margin-bottom:18px}
+h1{margin:0;font-size:24px;letter-spacing:-.01em;font-weight:700}
+.sub{margin:4px 0 0;color:var(--ink2);font-size:13px}
+.stamp{color:var(--ink2);font-size:13px;text-align:right}
+.stamp b{display:block;color:var(--ink);font-size:15px;font-weight:600}
+
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.tile .k{font-size:12px;color:var(--ink2)}
+.tile .v{font-size:26px;font-weight:700;line-height:1.25;margin-top:2px}
+.tile .d{font-size:12px;color:var(--ink2);margin-top:2px}
+
+.alert{border-radius:10px;padding:12px 16px;margin-bottom:14px;font-size:13px;border:1px solid transparent}
+.alert b{display:block;font-size:14px;margin-bottom:2px}
+.alert.warn{background:var(--warn-soft);color:var(--ink)} .alert.warn b{color:var(--warn)}
+.alert.danger{background:var(--danger-soft);color:var(--ink)} .alert.danger b{color:var(--danger)}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:14px;overflow:hidden}
+.card>header{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;padding:16px 18px 10px}
+h2{margin:0;font-size:16px;font-weight:700}
+.card>header p{margin:0;color:var(--ink2);font-size:12.5px}
+.body{padding:0 18px 16px}
+.scroll{overflow-x:auto}
+
+table{width:100%;border-collapse:collapse}
+th{font-size:12px;font-weight:600;color:var(--ink2);text-align:left;white-space:nowrap;
+  padding:8px 10px;background:var(--soft);border-bottom:1px solid var(--line)}
+td{padding:11px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover td{background:var(--soft)}
+th.n,td.n{text-align:right;white-space:nowrap}
+th.grp{text-align:center;border-left:1px solid var(--line);border-right:1px solid var(--line)}
+th[data-sort]{cursor:pointer;user-select:none}
+th[data-sort]:hover{color:var(--ink)}
+th[aria-sort=descending]::after{content:" ↓"} th[aria-sort=ascending]::after{content:" ↑"}
+th:first-child,td:first-child{padding-left:18px} th:last-child,td:last-child{padding-right:18px}
+
+.stock b{font-size:15px;letter-spacing:.01em}
+.stock .px{font-variant-numeric:tabular-nums;color:var(--ink2);margin-left:2px}
+.stock .chg{font-size:12px;font-weight:600;margin-left:6px;font-variant-numeric:tabular-nums}
+.stock .co{display:block;font-size:12px;color:var(--ink2);max-width:210px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.earn{display:inline-block;margin-top:4px;padding:1px 7px;border-radius:5px;font-size:11px;font-weight:600;
+  background:var(--warn-soft);color:var(--warn)}
+
+.grade{display:inline-block;min-width:38px;text-align:center;padding:3px 8px;border-radius:6px;
+  font-size:12px;font-weight:700;letter-spacing:.03em;color:#fff}
+@media (prefers-color-scheme:dark){.grade{color:#10141b}}
+.g-SSS{background:var(--g-sss)} .g-S{background:var(--g-s)} .g-A{background:var(--g-a)} .g-B{background:var(--g-b)}
+
+.chips{display:flex;flex-wrap:wrap;gap:4px;width:230px}
+.chip{padding:2px 8px;border-radius:999px;font-size:11.5px;white-space:nowrap;background:var(--accent-soft);color:var(--accent);font-weight:600}
+.chip.base{background:var(--soft);color:var(--ink2);font-weight:500}
+.sample{display:block;margin-top:4px;font-size:11px;color:var(--ink3)}
+
+td.wr{min-width:62px}
+td.wr span{display:block;font-weight:600}
+td.wr i{display:block;height:3px;margin-top:4px;border-radius:2px;background:var(--line);position:relative;overflow:hidden}
+td.wr i::after{content:"";position:absolute;inset:0 auto 0 0;width:var(--w);background:var(--accent);border-radius:2px}
+td.wr.main span{font-size:15px;color:var(--accent)}
+th.main{color:var(--ink)}
+
+.empty{padding:36px 18px 40px;text-align:center;color:var(--ink2)}
+.empty b{display:block;font-size:16px;color:var(--ink);margin-bottom:6px}
+
+.bars{display:grid;grid-template-columns:max-content 1fr max-content max-content;gap:9px 14px;align-items:center;font-size:13px}
+.bars .h{font-size:12px;color:var(--ink2)}
+.bar{height:10px;border-radius:5px;background:var(--soft);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:5px}
+
+td.ret{text-align:center;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+td.ret span{display:inline-block;min-width:68px;padding:3px 8px;border-radius:6px}
+td.ret .up{background:var(--up-soft)} td.ret .down{background:var(--down-soft)}
+th.c{text-align:center}
+
+.summary{display:flex;flex-wrap:wrap;gap:6px 22px;padding:0 18px 12px;font-size:13px;color:var(--ink2)}
+.summary b{color:var(--ink);font-variant-numeric:tabular-nums}
+.summary b.up{color:var(--up)} .summary b.down{color:var(--down)}
+
+details{padding:0 18px 16px}
+summary{cursor:pointer;font-weight:700;font-size:16px;padding:16px 0 6px;list-style-position:inside}
+.guide{display:grid;grid-template-columns:1fr 1fr;gap:18px 32px;margin-top:8px;font-size:13px;color:var(--ink2)}
+.guide h3{margin:0 0 6px;font-size:13px;color:var(--ink)}
+.guide p{margin:0 0 6px}
+.guide table td,.guide table th{padding:6px 8px;font-size:12.5px}
+.guide table td:first-child,.guide table th:first-child{padding-left:8px}
+
+footer{color:var(--ink3);font-size:12px;text-align:center;margin-top:22px;line-height:1.8}
+
+@media (max-width:820px){
+  .wrap{padding:18px 12px 36px}
+  .tiles{grid-template-columns:repeat(2,1fr)}
+  .tile .v{font-size:22px}
+  .guide{grid-template-columns:1fr}
+  .stamp{text-align:left}
+}
 </style>
 </head>
 <body>
-<div class="container">
+<div class="wrap">
 
-<div class="card">
-  <h1>SP500 Signal Scanner v5</h1>
-  <p style="color:#aaa;margin:2px 0 10px;font-size:13px">2026-06-15 09:00 &nbsp;·&nbsp; 87种回测验证组合(去除C级) · T+1/3/5/10全周期超baseline</p>
-  <div class="stat">SPY <b style="color:#27ae60">牛市</b></div>
-  <div class="stat">SPY <b>$7542.95</b></div>
-  <div class="stat">vs MA200 <b style="color:#27ae60">+9.5%</b></div>
-  <div class="stat">VIX <b style="color:#27ae60">16.3</b></div>
-  <br>
-  
-  <br>
-  <span class="badge" style="background:#2c3e50">今日信号 14</span>
-</div>
-
-<div class="card">
-  <div class="legend">
-    <p class="note">基础信号: MACD收窄(柱状图零轴下连续3根递增) + RSI&lt;30反弹 · 叠加多项技术指标过滤，T+1/3/5/10全周期验证</p>
+<div class="top">
+  <div>
+    <h1>标普500 每日信号扫描</h1>
+    <p class="sub">在 MACD 金叉之前入场 · 334 种经 6 年回测验证的信号组合</p>
   </div>
+  <div class="stamp">扫描时间<b class="num">2026-11-16 00:41</b></div>
 </div>
 
-
-<div class="card">
-  <h2>📊 板块分布</h2>
-  <table style="width:100%;border-collapse:collapse;font-size:13px">
-    <thead><tr style="background:#2c3e50;color:white">
-      <th style="padding:6px 10px;text-align:left">板块</th>
-      <th style="padding:6px 10px">信号数</th>
-      <th style="padding:6px 10px;text-align:left">占比</th>
-      <th style="padding:6px 10px">均T+5胜率</th>
-    </tr></thead>
-    <tbody><tr>
-              <td style="font-size:12px;white-space:nowrap">Energy</td>
-              <td style="text-align:center;font-weight:bold">7</td>
-              <td><div style="background:#3498db;height:12px;width:180px;border-radius:3px;display:inline-block"></div></td>
-              <td style="text-align:center;color:#27ae60;font-weight:bold">74.0%</td>
-            </tr><tr>
-              <td style="font-size:12px;white-space:nowrap">Information Technology</td>
-              <td style="text-align:center;font-weight:bold">3</td>
-              <td><div style="background:#3498db;height:12px;width:77px;border-radius:3px;display:inline-block"></div></td>
-              <td style="text-align:center;color:#27ae60;font-weight:bold">74.9%</td>
-            </tr><tr>
-              <td style="font-size:12px;white-space:nowrap">Materials</td>
-              <td style="text-align:center;font-weight:bold">2</td>
-              <td><div style="background:#3498db;height:12px;width:51px;border-radius:3px;display:inline-block"></div></td>
-              <td style="text-align:center;color:#27ae60;font-weight:bold">73.1%</td>
-            </tr><tr>
-              <td style="font-size:12px;white-space:nowrap">Financials</td>
-              <td style="text-align:center;font-weight:bold">1</td>
-              <td><div style="background:#3498db;height:12px;width:25px;border-radius:3px;display:inline-block"></div></td>
-              <td style="text-align:center;color:#27ae60;font-weight:bold">70.5%</td>
-            </tr><tr>
-              <td style="font-size:12px;white-space:nowrap">Utilities</td>
-              <td style="text-align:center;font-weight:bold">1</td>
-              <td><div style="background:#3498db;height:12px;width:25px;border-radius:3px;display:inline-block"></div></td>
-              <td style="text-align:center;color:#27ae60;font-weight:bold">70.1%</td>
-            </tr></tbody>
-  </table>
+<div class="tiles">
+  <div class="tile"><div class="k">今日信号</div><div class="v num">0 <span style="font-size:14px;font-weight:500;color:var(--ink2)">只</span></div><div class="d">扫描 500 只 · 基础信号 3 只</div></div>
+  <div class="tile"><div class="k">市场环境</div><div class="v up">牛市</div><div class="d">标普500 在 200 日均线上方</div></div>
+  <div class="tile"><div class="k">标普500</div><div class="v num">7,562</div><div class="d">较 200 日均线 <span class="num up">+3.0%</span></div></div>
+  <div class="tile"><div class="k">VIX 恐慌指数</div><div class="v num" style="">19.3</div><div class="d">平静（20 以上偏高，30 以上暂停）</div></div>
 </div>
 
 
 
-<div class="card">
-  <h2>今日信号</h2>
-  <table class="data-table"><thead><tr><th>股票/板块</th><th>匹配信号</th><th>T+1胜率</th><th>T+3胜率</th><th>T+5胜率</th><th>T+10胜率</th><th>RSI</th><th>CCI</th><th>CMF</th><th>WR</th><th>距52W低</th><th>成交量</th><th>日涨跌</th><th>止损</th></tr></thead><tbody><tr>
-          <td><b>PTC</b> $116.22<br><small style="color:#888">Information Technology</small></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MFI<20</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">BB下轨</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">距MA50<-10%</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">缩量0.8x</span></td>
-          <td style="font-size:12px;font-weight:bold;color:#27ae60" title="行业:Information Technolo">73.6%</td>
-          <td style="font-size:12px;font-weight:bold;color:#27ae60" title="行业:Information Technolo">77.7%</td>
-          <td style="font-size:12px;font-weight:bold;color:#27ae60" title="行业:Information Technolo">80.2%</td>
-          <td style="font-size:12px;font-weight:bold;color:#27ae60" title="行业:Information Technolo">77.7%</td>
-          <td style="font-size:13px;font-weight:bold;color:#e74c3c">26.4</td>
-          <td style="font-size:12px;color:#8e44ad">-216.3</td>
-          <td style="font-size:12px;color:#e74c3c">-0.150</td>
-          <td style="font-size:12px">-79.9</td>
-          <td style="font-size:12px;color:#8e44ad">+2.2%</td>
-          <td style="font-size:12px">极缩 0.1x</td>
-          <td style="color:#27ae60;font-weight:bold">+2.23%</td>
-          <td style="font-size:12px">$133.63</td>
-        </tr><tr>
-          <td><b>ADSK</b> $200.62<br><small style="color:#888">Information Technology</small></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">RSI<30(昨)</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">BB下轨</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">距MA50<-10%</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">缩量0.8x</span></td>
-          <td style="font-size:12px;font-weight:bold;color:#27ae60" title="行业:Information Technolo">67.4%</td>
-          <td style="font-size:12px;font-weight:bold;color:#27ae60" title="行业:Information Technolo">70.0%</td>
-          <td style="font-size:12px;font-weight:bold;color:#27ae60" title="行业:Information Technolo">76.4%</td>
-          <td style="font-size:12px;font-weight:bold;color:#27ae60" title="行业:Information Technolo">77.7%</td>
-          <td style="font-size:13px;font-weight:bold;color:#e74c3c">30.3</td>
-          <td style="font-size:12px;color:#8e44ad">-192.5</td>
-          <td style="font-size:12px;color:#e74c3c">-0.063</td>
-          <td style="font-size:12px">-89.0</td>
-          <td style="font-size:12px;color:#8e44ad">+1.1%</td>
-          <td style="font-size:12px">极缩 0.1x</td>
-          <td style="color:#27ae60;font-weight:bold">+1.10%</td>
-          <td style="font-size:12px">$223.73</td>
-        </tr><tr>
-          <td><b>APA</b> $34.74<br><small style="color:#888">Energy</small></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">缩量0.8x</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">跳空收正</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">3日跌>5%</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MA20下行</span></td>
-          <td style="font-size:12px;font-weight:bold;color:#e67e22" title="行业:Energy">54.1%</td>
-          <td style="font-size:12px;font-weight:bold;color:#27ae60" title="行业:Energy">67.1%</td>
-          <td style="font-size:12px;font-weight:bold;color:#27ae60" title="行业:Energy">74.6%</td>
-          <td style="font-size:12px;font-weight:bold;color:#27ae60" title="行业:Energy">77.2%</td>
-          <td style="font-size:13px;font-weight:bold;color:#e74c3c">39.3</td>
-          <td style="font-size:12px;color:#8e44ad">-191.8</td>
-          <td style="font-size:12px;color:#e74c3c">-0.014</td>
-          <td style="font-size:12px">-92.1</td>
-          <td style="font-size:12px;color:#8e44ad">+103.3%</td>
-          <td style="font-size:12px">极缩 0.2x</td>
-          <td style="color:#e74c3c;font-weight:bold">-6.15%</td>
-          <td style="font-size:12px">$36.57</td>
-        </tr><tr>
-          <td><b>COP</b> $111.21<br><small style="color:#888">Energy</small></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">缩量0.8x</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">跳空收正</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">3日跌>5%</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MA20下行</span></td>
-          <td style="font-size:12px;font-weight:bold;color:#e67e22" title="行业:Energy">54.1%</td>
-          <td style="font-size:12px;font-weight:bold;color:#27ae60" title="行业:Energy">67.1%</td>
-          <td style="font-size:12px;font-weight:bold;color:#27ae60" title="行业:Energy">74.6%</td>
-          <td style="font-size:12px;font-weight:bold;color:#27ae60" title="行业:Energy">77.2%</td>
-          <td style="font-size:13px;font-weight:bold;color:#e74c3c">38.8</td>
-          <td style="font-size:12px;color:#8e44ad">-177.0</td>
-          <td style="font-size:12px;color:#e74c3c">-0.097</td>
-          <td style="font-size:12px">-95.6</td>
-          <td style="font-size:12px;color:#8e44ad">+33.0%</td>
-          <td style="font-size:12px">极缩 0.3x</td>
-          <td style="color:#e74c3c;font-weight:bold">-4.93%</td>
-          <td style="font-size:12px">$114.49</td>
-        </tr><tr>
-          <td><b>DVN</b> $43.71<br><small style="color:#888">Energy</small></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">缩量0.8x</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">跳空收正</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">3日跌>5%</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MA20下行</span></td>
-          <td style="font-size:12px;font-weight:bold;color:#e67e22" title="行业:Energy">54.1%</td>
-          <td style="font-size:12px;font-weight:bold;color:#27ae60" title="行业:Energy">67.1%</td>
-          <td style="font-size:12px;font-weight:bold;color:#27ae60" title="行业:Energy">74.6%</td>
-          <td style="font-size:12px;font-weight:bold;color:#27ae60" title="行业:Energy">77.2%</td>
-          <td style="font-size:13px;font-weight:bold;color:#e74c3c">41.5</td>
-          <td style="font-size:12px;color:#8e44ad">-119.4</td>
-          <td style="font-size:12px;color:#e74c3c">-0.100</td>
-          <td style="font-size:12px">-79.7</td>
-          <td style="font-size:12px;color:#8e44ad">+40.2%</td>
-          <td style="font-size:12px">极缩 0.2x</td>
-          <td style="color:#e74c3c;font-weight:bold">-3.53%</td>
-          <td style="font-size:12px">$44.55</td>
-        </tr><tr>
-          <td><b>FANG</b> $186.72<br><small style="color:#888">Energy</small></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">缩量0.8x</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">跳空收正</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">3日跌>5%</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MA20下行</span></td>
-          <td style="font-size:12px;font-weight:bold;color:#e67e22" title="行业:Energy">54.1%</td>
-          <td style="font-size:12px;font-weight:bold;color:#27ae60" title="行业:Energy">67.1%</td>
-          <td style="font-size:12px;font-weight:bold;color:#27ae60" title="行业:Energy">74.6%</td>
-          <td style="font-size:12px;font-weight:bold;color:#27ae60" title="行业:Energy">77.2%</td>
-          <td style="font-size:13px;font-weight:bold;color:#e74c3c">41.3</td>
-          <td style="font-size:12px;color:#8e44ad">-179.7</td>
-          <td style="font-size:12px;color:#e74c3c">-0.066</td>
-          <td style="font-size:12px">-85.0</td>
-          <td style="font-size:12px;color:#8e44ad">+41.4%</td>
-          <td style="font-size:12px">极缩 0.2x</td>
-          <td style="color:#e74c3c;font-weight:bold">-2.82%</td>
-          <td style="font-size:12px">$192.06</td>
-        </tr><tr>
-          <td><b>OXY</b> $54.06<br><small style="color:#888">Energy</small></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">缩量0.8x</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">跳空收正</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">3日跌>5%</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MA20下行</span></td>
-          <td style="font-size:12px;font-weight:bold;color:#e67e22" title="行业:Energy">54.1%</td>
-          <td style="font-size:12px;font-weight:bold;color:#27ae60" title="行业:Energy">67.1%</td>
-          <td style="font-size:12px;font-weight:bold;color:#27ae60" title="行业:Energy">74.6%</td>
-          <td style="font-size:12px;font-weight:bold;color:#27ae60" title="行业:Energy">77.2%</td>
-          <td style="font-size:13px;font-weight:bold;color:#e74c3c">39.8</td>
-          <td style="font-size:12px;color:#8e44ad">-210.7</td>
-          <td style="font-size:12px;color:#e74c3c">-0.124</td>
-          <td style="font-size:12px">-87.0</td>
-          <td style="font-size:12px;color:#8e44ad">+40.2%</td>
-          <td style="font-size:12px">极缩 0.3x</td>
-          <td style="color:#e74c3c;font-weight:bold">-4.39%</td>
-          <td style="font-size:12px">$55.84</td>
-        </tr><tr>
-          <td><b>DOW</b> $32.46<br><small style="color:#888">Materials</small></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">距MA50<-10%</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">缩量0.8x</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">3日跌>5%</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">20日跌>10%</span></td>
-          <td style="font-size:12px;font-weight:bold;color:#e67e22" title="行业:Materials">58.3%</td>
-          <td style="font-size:12px;font-weight:bold;color:#27ae60" title="行业:Materials">71.5%</td>
-          <td style="font-size:12px;font-weight:bold;color:#27ae60" title="行业:Materials">73.7%</td>
-          <td style="font-size:12px;font-weight:bold;color:#27ae60" title="行业:Materials">75.7%</td>
-          <td style="font-size:13px;font-weight:bold;color:#e74c3c">35.0</td>
-          <td style="font-size:12px;color:#8e44ad">-159.1</td>
-          <td style="font-size:12px;color:#e74c3c">-0.133</td>
-          <td style="font-size:12px">-86.7</td>
-          <td style="font-size:12px;color:#8e44ad">+63.7%</td>
-          <td style="font-size:12px">极缩 0.3x</td>
-          <td style="color:#e74c3c;font-weight:bold">-4.11%</td>
-          <td style="font-size:12px">$33.71</td>
-        </tr><tr>
-          <td><b>XOM</b> $138.96<br><small style="color:#888">Energy</small></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">5日跌>3%</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">缩量0.8x</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">3日跌>5%</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">20日跌>10%</span></td>
-          <td style="font-size:12px;font-weight:bold;color:#27ae60" title="行业:Energy">60.6%</td>
-          <td style="font-size:12px;font-weight:bold;color:#27ae60" title="行业:Energy">72.3%</td>
-          <td style="font-size:12px;font-weight:bold;color:#27ae60" title="行业:Energy">73.3%</td>
-          <td style="font-size:12px;font-weight:bold;color:#27ae60" title="行业:Energy">74.5%</td>
-          <td style="font-size:13px;font-weight:bold;color:#e74c3c">34.1</td>
-          <td style="font-size:12px;color:#8e44ad">-212.9</td>
-          <td style="font-size:12px;color:#e74c3c">-0.176</td>
-          <td style="font-size:12px">-92.8</td>
-          <td style="font-size:12px;color:#8e44ad">+35.5%</td>
-          <td style="font-size:12px">极缩 0.3x</td>
-          <td style="color:#e74c3c;font-weight:bold">-5.47%</td>
-          <td style="font-size:12px">$146.31</td>
-        </tr><tr>
-          <td><b>CF</b> $105.46<br><small style="color:#888">Materials</small></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">距MA50<-10%</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">5日跌>3%</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">缩量0.8x</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">跳空收正</span></td>
-          <td style="font-size:12px;font-weight:bold;color:#e67e22" title="行业:Materials">53.9%</td>
-          <td style="font-size:12px;font-weight:bold;color:#27ae60" title="行业:Materials">63.9%</td>
-          <td style="font-size:12px;font-weight:bold;color:#27ae60" title="行业:Materials">72.4%</td>
-          <td style="font-size:12px;font-weight:bold;color:#27ae60" title="行业:Materials">74.1%</td>
-          <td style="font-size:13px;font-weight:bold;color:#e74c3c">35.9</td>
-          <td style="font-size:12px;color:#8e44ad">-148.4</td>
-          <td style="font-size:12px;color:#e74c3c">-0.208</td>
-          <td style="font-size:12px">-79.1</td>
-          <td style="font-size:12px;color:#8e44ad">+39.9%</td>
-          <td style="font-size:12px">极缩 0.2x</td>
-          <td style="color:#e74c3c;font-weight:bold">-3.67%</td>
-          <td style="font-size:12px">$111.9</td>
-        </tr><tr>
-          <td><b>CVX</b> $179.06<br><small style="color:#888">Energy</small></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MFI上升</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">缩量0.8x</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">跳空收正</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">3日跌>5%</span></td>
-          <td style="font-size:12px;font-weight:bold;color:#e67e22" title="行业:Energy">59.4%</td>
-          <td style="font-size:12px;font-weight:bold;color:#27ae60" title="行业:Energy">61.0%</td>
-          <td style="font-size:12px;font-weight:bold;color:#27ae60" title="行业:Energy">71.5%</td>
-          <td style="font-size:12px;font-weight:bold;color:#27ae60" title="行业:Energy">72.7%</td>
-          <td style="font-size:13px;font-weight:bold;color:#e74c3c">39.0</td>
-          <td style="font-size:12px;color:#8e44ad">-186.0</td>
-          <td style="font-size:12px;color:#e74c3c">-0.110</td>
-          <td style="font-size:12px">-91.6</td>
-          <td style="font-size:12px;color:#8e44ad">+30.3%</td>
-          <td style="font-size:12px">极缩 0.2x</td>
-          <td style="color:#e74c3c;font-weight:bold">-4.36%</td>
-          <td style="font-size:12px">$182.1</td>
-        </tr><tr>
-          <td><b>FISV</b> $50.51<br><small style="color:#888">Financials</small></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">距MA50<-10%</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MFI上升</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">跳空收正</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">3日跌>5%</span></td>
-          <td style="font-size:12px;font-weight:bold;color:#e67e22" title="行业:Financials">55.0%</td>
-          <td style="font-size:12px;font-weight:bold;color:#e67e22" title="行业:Financials">59.4%</td>
-          <td style="font-size:12px;font-weight:bold;color:#27ae60" title="行业:Financials">70.5%</td>
-          <td style="font-size:12px;font-weight:bold;color:#27ae60" title="行业:Financials">70.8%</td>
-          <td style="font-size:13px;font-weight:bold;color:#e74c3c">35.6</td>
-          <td style="font-size:12px;color:#8e44ad">-227.2</td>
-          <td style="font-size:12px;color:#27ae60">+0.096</td>
-          <td style="font-size:12px">-80.5</td>
-          <td style="font-size:12px;color:#8e44ad">+0.0%</td>
-          <td style="font-size:12px">正常 1.1x</td>
-          <td style="color:#e74c3c;font-weight:bold">-6.07%</td>
-          <td style="font-size:12px">$53.56</td>
-        </tr><tr>
-          <td><b>AWK</b> $125.94<br><small style="color:#888">Utilities</small></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">近52周低</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">缩量0.8x</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">跳空收正</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">BB收窄</span></td>
-          <td style="font-size:12px;font-weight:bold;color:#e67e22" title="行业:Utilities">53.4%</td>
-          <td style="font-size:12px;font-weight:bold;color:#e67e22" title="行业:Utilities">58.8%</td>
-          <td style="font-size:12px;font-weight:bold;color:#27ae60" title="行业:Utilities">70.1%</td>
-          <td style="font-size:12px;font-weight:bold;color:#27ae60" title="行业:Utilities">70.7%</td>
-          <td style="font-size:13px;font-weight:bold;color:#e74c3c">51.7</td>
-          <td style="font-size:12px;color:#8e44ad">69.6</td>
-          <td style="font-size:12px;color:#e74c3c">-0.187</td>
-          <td style="font-size:12px">-28.0</td>
-          <td style="font-size:12px;color:#8e44ad">+4.0%</td>
-          <td style="font-size:12px">极缩 0.1x</td>
-          <td style="color:#e74c3c;font-weight:bold">-0.29%</td>
-          <td style="font-size:12px">$120.29</td>
-        </tr><tr>
-          <td><b>GDDY</b> $79.14<br><small style="color:#888">Information Technology</small></td>
-          <td style="font-size:11px"><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">CCI<-100</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">MFI<20</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">距MA200<-15%</span><span style="background:#3498db;color:white;padding:1px 6px;border-radius:8px;font-size:10px;margin:1px 2px;display:inline-block">缩量0.8x</span></td>
-          <td style="font-size:12px;font-weight:bold;color:#e67e22" title="行业:Information Technolo">58.6%</td>
-          <td style="font-size:12px;font-weight:bold;color:#27ae60" title="行业:Information Technolo">65.8%</td>
-          <td style="font-size:12px;font-weight:bold;color:#27ae60" title="行业:Information Technolo">68.0%</td>
-          <td style="font-size:12px;font-weight:bold;color:#27ae60" title="行业:Information Technolo">64.0%</td>
-          <td style="font-size:13px;font-weight:bold;color:#e74c3c">41.2</td>
-          <td style="font-size:12px;color:#8e44ad">-117.7</td>
-          <td style="font-size:12px;color:#e74c3c">-0.231</td>
-          <td style="font-size:12px">-66.4</td>
-          <td style="font-size:12px;color:#8e44ad">+5.3%</td>
-          <td style="font-size:12px">极缩 0.1x</td>
-          <td style="color:#27ae60;font-weight:bold">+3.81%</td>
-          <td style="font-size:12px">$83.03</td>
-        </tr></tbody></table>
-</div>
+<section class="card">
+  <header><h2>今日信号</h2><p>按 T+5 胜率排序，点表头可换排序 · 建议持仓 5 个交易日</p></header>
+  <div class="empty"><b>今天没有符合条件的股票</b>基础信号（MACD 柱零轴下连续收窄 + RSI 从 30 以下回升）本身就少见，再叠加回测验证过的组合后，空仓日是常态。</div>
+</section>
 
 
-<div class="card" style="border-top:3px solid #2c3e50;margin-top:30px">
-  <h2 style="border-left:4px solid #2c3e50;padding-left:10px">近期选股表现（最近10条）</h2>
-  <p style="font-size:12px;color:#aaa;margin:4px 0 12px"><span style="color:#e74c3c;font-weight:bold">■</span> 涨 &nbsp;<span style="color:#27ae60;font-weight:bold">■</span> 跌 &nbsp;<span style="color:#333;font-weight:bold">■</span> 平（±0.2%以内）&nbsp;·&nbsp; — 表示数据未到</p>
-  <table style="width:100%;border-collapse:collapse;font-size:13px">
-  <thead><tr style="background:#f5f5f5;color:#555;font-size:12px">
-    <th style="padding:8px 10px;text-align:left">股票</th>
-    <th style="padding:8px 10px;text-align:left">入场日</th>
-    <th style="padding:8px 10px;text-align:center">T+1</th>
-    <th style="padding:8px 10px;text-align:center">T+3</th>
-    <th style="padding:8px 10px;text-align:center">T+5</th>
-    <th style="padding:8px 10px;text-align:center">T+10</th>
-  </tr></thead>
-  <tbody><tr>
-          <td style="font-weight:bold;padding:6px 10px">INTU</td>
-          <td style="color:#888;font-size:12px;padding:6px 10px">2026-06-13</td>
-          <td style="color:#bbb;text-align:center">—</td><td style="color:#bbb;text-align:center">—</td><td style="color:#bbb;text-align:center">—</td><td style="color:#bbb;text-align:center">—</td>
-        </tr><tr>
-          <td style="font-weight:bold;padding:6px 10px">BSX</td>
-          <td style="color:#888;font-size:12px;padding:6px 10px">2026-06-13</td>
-          <td style="color:#bbb;text-align:center">—</td><td style="color:#bbb;text-align:center">—</td><td style="color:#bbb;text-align:center">—</td><td style="color:#bbb;text-align:center">—</td>
-        </tr><tr>
-          <td style="font-weight:bold;padding:6px 10px">PODD</td>
-          <td style="color:#888;font-size:12px;padding:6px 10px">2026-06-13</td>
-          <td style="color:#bbb;text-align:center">—</td><td style="color:#bbb;text-align:center">—</td><td style="color:#bbb;text-align:center">—</td><td style="color:#bbb;text-align:center">—</td>
-        </tr><tr>
-          <td style="font-weight:bold;padding:6px 10px">NOW</td>
-          <td style="color:#888;font-size:12px;padding:6px 10px">2026-06-13</td>
-          <td style="color:#bbb;text-align:center">—</td><td style="color:#bbb;text-align:center">—</td><td style="color:#bbb;text-align:center">—</td><td style="color:#bbb;text-align:center">—</td>
-        </tr><tr>
-          <td style="font-weight:bold;padding:6px 10px">ADBE</td>
-          <td style="color:#888;font-size:12px;padding:6px 10px">2026-06-13</td>
-          <td style="color:#bbb;text-align:center">—</td><td style="color:#bbb;text-align:center">—</td><td style="color:#bbb;text-align:center">—</td><td style="color:#bbb;text-align:center">—</td>
-        </tr><tr>
-          <td style="font-weight:bold;padding:6px 10px">REGN</td>
-          <td style="color:#888;font-size:12px;padding:6px 10px">2026-06-13</td>
-          <td style="color:#bbb;text-align:center">—</td><td style="color:#bbb;text-align:center">—</td><td style="color:#bbb;text-align:center">—</td><td style="color:#bbb;text-align:center">—</td>
-        </tr><tr>
-          <td style="font-weight:bold;padding:6px 10px">T</td>
-          <td style="color:#888;font-size:12px;padding:6px 10px">2026-06-05</td>
-          <td style="color:#27ae60;font-weight:bold;text-align:center">-1.10%</td><td style="color:#e74c3c;font-weight:bold;text-align:center">+2.02%</td><td style="color:#e74c3c;font-weight:bold;text-align:center">+3.65%</td><td style="color:#bbb;text-align:center">—</td>
-        </tr><tr>
-          <td style="font-weight:bold;padding:6px 10px">TRMB</td>
-          <td style="color:#888;font-size:12px;padding:6px 10px">2026-06-05</td>
-          <td style="color:#27ae60;font-weight:bold;text-align:center">-1.03%</td><td style="color:#27ae60;font-weight:bold;text-align:center">-6.62%</td><td style="color:#27ae60;font-weight:bold;text-align:center">-6.96%</td><td style="color:#bbb;text-align:center">—</td>
-        </tr><tr>
-          <td style="font-weight:bold;padding:6px 10px">VRT</td>
-          <td style="color:#888;font-size:12px;padding:6px 10px">2026-06-05</td>
-          <td style="color:#333;font-weight:bold;text-align:center">+0.02%</td><td style="color:#27ae60;font-weight:bold;text-align:center">-6.50%</td><td style="color:#e74c3c;font-weight:bold;text-align:center">+0.79%</td><td style="color:#bbb;text-align:center">—</td>
-        </tr><tr>
-          <td style="font-weight:bold;padding:6px 10px">PYPL</td>
-          <td style="color:#888;font-size:12px;padding:6px 10px">2026-06-05</td>
-          <td style="color:#333;font-weight:bold;text-align:center">-0.07%</td><td style="color:#27ae60;font-weight:bold;text-align:center">-1.43%</td><td style="color:#e74c3c;font-weight:bold;text-align:center">+0.58%</td><td style="color:#bbb;text-align:center">—</td>
-        </tr></tbody>
-</table>
-  <p style="margin-top:12px;padding-top:12px;border-top:1px solid #eee;color:#aaa;font-size:11px">
-    建议持仓：5个交易日 · 止损参考：MA20 × 0.97<br>
-    仅供研究参考，不构成投资建议。历史回测不代表未来表现。
-  </p>
-</div>
 
+<section class="card">
+  <header><h2>近期选股的实际表现</h2><p>最近 10 条推荐，从入场日收盘价起算的真实涨跌 · — 表示交易日还没到</p></header>
+  <div class="summary"><span>T+5：<b>0/10</b> 上涨，平均 <b class="down">-3.02%</b></span><span>T+10：<b>1/10</b> 上涨，平均 <b class="down">-5.96%</b></span></div>
+  <div class="scroll"><table>
+    <thead><tr><th>股票</th><th>入场日</th><th class="c">T+1</th><th class="c">T+3</th><th class="c">T+5</th><th class="c">T+10</th></tr></thead>
+    <tbody><tr><td><span style="font-weight:700">PTC</span></td><td class="num muted">2026-06-15</td><td class="ret"><span class="up">+2.90%</span></td><td class="ret"><span class="">-0.09%</span></td><td class="ret"><span class="down">-2.19%</span></td><td class="ret"><span class="down">-1.08%</span></td></tr><tr><td><span style="font-weight:700">ADSK</span></td><td class="num muted">2026-06-15</td><td class="ret"><span class="up">+1.40%</span></td><td class="ret"><span class="down">-2.41%</span></td><td class="ret"><span class="down">-4.94%</span></td><td class="ret"><span class="down">-2.10%</span></td></tr><tr><td><span style="font-weight:700">APA</span></td><td class="num muted">2026-06-15</td><td class="ret"><span class="down">-1.47%</span></td><td class="ret"><span class="down">-5.00%</span></td><td class="ret"><span class="down">-1.58%</span></td><td class="ret"><span class="down">-6.33%</span></td></tr><tr><td><span style="font-weight:700">COP</span></td><td class="num muted">2026-06-15</td><td class="ret"><span class="down">-0.82%</span></td><td class="ret"><span class="down">-4.03%</span></td><td class="ret"><span class="down">-2.04%</span></td><td class="ret"><span class="down">-7.39%</span></td></tr><tr><td><span style="font-weight:700">DVN</span></td><td class="num muted">2026-06-15</td><td class="ret"><span class="down">-1.47%</span></td><td class="ret"><span class="down">-3.24%</span></td><td class="ret"><span class="down">-0.32%</span></td><td class="ret"><span class="down">-5.08%</span></td></tr><tr><td><span style="font-weight:700">FANG</span></td><td class="num muted">2026-06-15</td><td class="ret"><span class="down">-0.97%</span></td><td class="ret"><span class="down">-3.40%</span></td><td class="ret"><span class="down">-1.08%</span></td><td class="ret"><span class="down">-7.46%</span></td></tr><tr><td><span style="font-weight:700">OXY</span></td><td class="num muted">2026-06-15</td><td class="ret"><span class="down">-1.45%</span></td><td class="ret"><span class="down">-4.85%</span></td><td class="ret"><span class="down">-4.09%</span></td><td class="ret"><span class="down">-10.82%</span></td></tr><tr><td><span style="font-weight:700">DOW</span></td><td class="num muted">2026-06-15</td><td class="ret"><span class="down">-0.81%</span></td><td class="ret"><span class="down">-4.51%</span></td><td class="ret"><span class="down">-8.73%</span></td><td class="ret"><span class="down">-17.66%</span></td></tr><tr><td><span style="font-weight:700">XOM</span></td><td class="num muted">2026-06-15</td><td class="ret"><span class="up">+0.67%</span></td><td class="ret"><span class="down">-2.21%</span></td><td class="ret"><span class="down">-0.84%</span></td><td class="ret"><span class="down">-2.98%</span></td></tr><tr><td><span style="font-weight:700">CF</span></td><td class="num muted">2026-06-15</td><td class="ret"><span class="down">-1.23%</span></td><td class="ret"><span class="down">-3.71%</span></td><td class="ret"><span class="down">-4.42%</span></td><td class="ret"><span class="up">+1.27%</span></td></tr></tbody>
+  </table></div>
+</section>
 
-<div class="card" style="border-top:3px solid #27ae60">
-  <h2 style="border-left:4px solid #27ae60;padding-left:10px">运行日志</h2>
-  <div style="color:#27ae60;font-size:13px;font-weight:bold">程序正常</div>
-</div>
+<section class="card">
+  <details>
+    <summary>怎么读这份报告</summary>
+    <div class="guide">
+      <div>
+        <h3>选股逻辑</h3>
+        <p>先要求基础信号：MACD 柱状图在零轴下方连续 3 根收窄（空头减弱），同时 RSI 从 30 以下开始回升。</p>
+        <p>再看这只股票还满足哪些附加条件，只有命中「回测中 T+1 / T+3 / T+5 / T+10 全部跑赢随机基准」的组合才会出现在表里。</p>
+        <h3 style="margin-top:14px">表里的数字</h3>
+        <p><b>回测胜率</b>是这个信号组合在 2020–2025 年历史上的上涨概率，不是对这只股票的预测。随机买入的基准是 T+1 53.7%、T+3 55.5%、T+5 55.7%、T+10 56.6%，进度条从 50% 起算。</p>
+        <p><b>止损价</b> = 20 日均线 × 0.97。<b>成交量</b>是当日相对 5 日均量的倍数。</p>
+        <p>涨跌颜色：<span class="up">红色上涨</span>，<span class="down">绿色下跌</span>。</p>
+      </div>
+      <div>
+        <h3>评级</h3>
+        <table>
+          <thead><tr><th>等级</th><th>含义</th><th>标准</th><th class="n">组合数</th></tr></thead>
+          <tbody><tr><td><span class="grade g-SSS">SSS</span></td><td>高收益区</td><td>5日中位收益 >2%，样本较少</td><td class="n">108 种</td></tr><tr><td><span class="grade g-S">S</span></td><td>最强</td><td>5日胜率 ≥80%</td><td class="n">7 种</td></tr><tr><td><span class="grade g-A">A</span></td><td>强</td><td>5日胜率 70–80%</td><td class="n">55 种</td></tr><tr><td><span class="grade g-B">B</span></td><td>有效</td><td>5日胜率 65–70%</td><td class="n">164 种</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </details>
+</section>
 
+<footer>仅供研究参考，不构成投资建议。历史回测不代表未来表现。</footer>
 
 </div>
+<script>
+document.querySelectorAll('table[data-sortable] th[data-sort]').forEach(function(th){
+  th.addEventListener('click',function(){
+    var tb=th.closest('table').tBodies[0], key=th.dataset.sort;
+    var asc=th.getAttribute('aria-sort')==='descending';
+    th.closest('tr').parentNode.querySelectorAll('th').forEach(function(x){x.removeAttribute('aria-sort')});
+    th.setAttribute('aria-sort',asc?'ascending':'descending');
+    Array.from(tb.rows).sort(function(a,b){
+      var x=a.querySelector('[data-k="'+key+'"]').dataset.v, y=b.querySelector('[data-k="'+key+'"]').dataset.v;
+      var nx=parseFloat(x), ny=parseFloat(y), d=isNaN(nx)||isNaN(ny)?x.localeCompare(y):nx-ny;
+      return asc?d:-d;
+    }).forEach(function(r){tb.appendChild(r)});
+  });
+});
+</script>
 </body>
 </html>
