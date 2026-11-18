@@ -1,0 +1,335 @@
+﻿grade,conditions,claimed_wr5,n_00_19,wr_diff_00_19,xdm_diff_00_19,n_20_24,wr_diff_20_24,n_25_26,wr_diff_25_26,xdm_diff_25_26,action
+B,cci_lt100 + doji_bottom,65.1,231.0,5.7,-0.02,61.0,17.2,42.0,5.9,-0.22,降级
+B,near_52w + bullish_engulf,66.9,245.0,2.7,0.15,87.0,9.2,69.0,3.9,-0.23,保留
+B,near_52w + doji_bottom,66.7,203.0,5.5,0.34,48.0,17.0,45.0,8.3,-0.17,升级
+B,rsi_lt25 + cmf_pos,66.2,191.0,-3.0,0.34,52.0,9.7,36.0,19.7,0.44,降级
+SSS,rsi_lt25 + above_ma200,70.8,108.0,-1.9,0.82,38.0,16.7,20.0,21.7,1.54,降级
+A,rsi_lt25 + doji_bottom,70.0,132.0,5.4,0.21,29.0,24.1,34.0,9.3,0.33,升级
+B,cmf_pos + below_kelt,65.3,324.0,-2.3,0.14,95.0,3.9,69.0,-0.7,-0.19,删除
+B,cmf_pos + mfi_lt30,65.8,397.0,-3.0,-0.03,96.0,0.1,60.0,3.2,0.65,降级
+SSS,cmf_pos + gap_down_close,86.4,50.0,-3.8,-0.56,16.0,23.1,7.0,12.9,0.87,降级
+B,wr_lt80 + gap_down_close,66.7,168.0,10.8,0.52,71.0,13.1,24.0,-8.7,0.24,降级
+A,mfi_lt30 + gap_down_close,72.6,289.0,12.8,0.21,85.0,21.6,32.0,4.0,1.16,升级
+B,cmf_rising + gap_down_close,66.7,369.0,9.6,-0.01,116.0,16.8,37.0,-4.7,0.28,降级
+B,obv_rising + gap_down_close,68.6,328.0,12.0,0.13,92.0,20.4,27.0,-3.1,0.27,降级
+B,stoch_rising + gap_down_close,67.1,375.0,11.4,0.19,112.0,16.5,31.0,-3.8,0.21,降级
+SSS,vol_gt12 + doji_bottom,60.6,98.0,6.5,0.0,25.0,-0.0,19.0,10.0,1.08,升级
+B,dist_ma50_lt_m10 + gap_down_close,65.6,321.0,10.9,0.19,97.0,14.5,33.0,-1.0,0.62,降级
+B,dist_ma50_lt_m10 + doji_bottom,65.1,260.0,3.3,0.07,70.0,9.7,60.0,8.4,0.12,保留
+B,dist_ma200_lt_m15 + rsi_div,65.5,598.0,-2.1,-0.15,193.0,8.2,118.0,0.8,0.24,降级
+A,dist_ma200_lt_m15 + doji_bottom,72.9,157.0,5.0,0.09,45.0,14.9,42.0,8.3,-0.23,保留
+B,cci_rising + gap_down_close,69.0,365.0,10.9,0.17,114.0,16.2,34.0,-5.8,0.57,降级
+B,mfi_rising + doji_bottom,65.3,181.0,2.1,0.14,52.0,9.7,38.0,10.1,0.91,保留
+B,gap_down_close + wr_rising3,68.4,245.0,16.6,0.28,76.0,10.1,21.0,-1.5,0.9,降级
+SSS,cci_lt100 + stoch_cross + doji_bottom,64.3,64.0,8.8,0.19,25.0,20.2,10.0,21.6,-0.32,升级
+A,cci_lt100 + near_52w + cmf_pos,77.3,74.0,4.4,0.16,27.0,-3.9,11.0,-4.1,0.38,降级
+B,cci_lt100 + near_52w + rsi_div,66.8,394.0,-4.5,-0.19,132.0,9.8,86.0,2.0,0.26,降级
+SSS,cci_lt100 + near_52w + doji_bottom,67.6,97.0,5.1,0.13,26.0,21.3,22.0,5.1,-1.02,升级
+B,cci_lt100 + rsi_lt25 + above_ma200,68.0,48.0,2.5,1.05,19.0,16.5,11.0,23.4,0.64,保留
+B,cci_lt100 + cmf_pos + dist_ma50_lt_m10,68.3,119.0,4.3,-0.31,37.0,2.1,35.0,4.4,0.25,降级
+B,cci_lt100 + below_kelt + doji_bottom,65.7,181.0,6.6,-0.06,50.0,18.3,36.0,8.3,-0.35,降级
+A,cci_lt100 + wr_lt80 + gap_down_close,72.5,86.0,8.0,0.4,41.0,19.0,18.0,-3.1,0.28,降级
+B,cci_lt100 + wr_lt80 + doji_bottom,66.2,190.0,6.4,-0.13,59.0,19.6,40.0,4.0,-0.32,降级
+B,cci_lt100 + stoch_rising + doji_bottom,66.2,196.0,4.5,0.08,49.0,15.6,29.0,17.6,-0.05,保留
+SSS,cci_lt100 + above_ma200 + dist_ma50_lt_m10,73.7,53.0,6.7,0.51,25.0,16.1,16.0,10.3,-0.11,升级
+SSS,cci_lt100 + dist_ma50_lt_m10 + doji_bottom,65.3,119.0,3.4,-0.44,34.0,18.8,28.0,2.2,-0.27,降级
+SSS,cci_lt100 + ret5d_lt_m3 + doji_bottom,71.1,83.0,1.7,-0.3,29.0,24.1,19.0,15.3,-1.14,降级
+B,cci_lt100 + cci_rising + doji_bottom,66.2,206.0,5.1,-0.08,56.0,18.0,38.0,4.7,-0.32,降级
+B,cci_lt100 + gap_down_close + wr_rising3,65.9,128.0,20.0,0.03,42.0,12.5,11.0,5.1,0.83,升级
+SSS,cci_lt100 + doji_bottom + wr_rising3,64.9,82.0,-1.3,-0.25,32.0,13.8,14.0,20.2,-0.61,降级
+B,stoch_cross + near_52w + wr_lt80,65.2,573.0,-2.5,-0.17,169.0,-0.6,139.0,-1.2,-0.25,删除
+B,stoch_cross + near_52w + rsi_div,65.7,363.0,3.7,-0.06,96.0,3.3,60.0,4.9,0.41,降级
+SSS,stoch_cross + rsi_lt25 + above_ma200,78.3,55.0,0.8,1.22,16.0,16.8,11.0,32.6,0.9,保留
+B,stoch_cross + rsi_lt25 + bullish_engulf,68.5,95.0,-1.1,0.15,38.0,14.0,18.0,8.2,0.14,降级
+B,stoch_cross + rsi_lt25 + rsi_div,65.6,339.0,-1.0,-0.18,101.0,2.5,54.0,8.4,0.15,降级
+B,stoch_cross + dist_ma50_lt_m10 + bullish_engulf,65.2,128.0,1.0,0.07,44.0,0.3,29.0,0.0,-0.66,保留
+SSS,stoch_cross + ret5d_lt_m3 + doji_bottom,66.7,36.0,-1.0,-0.29,16.0,23.1,12.0,8.1,-1.13,降级
+SSS,near_52w + rsi_lt25 + cmf_pos,71.8,95.0,1.0,1.06,24.0,14.8,12.0,-0.3,-0.53,降级
+SSS,near_52w + rsi_lt25 + doji_bottom,71.0,80.0,5.1,0.19,20.0,28.2,19.0,4.6,-0.15,升级
+A,near_52w + cmf_pos + below_kelt,71.4,144.0,-1.7,0.55,43.0,8.6,21.0,-16.0,-1.05,删除
+A,near_52w + cmf_pos + wr_lt80,71.8,136.0,-4.6,0.08,41.0,1.7,20.0,-13.8,-0.36,删除
+SSS,near_52w + cmf_pos + ret5d_lt_m3,74.1,57.0,2.4,1.43,18.0,3.6,8.0,3.9,-0.22,保留
+B,near_52w + below_kelt + gap_down_close,66.0,85.0,11.1,0.5,41.0,14.1,15.0,-5.3,1.62,降级
+B,near_52w + below_kelt + doji_bottom,68.2,166.0,9.7,0.5,40.0,15.7,37.0,9.2,-0.51,升级
+B,near_52w + wr_lt80 + bullish_engulf,68.9,138.0,-0.9,0.0,57.0,16.8,42.0,-1.5,-0.64,删除
+A,near_52w + wr_lt80 + gap_down_close,70.6,90.0,14.2,0.74,43.0,13.3,16.0,-15.0,1.06,降级
+B,near_52w + wr_lt80 + doji_bottom,66.2,165.0,7.0,0.34,47.0,16.4,40.0,6.6,-0.37,升级
+SSS,near_52w + cmf_rising + ret3d_lt_m5,70.0,15.0,-0.4,1.07,16.0,16.8,7.0,-1.5,0.74,降级
+B,near_52w + cmf_rising + doji_bottom,65.5,144.0,6.1,0.3,36.0,17.7,34.0,12.3,-0.2,升级
+A,near_52w + obv_rising + gap_down_close,71.2,159.0,19.0,0.2,38.0,22.0,13.0,-4.8,1.64,降级
+B,near_52w + stoch_rising + bullish_engulf,66.9,235.0,4.7,0.27,84.0,9.0,67.0,4.3,-0.25,保留
+B,near_52w + dist_ma50_lt_m10 + bullish_engulf,65.6,150.0,1.6,0.17,54.0,11.2,38.0,-11.5,-1.02,降级
+SSS,near_52w + dist_ma50_lt_m10 + ret3d_lt_m5,68.2,20.0,-3.8,0.5,20.0,8.1,7.0,-1.5,0.74,降级
+A,near_52w + dist_ma50_lt_m10 + doji_bottom,72.1,147.0,5.5,0.25,38.0,16.7,37.0,6.4,-0.1,升级
+B,near_52w + ret5d_lt_m3 + rsi_div,68.0,197.0,-2.0,0.11,67.0,9.4,49.0,-10.0,0.06,删除
+B,near_52w + cci_rising + bullish_engulf,67.4,243.0,2.3,0.15,87.0,9.2,69.0,3.9,-0.23,保留
+A,near_52w + cci_rising + gap_down_close,71.6,175.0,19.3,0.49,50.0,14.3,19.0,-11.4,0.93,降级
+B,near_52w + cci_rising + doji_bottom,66.2,183.0,6.5,0.27,48.0,17.0,39.0,5.7,-0.26,升级
+S,near_52w + bullish_engulf + rsi_div,80.8,105.0,0.5,0.0,33.0,30.2,31.0,15.9,0.94,保留
+A,near_52w + rsi_div + atr_low,72.7,77.0,3.4,0.31,12.0,6.4,11.0,23.4,1.96,保留
+SSS,near_52w + gap_down_close + wr_rising3,75.0,119.0,20.5,0.37,31.0,9.4,12.0,-17.1,0.38,降级
+SSS,near_52w + doji_bottom + wr_rising3,70.8,65.0,-1.5,-0.34,25.0,8.1,11.0,23.4,-1.41,降级
+A,rsi_lt25 + cmf_pos + below_kelt,71.4,131.0,-1.9,0.78,35.0,16.8,28.0,24.0,0.55,降级
+SSS,rsi_lt25 + cmf_pos + wr_lt80,74.5,103.0,-5.3,0.5,27.0,14.8,19.0,26.0,0.9,删除
+B,rsi_lt25 + cmf_pos + obv_rising,65.4,128.0,-5.4,0.15,32.0,10.6,28.0,20.4,0.49,删除
+B,rsi_lt25 + cmf_pos + stoch_rising,68.4,181.0,-3.0,0.29,49.0,11.5,35.0,21.9,0.54,降级
+B,rsi_lt25 + cmf_pos + dist_ma50_lt_m10,69.7,156.0,0.1,0.56,43.0,13.3,31.0,19.2,0.44,保留
+B,rsi_lt25 + cmf_pos + cci_rising,66.7,191.0,-3.0,0.34,51.0,10.9,34.0,18.3,0.26,降级
+B,rsi_lt25 + below_kelt + above_ma200,67.7,51.0,7.1,0.93,26.0,21.3,12.0,16.5,0.93,升级
+A,rsi_lt25 + below_kelt + doji_bottom,70.0,126.0,5.9,0.19,28.0,23.2,33.0,8.3,0.16,升级
+B,rsi_lt25 + wr_lt80 + above_ma200,69.7,62.0,6.0,0.84,25.0,20.2,17.0,24.0,1.42,升级
+SSS,rsi_lt25 + wr_lt80 + doji_bottom,69.4,120.0,5.5,0.06,28.0,23.2,34.0,9.3,0.33,升级
+SSS,rsi_lt25 + cmf_rising + above_ma200,71.0,80.0,-6.3,0.46,23.0,13.3,17.0,18.1,1.11,删除
+SSS,rsi_lt25 + cmf_rising + doji_bottom,66.7,99.0,6.9,0.26,24.0,23.2,26.0,14.7,0.32,升级
+SSS,rsi_lt25 + stoch_rising + above_ma200,73.3,104.0,-0.9,0.84,35.0,19.7,20.0,21.7,1.54,降级
+SSS,rsi_lt25 + stoch_rising + doji_bottom,65.0,111.0,2.1,0.14,24.0,23.2,25.0,25.9,1.13,保留
+SSS,rsi_lt25 + above_ma200 + rsi_div,77.3,50.0,4.3,0.66,17.0,18.7,10.0,21.6,0.89,保留
+SSS,rsi_lt25 + above_ma200 + wr_rising3,75.0,49.0,5.5,0.91,26.0,21.3,7.0,-1.5,1.36,保留
+SSS,rsi_lt25 + dist_ma50_lt_m10 + doji_bottom,69.8,98.0,5.5,0.26,24.0,23.2,28.0,9.4,0.14,升级
+SSS,rsi_lt25 + ret5d_lt_m3 + doji_bottom,72.7,52.0,2.0,0.65,15.0,28.1,12.0,24.9,-0.52,保留
+SSS,rsi_lt25 + cci_rising + doji_bottom,67.4,120.0,3.0,0.06,29.0,24.1,28.0,5.8,0.06,保留
+B,rsi_lt25 + bullish_engulf + rsi_div,69.0,82.0,-3.8,-0.03,36.0,14.9,19.0,15.3,1.14,降级
+B,cmf_pos + below_kelt + wr_lt80,68.6,223.0,-5.5,0.17,68.0,2.5,46.0,2.3,0.03,删除
+B,cmf_pos + below_kelt + obv_rising,65.7,225.0,-4.6,-0.04,62.0,9.5,53.0,-0.1,-0.26,删除
+B,cmf_pos + below_kelt + dist_ma50_lt_m10,67.6,249.0,-0.8,0.28,69.0,3.1,58.0,1.8,-0.15,降级
+B,cmf_pos + below_kelt + cci_rising,65.0,319.0,-2.4,0.18,95.0,3.9,66.0,-1.1,-0.26,删除
+B,cmf_pos + below_kelt + vol_lt08,69.8,159.0,-4.8,0.08,42.0,10.1,27.0,-6.9,-0.79,删除
+B,cmf_pos + wr_lt80 + mfi_lt20,66.7,52.0,0.1,-0.37,17.0,6.9,15.0,-12.1,0.46,降级
+B,cmf_pos + wr_lt80 + obv_rising,67.0,202.0,-6.9,-0.44,53.0,2.8,48.0,8.4,0.16,删除
+B,cmf_pos + wr_lt80 + dist_ma50_lt_m10,67.3,186.0,-3.3,0.17,54.0,-3.9,53.0,3.8,0.07,降级
+SSS,cmf_pos + cmf_rising + gap_down_close,85.7,48.0,-3.8,-0.58,15.0,21.4,5.0,21.5,0.96,降级
+SSS,cmf_pos + obv_rising + gap_down_close,85.0,39.0,-2.5,-0.49,15.0,21.4,5.0,21.5,1.01,降级
+B,cmf_pos + stoch_rising + ret5d_lt_m3,68.8,137.0,-2.7,0.54,43.0,11.0,40.0,11.7,0.52,降级
+SSS,cmf_pos + stoch_rising + gap_down_close,86.4,44.0,-1.5,0.05,16.0,23.1,6.0,24.8,0.83,降级
+A,cmf_pos + dist_ma50_lt_m10 + ret5d_lt_m3,71.4,115.0,-0.7,0.65,35.0,8.1,34.0,12.3,0.35,降级
+B,cmf_pos + ret5d_lt_m3 + cci_rising,67.5,145.0,-3.5,0.6,48.0,8.6,41.0,10.0,0.36,降级
+A,cmf_pos + ret5d_lt_m3 + rsi_div,73.1,33.0,-11.4,0.21,17.0,18.7,9.0,19.3,0.82,删除
+SSS,cmf_pos + cci_rising + gap_down_close,86.4,44.0,-6.1,-0.49,16.0,23.1,6.0,8.1,0.63,删除
+SSS,below_kelt + wr_lt80 + ret3d_lt_m5,69.6,42.0,-11.0,-0.58,18.0,14.8,10.0,-8.7,0.42,删除
+B,below_kelt + wr_lt80 + gap_down_close,65.8,134.0,8.3,0.58,60.0,13.3,20.0,-3.6,0.73,降级
+SSS,below_kelt + cmf_rising + ret3d_lt_m5,66.7,36.0,-9.4,0.38,15.0,21.4,8.0,-8.6,0.1,删除
+SSS,below_kelt + dist_ma50_lt_m10 + ret3d_lt_m5,68.0,46.0,-10.3,0.08,21.0,10.0,10.0,-8.7,0.42,删除
+B,below_kelt + ret5d_lt_m3 + doji_bottom,65.4,105.0,2.5,0.28,34.0,15.8,27.0,15.8,-0.75,保留
+SSS,below_kelt + cci_rising + ret3d_lt_m5,71.4,41.0,-12.4,0.4,18.0,9.2,10.0,-8.7,0.42,删除
+B,below_kelt + cci_rising + gap_down_close,65.1,154.0,6.1,0.33,72.0,12.2,20.0,-3.6,0.93,降级
+B,below_kelt + rsi_div + gap_down_close,65.4,39.0,2.7,-0.43,27.0,22.3,4.0,-8.6,-3.17,降级
+SSS,below_kelt + gap_down_close + wr_rising3,64.6,88.0,8.9,0.64,48.0,2.2,11.0,5.1,1.75,升级
+SSS,wr_lt80 + cmf_rising + ret3d_lt_m5,66.7,34.0,-6.7,0.05,14.0,19.5,8.0,-8.6,0.1,删除
+B,wr_lt80 + obv_rising + gap_down_close,67.2,122.0,13.7,0.76,52.0,15.6,15.0,-5.3,0.27,降级
+SSS,wr_lt80 + dist_ma50_lt_m10 + ret3d_lt_m5,68.0,45.0,-9.4,-0.23,20.0,8.1,10.0,-8.7,0.42,删除
+B,wr_lt80 + dist_ma50_lt_m10 + gap_down_close,65.3,153.0,10.5,0.7,61.0,12.2,22.0,-8.7,0.49,降级
+SSS,wr_lt80 + ret5d_lt_m3 + gap_down_close,62.2,87.0,13.1,0.82,35.0,16.8,14.0,-15.9,0.83,降级
+B,wr_lt80 + ret5d_lt_m3 + doji_bottom,65.5,106.0,1.0,0.06,39.0,14.9,26.0,14.7,-0.99,保留
+SSS,wr_lt80 + cci_rising + ret3d_lt_m5,68.2,41.0,-12.4,-0.11,18.0,3.6,10.0,-8.7,0.42,删除
+B,wr_lt80 + cci_rising + gap_down_close,67.1,154.0,10.1,0.56,69.0,12.1,22.0,-8.7,0.44,降级
+B,wr_lt80 + rsi_div + gap_down_close,66.7,37.0,-2.4,-0.83,29.0,17.1,5.0,-18.7,-2.76,降级
+SSS,wr_lt80 + gap_down_close + wr_rising3,64.4,87.0,11.9,0.8,44.0,4.9,11.0,-13.2,0.72,降级
+A,mfi_lt20 + above_ma200 + dist_ma50_lt_m10,70.0,31.0,-18.3,-0.49,12.0,23.1,14.0,13.0,0.48,删除
+SSS,mfi_lt20 + dist_ma50_lt_m10 + doji_bottom,62.8,96.0,8.9,0.46,27.0,11.1,27.0,8.2,0.18,升级
+SSS,mfi_lt20 + ret5d_lt_m3 + doji_bottom,66.7,57.0,-6.4,0.16,19.0,21.8,13.0,3.0,-2.3,删除
+A,mfi_lt20 + cci_rising + gap_down_close,72.1,104.0,5.9,-0.09,39.0,14.9,14.0,20.2,2.15,降级
+B,cmf_rising + obv_rising + gap_down_close,67.3,300.0,10.0,-0.0,87.0,19.9,25.0,-2.6,0.24,降级
+B,cmf_rising + stoch_rising + gap_down_close,66.2,343.0,9.7,0.03,106.0,15.6,29.0,-3.5,0.18,降级
+SSS,cmf_rising + dist_ma50_lt_m10 + ret3d_lt_m5,66.7,40.0,-8.8,0.83,19.0,11.2,10.0,-8.7,0.69,删除
+B,cmf_rising + dist_ma50_lt_m10 + doji_bottom,66.7,188.0,3.2,-0.11,48.0,10.7,42.0,15.7,0.07,降级
+SSS,cmf_rising + ret5d_lt_m3 + doji_bottom,66.7,75.0,-3.1,-0.1,29.0,13.7,19.0,15.3,-1.38,降级
+SSS,cmf_rising + cci_rising + ret3d_lt_m5,69.6,35.0,-10.9,1.32,16.0,10.6,10.0,-8.7,0.69,删除
+B,cmf_rising + cci_rising + gap_down_close,67.9,334.0,8.9,-0.01,107.0,15.0,32.0,-5.6,0.56,降级
+B,cmf_rising + gap_down_close + wr_rising3,68.0,224.0,14.5,0.1,73.0,9.9,19.0,-0.7,0.93,降级
+B,obv_rising + stoch_rising + gap_down_close,67.6,314.0,11.7,0.14,84.0,18.8,23.0,-6.5,-0.08,降级
+B,obv_rising + dist_ma50_lt_m10 + gap_down_close,66.7,258.0,11.4,0.25,73.0,17.0,22.0,5.1,0.81,升级
+B,obv_rising + cci_rising + gap_down_close,68.8,295.0,11.8,0.17,85.0,19.2,22.0,-4.1,0.68,降级
+A,obv_rising + rsi_div + gap_down_close,74.3,70.0,17.8,-0.4,33.0,27.1,5.0,-18.7,-2.96,降级
+B,obv_rising + gap_down_close + wr_rising3,68.8,216.0,17.1,0.28,63.0,15.0,15.0,-5.3,0.84,降级
+B,stoch_rising + dist_ma50_lt_m10 + gap_down_close,65.2,300.0,11.0,0.24,88.0,13.2,25.0,1.4,0.61,升级
+SSS,stoch_rising + ret5d_lt_m3 + doji_bottom,63.8,94.0,-0.6,-0.04,33.0,11.8,22.0,19.0,-0.5,降级
+B,stoch_rising + cci_rising + gap_down_close,68.4,344.0,10.7,0.19,107.0,15.0,28.0,-5.1,0.17,降级
+B,stoch_rising + gap_down_close + wr_rising3,68.0,234.0,16.0,0.26,73.0,8.5,21.0,-1.5,0.9,降级
+B,above_ma200 + dist_ma50_lt_m10 + vol_lt08,69.0,48.0,4.6,0.3,26.0,13.5,17.0,6.2,-0.32,保留
+SSS,dist_ma50_lt_m10 + ret5d_lt_m3 + doji_bottom,65.2,94.0,1.6,0.22,31.0,12.7,21.0,13.0,-1.07,保留
+SSS,dist_ma50_lt_m10 + cci_rising + ret3d_lt_m5,70.4,47.0,-13.4,0.73,22.0,2.6,12.0,-8.7,0.86,删除
+B,dist_ma50_lt_m10 + cci_rising + gap_down_close,67.2,296.0,10.2,0.16,92.0,13.7,28.0,-1.5,1.01,降级
+B,dist_ma50_lt_m10 + bullish_engulf + rsi_div,67.3,86.0,-8.5,-0.6,42.0,0.4,14.0,-1.5,0.52,删除
+A,dist_ma50_lt_m10 + rsi_div + gap_down_close,76.7,57.0,7.7,-0.6,31.0,22.4,6.0,-25.4,-1.38,降级
+A,dist_ma50_lt_m10 + gap_down_close + wr_rising3,70.0,191.0,16.3,0.44,59.0,7.5,16.0,3.9,1.61,升级
+SSS,dist_ma50_lt_m10 + doji_bottom + wr_rising3,63.3,77.0,-3.1,-0.62,29.0,6.7,10.0,11.5,-1.81,降级
+B,ret5d_lt_m3 + cci_rising + doji_bottom,67.9,107.0,0.5,0.2,36.0,14.9,25.0,13.6,-0.82,保留
+SSS,ret5d_lt_m3 + gap_down_close + wr_rising3,65.0,98.0,17.9,0.27,38.0,14.0,8.0,3.9,1.87,保留
+SSS,ret5d_lt_m3 + doji_bottom + wr_rising3,69.6,37.0,-10.6,-0.85,20.0,18.1,8.0,3.9,-2.36,删除
+B,cci_rising + gap_down_close + wr_rising3,69.3,232.0,16.6,0.34,75.0,9.6,20.0,-3.6,0.83,降级
+B,cci_lt100 + stoch_cross + rsi_lt25 + bullish_engulf,69.0,46.0,-16.9,-0.3,21.0,10.0,11.0,14.2,-0.44,删除
+S,cci_lt100 + near_52w + cmf_pos + below_kelt,80.6,46.0,0.6,-0.52,17.0,0.9,5.0,1.4,0.27,降级
+S,cci_lt100 + near_52w + cmf_pos + wr_lt80,82.8,42.0,-3.8,-0.53,14.0,-2.0,6.0,-8.6,0.94,降级
+A,cci_lt100 + near_52w + cmf_pos + cmf_rising,73.3,54.0,-0.1,0.51,21.0,-4.4,5.0,-18.7,0.54,降级
+A,cci_lt100 + near_52w + cmf_pos + obv_rising,78.1,59.0,0.5,0.05,19.0,5.9,9.0,8.1,0.78,保留
+A,cci_lt100 + near_52w + cmf_pos + stoch_rising,76.7,69.0,2.8,0.19,27.0,-3.9,10.0,-8.7,0.27,降级
+A,cci_lt100 + near_52w + cmf_pos + cci_rising,77.3,69.0,4.3,0.45,27.0,-3.9,10.0,-8.7,0.18,降级
+B,cci_lt100 + near_52w + below_kelt + rsi_div,66.4,263.0,-6.9,-0.29,91.0,7.6,59.0,0.8,0.26,删除
+B,cci_lt100 + near_52w + wr_lt80 + rsi_div,66.7,291.0,-10.5,-0.32,105.0,5.3,66.0,3.7,0.36,删除
+B,cci_lt100 + near_52w + cmf_rising + rsi_div,66.9,305.0,-3.1,-0.09,99.0,13.1,67.0,1.2,0.04,降级
+B,cci_lt100 + near_52w + cmf_rising + wr_rising3,65.6,449.0,1.3,0.27,154.0,3.4,86.0,-0.5,-0.2,降级
+B,cci_lt100 + near_52w + obv_rising + rsi_div,69.3,301.0,-2.7,-0.28,100.0,12.5,55.0,5.2,0.5,降级
+B,cci_lt100 + near_52w + obv_rising + wr_rising3,66.8,468.0,0.1,0.06,153.0,2.4,84.0,2.3,-0.02,保留
+B,cci_lt100 + near_52w + stoch_rising + rsi_div,66.3,382.0,-4.2,-0.17,129.0,9.7,82.0,1.2,0.27,降级
+B,cci_lt100 + near_52w + cci_rising + rsi_div,67.4,388.0,-4.5,-0.2,130.0,10.0,83.0,0.5,0.23,降级
+S,cci_lt100 + near_52w + rsi_div + bullish_engulf,80.0,45.0,-0.4,-0.26,18.0,31.5,21.0,13.0,0.7,降级
+B,cci_lt100 + near_52w + rsi_div + wr_rising3,67.2,229.0,-6.4,-0.15,87.0,9.2,42.0,-6.4,-0.19,删除
+SSS,cci_lt100 + rsi_lt25 + stoch_rising + above_ma200,73.9,46.0,5.0,1.1,17.0,24.6,11.0,23.4,0.64,保留
+B,cci_lt100 + rsi_lt25 + above_ma200 + cci_rising,66.7,48.0,2.5,1.05,18.0,20.4,11.0,23.4,0.64,保留
+B,cci_lt100 + cmf_pos + below_kelt + obv_rising,65.0,81.0,-0.7,-0.74,22.0,2.6,19.0,10.0,0.5,降级
+B,cci_lt100 + cmf_pos + below_kelt + stoch_rising,66.1,101.0,4.7,-0.5,37.0,-3.4,26.0,14.7,0.78,降级
+A,cci_lt100 + cmf_pos + wr_lt80 + obv_rising,70.3,70.0,-8.1,-1.73,18.0,3.6,18.0,2.5,0.34,删除
+A,cci_lt100 + below_kelt + wr_lt80 + gap_down_close,72.3,72.0,6.0,0.49,36.0,17.7,16.0,3.9,0.63,升级
+B,cci_lt100 + below_kelt + obv_rising + gap_down_close,68.0,69.0,10.1,0.03,33.0,14.8,13.0,3.0,0.44,升级
+A,cci_lt100 + below_kelt + rsi_div + gap_down_close,70.0,24.0,-7.9,-1.23,19.0,27.1,3.0,8.1,-4.88,删除
+SSS,cci_lt100 + below_kelt + gap_down_close + wr_rising3,71.9,54.0,9.3,0.27,30.0,4.7,9.0,19.3,1.56,保留
+A,cci_lt100 + wr_lt80 + obv_rising + gap_down_close,70.7,62.0,12.5,0.64,28.0,19.6,11.0,-4.1,0.43,降级
+A,cci_lt100 + wr_lt80 + stoch_rising + gap_down_close,71.1,74.0,7.1,0.57,37.0,15.8,13.0,-4.8,-0.62,降级
+A,cci_lt100 + wr_lt80 + cci_rising + gap_down_close,72.9,79.0,8.4,0.47,40.0,18.3,17.0,-5.7,0.3,降级
+B,cci_lt100 + wr_lt80 + gap_down_close + wr_rising3,66.7,50.0,10.3,0.59,26.0,9.6,9.0,-3.1,0.31,保留
+B,cci_lt100 + cmf_rising + gap_down_close + wr_rising3,65.1,118.0,19.4,-0.11,39.0,12.3,9.0,8.1,0.88,降级
+B,cci_lt100 + obv_rising + cci_rising + gap_down_close,68.8,141.0,16.1,-0.04,44.0,21.1,13.0,-4.8,0.66,降级
+B,cci_lt100 + obv_rising + gap_down_close + wr_rising3,67.6,110.0,21.1,0.09,33.0,17.9,8.0,3.9,0.8,保留
+B,cci_lt100 + stoch_rising + gap_down_close + wr_rising3,65.9,120.0,19.1,-0.01,42.0,12.5,11.0,5.1,0.83,降级
+SSS,cci_lt100 + cci_rising + gap_down_close + wr_rising3,67.4,120.0,20.8,0.09,41.0,11.6,10.0,1.4,0.68,升级
+B,stoch_cross + near_52w + rsi_lt25 + rsi_div,65.4,181.0,-4.1,-0.18,40.0,15.7,19.0,-6.0,-0.19,删除
+B,stoch_cross + near_52w + rsi_lt25 + bullish_engulf,65.4,47.0,5.9,0.51,13.0,17.3,9.0,-3.1,-0.5,保留
+B,stoch_cross + near_52w + below_kelt + rsi_div,69.1,210.0,-4.4,-0.25,55.0,8.2,34.0,-2.8,0.27,删除
+B,stoch_cross + near_52w + wr_lt80 + cmf_rising,65.5,408.0,-2.4,-0.13,133.0,0.7,103.0,-1.4,-0.41,删除
+B,stoch_cross + near_52w + wr_lt80 + stoch_rising,65.5,573.0,-2.5,-0.17,168.0,-0.2,139.0,-1.2,-0.25,删除
+B,stoch_cross + near_52w + wr_lt80 + cci_rising,65.2,567.0,-2.6,-0.17,169.0,-0.6,136.0,-2.2,-0.25,删除
+B,stoch_cross + near_52w + wr_lt80 + rsi_div,67.6,259.0,-0.9,-0.14,72.0,2.2,45.0,1.4,0.1,降级
+A,stoch_cross + near_52w + wr_lt80 + bullish_engulf,76.3,54.0,1.8,0.52,19.0,5.9,22.0,-4.1,-1.27,降级
+B,stoch_cross + near_52w + cmf_rising + rsi_div,66.7,269.0,4.8,-0.08,75.0,-0.0,46.0,4.6,0.29,降级
+B,stoch_cross + near_52w + stoch_rising + rsi_div,66.2,363.0,3.7,-0.06,95.0,3.9,60.0,4.9,0.41,降级
+B,stoch_cross + near_52w + cci_rising + rsi_div,65.7,361.0,3.5,-0.08,96.0,3.3,59.0,4.3,0.36,降级
+SSS,stoch_cross + near_52w + rsi_div + bullish_engulf,80.0,43.0,2.1,-0.29,13.0,17.3,12.0,-0.3,0.06,降级
+B,stoch_cross + near_52w + rsi_div + wr_rising3,67.5,190.0,0.5,-0.08,56.0,-0.2,28.0,2.2,0.36,降级
+B,stoch_cross + rsi_lt25 + below_kelt + rsi_div,67.0,254.0,-3.9,-0.27,74.0,6.3,45.0,3.7,0.19,降级
+B,stoch_cross + rsi_lt25 + below_kelt + bullish_engulf,67.6,65.0,-1.5,0.47,25.0,20.2,14.0,5.7,-0.3,降级
+SSS,stoch_cross + rsi_lt25 + wr_lt80 + bullish_engulf,74.2,65.0,-9.2,0.53,21.0,29.2,16.0,10.3,-0.34,删除
+B,stoch_cross + rsi_lt25 + cmf_rising + bullish_engulf,68.6,91.0,0.1,0.19,37.0,13.0,17.0,6.2,0.08,保留
+SSS,stoch_cross + rsi_lt25 + stoch_rising + above_ma200,78.3,55.0,0.8,1.22,16.0,16.8,11.0,32.6,0.9,保留
+B,stoch_cross + rsi_lt25 + stoch_rising + rsi_div,66.1,339.0,-1.0,-0.18,100.0,3.1,54.0,8.4,0.15,降级
+B,stoch_cross + rsi_lt25 + stoch_rising + bullish_engulf,68.5,95.0,-1.1,0.15,38.0,14.0,18.0,8.2,0.14,降级
+SSS,stoch_cross + rsi_lt25 + above_ma200 + cci_rising,77.3,55.0,0.8,1.22,15.0,21.4,11.0,32.6,0.9,保留
+B,stoch_cross + rsi_lt25 + cci_rising + rsi_div,65.1,338.0,-1.1,-0.19,100.0,3.1,53.0,7.7,0.1,降级
+B,stoch_cross + rsi_lt25 + cci_rising + bullish_engulf,69.2,95.0,-1.1,0.15,37.0,15.8,18.0,8.2,0.14,降级
+SSS,stoch_cross + rsi_lt25 + rsi_div + bullish_engulf,79.2,47.0,-2.7,-0.11,18.0,9.2,7.0,12.9,1.05,降级
+B,stoch_cross + rsi_lt25 + rsi_div + wr_rising3,68.1,158.0,-3.2,-0.01,62.0,2.9,24.0,-8.7,0.14,删除
+SSS,stoch_cross + below_kelt + cci_rising + gap_down_close,61.9,41.0,12.2,1.12,19.0,0.6,4.0,16.4,1.43,保留
+B,stoch_cross + below_kelt + vol_lt08 + rsi_div,65.7,171.0,0.0,-0.21,49.0,9.4,30.0,4.8,0.4,降级
+SSS,stoch_cross + wr_lt80 + cci_rising + gap_down_close,61.9,47.0,14.4,0.36,20.0,3.0,6.0,-8.6,0.14,保留
+B,stoch_cross + wr_lt80 + rsi_div + bullish_engulf,66.7,79.0,-1.9,-0.14,44.0,2.6,18.0,2.5,-0.04,降级
+B,stoch_cross + wr_lt80 + rsi_div + wr_rising3,66.0,290.0,3.3,-0.01,118.0,-0.3,57.0,-4.4,0.11,降级
+A,stoch_cross + above_ma200 + vol_lt08 + rsi_div,73.1,47.0,-0.6,0.05,24.0,14.8,5.0,1.4,-0.85,降级
+SSS,near_52w + rsi_lt25 + cmf_pos + below_kelt,78.1,68.0,-0.8,1.51,20.0,18.1,10.0,11.5,-0.44,降级
+SSS,near_52w + rsi_lt25 + cmf_pos + wr_lt80,75.0,55.0,-2.9,1.08,17.0,12.8,5.0,-18.7,-0.53,降级
+SSS,near_52w + rsi_lt25 + cmf_pos + cmf_rising,72.7,76.0,4.2,1.48,19.0,16.5,9.0,-14.2,-0.75,保留
+A,near_52w + rsi_lt25 + cmf_pos + obv_rising,75.0,61.0,-3.0,0.47,14.0,26.7,9.0,8.1,-0.38,降级
+SSS,near_52w + rsi_lt25 + cmf_pos + stoch_rising,75.0,89.0,0.2,0.94,22.0,20.9,11.0,5.1,-0.28,保留
+SSS,near_52w + rsi_lt25 + cmf_pos + cci_rising,71.1,95.0,1.0,1.06,24.0,14.8,10.0,-8.7,-1.3,降级
+SSS,near_52w + rsi_lt25 + below_kelt + bullish_engulf,61.7,68.0,0.7,0.39,28.0,26.8,19.0,-0.7,0.02,降级
+SSS,near_52w + rsi_lt25 + wr_lt80 + bullish_engulf,63.4,64.0,-5.4,0.41,27.0,22.3,19.0,-0.7,-0.05,删除
+SSS,near_52w + rsi_lt25 + rsi_div + bullish_engulf,77.3,42.0,-3.8,0.01,16.0,42.0,11.0,14.2,1.35,降级
+A,near_52w + cmf_pos + below_kelt + wr_lt80,72.4,108.0,-4.7,0.3,36.0,6.4,12.0,-25.5,-1.2,删除
+A,near_52w + cmf_pos + below_kelt + cmf_rising,71.2,95.0,-5.4,1.09,33.0,8.7,14.0,-23.1,-1.6,删除
+A,near_52w + cmf_pos + below_kelt + obv_rising,70.0,106.0,-4.8,0.04,27.0,22.3,17.0,-11.7,-1.13,删除
+A,near_52w + cmf_pos + below_kelt + stoch_rising,71.4,131.0,-3.4,0.47,39.0,9.7,19.0,-11.4,-0.99,删除
+A,near_52w + cmf_pos + below_kelt + cci_rising,71.0,140.0,-1.6,0.67,43.0,8.6,19.0,-22.0,-1.51,删除
+A,near_52w + cmf_pos + below_kelt + vol_lt08,75.0,75.0,-7.2,0.19,23.0,17.7,10.0,-18.7,-1.43,删除
+A,near_52w + cmf_pos + wr_lt80 + cmf_rising,71.7,96.0,-9.1,0.37,33.0,2.6,14.0,-23.1,-1.29,删除
+A,near_52w + cmf_pos + wr_lt80 + obv_rising,73.5,102.0,-8.8,-0.2,25.0,16.1,14.0,-1.5,-0.28,删除
+A,near_52w + cmf_pos + wr_lt80 + stoch_rising,72.3,126.0,-5.4,0.09,38.0,3.3,17.0,-11.7,-0.32,删除
+A,near_52w + cmf_pos + wr_lt80 + cci_rising,71.4,132.0,-4.6,0.2,41.0,1.7,19.0,-16.7,-0.61,删除
+B,near_52w + below_kelt + wr_lt80 + bullish_engulf,66.7,97.0,-1.2,0.21,47.0,20.7,29.0,-7.0,-0.3,删除
+SSS,near_52w + below_kelt + wr_lt80 + gap_down_close,71.1,66.0,8.4,0.69,37.0,15.8,14.0,-8.7,1.56,降级
+B,near_52w + below_kelt + obv_rising + bullish_engulf,66.7,74.0,-1.1,0.03,34.0,24.8,19.0,10.0,0.6,降级
+A,near_52w + below_kelt + obv_rising + gap_down_close,70.3,61.0,11.9,-0.02,30.0,18.2,8.0,-8.6,2.67,降级
+B,near_52w + below_kelt + cci_rising + bullish_engulf,65.5,115.0,-0.7,0.17,53.0,18.2,34.0,-8.8,-0.3,删除
+A,near_52w + below_kelt + rsi_div + bullish_engulf,77.4,46.0,0.6,-0.11,19.0,32.4,11.0,-4.1,0.98,降级
+A,near_52w + wr_lt80 + obv_rising + bullish_engulf,70.0,89.0,-1.0,0.0,39.0,20.1,23.0,15.6,-0.05,降级
+A,near_52w + wr_lt80 + obv_rising + gap_down_close,74.3,63.0,16.2,0.65,30.0,21.6,8.0,-21.2,1.91,保留
+B,near_52w + wr_lt80 + stoch_rising + bullish_engulf,69.0,128.0,2.5,0.2,54.0,16.9,40.0,-1.1,-0.7,降级
+B,near_52w + wr_lt80 + cci_rising + bullish_engulf,68.9,137.0,-1.2,0.01,57.0,16.8,42.0,-1.5,-0.64,删除
+SSS,near_52w + wr_lt80 + cci_rising + gap_down_close,72.3,82.0,14.7,0.84,41.0,11.6,16.0,-15.0,1.06,降级
+S,near_52w + wr_lt80 + rsi_div + bullish_engulf,81.6,66.0,-3.8,-0.13,21.0,34.0,16.0,3.9,0.96,降级
+SSS,near_52w + wr_lt80 + gap_down_close + wr_rising3,73.1,47.0,14.4,0.87,25.0,8.1,9.0,-25.4,0.38,保留
+SSS,near_52w + cmf_rising + rsi_div + bullish_engulf,81.4,95.0,1.0,-0.0,26.0,29.0,30.0,15.1,1.03,降级
+SSS,near_52w + cmf_rising + gap_down_close + wr_rising3,74.2,109.0,19.0,0.33,29.0,10.2,11.0,-13.2,0.38,降级
+SSS,near_52w + obv_rising + rsi_div + bullish_engulf,82.1,75.0,2.3,-0.07,27.0,41.0,22.0,28.2,1.59,降级
+B,near_52w + stoch_rising + cci_rising + bullish_engulf,67.4,233.0,4.3,0.27,84.0,9.0,67.0,4.3,-0.25,保留
+S,near_52w + stoch_rising + rsi_div + bullish_engulf,80.8,101.0,1.7,0.05,33.0,30.2,31.0,15.9,0.94,保留
+A,near_52w + stoch_rising + gap_down_close + wr_rising3,74.2,110.0,20.2,0.32,29.0,6.7,12.0,-17.1,0.38,降级
+S,near_52w + cci_rising + rsi_div + bullish_engulf,80.8,103.0,-0.4,-0.0,33.0,30.2,31.0,15.9,0.94,降级
+SSS,near_52w + cci_rising + gap_down_close + wr_rising3,75.0,112.0,20.7,0.38,31.0,9.4,11.0,-22.4,0.2,降级
+A,near_52w + rsi_div + bullish_engulf + wr_rising3,79.3,46.0,-8.2,-0.19,20.0,33.2,14.0,13.0,0.48,删除
+SSS,rsi_lt25 + cmf_pos + below_kelt + wr_lt80,75.0,94.0,-6.0,0.69,27.0,14.8,17.0,30.0,0.9,删除
+SSS,rsi_lt25 + cmf_pos + below_kelt + cmf_rising,69.0,101.0,2.7,1.21,27.0,18.5,22.0,19.0,0.39,保留
+SSS,rsi_lt25 + cmf_pos + below_kelt + obv_rising,71.4,81.0,-4.4,0.54,20.0,23.2,23.0,24.4,0.66,降级
+SSS,rsi_lt25 + cmf_pos + wr_lt80 + cmf_rising,73.7,80.0,-1.3,0.95,21.0,19.6,16.0,22.9,0.68,降级
+SSS,rsi_lt25 + cmf_pos + wr_lt80 + obv_rising,76.0,63.0,-7.8,0.72,13.0,25.0,12.0,33.4,1.26,删除
+SSS,rsi_lt25 + cmf_pos + wr_lt80 + stoch_rising,77.3,95.0,-4.3,0.56,25.0,20.2,18.0,30.7,1.13,降级
+SSS,rsi_lt25 + cmf_pos + wr_lt80 + cci_rising,73.9,103.0,-5.3,0.5,27.0,14.8,18.0,25.1,0.71,删除
+B,rsi_lt25 + cmf_pos + obv_rising + stoch_rising,65.4,124.0,-5.5,0.12,32.0,10.6,28.0,20.4,0.49,删除
+B,rsi_lt25 + cmf_pos + obv_rising + cci_rising,66.0,128.0,-5.4,0.15,31.0,12.7,26.0,18.7,0.27,删除
+B,rsi_lt25 + cmf_pos + stoch_rising + cci_rising,68.9,181.0,-3.0,0.29,48.0,12.8,33.0,20.7,0.37,降级
+A,rsi_lt25 + below_kelt + stoch_rising + above_ma200,71.4,48.0,8.8,0.96,23.0,26.5,12.0,16.5,0.93,升级
+B,rsi_lt25 + below_kelt + above_ma200 + cci_rising,67.7,51.0,7.1,0.93,26.0,21.3,12.0,16.5,0.93,升级
+B,rsi_lt25 + below_kelt + rsi_div + bullish_engulf,65.6,54.0,-0.1,0.13,27.0,14.8,14.0,13.0,1.13,降级
+SSS,rsi_lt25 + wr_lt80 + stoch_rising + above_ma200,73.3,59.0,7.3,0.87,22.0,25.5,17.0,24.0,1.42,升级
+B,rsi_lt25 + wr_lt80 + above_ma200 + cci_rising,69.7,62.0,6.0,0.84,25.0,20.2,17.0,24.0,1.42,升级
+B,rsi_lt25 + wr_lt80 + rsi_div + bullish_engulf,67.7,57.0,-10.0,0.11,26.0,21.3,13.0,10.7,0.84,删除
+SSS,rsi_lt25 + cmf_rising + stoch_rising + above_ma200,73.3,78.0,-5.1,0.47,22.0,16.3,17.0,18.1,1.11,删除
+SSS,rsi_lt25 + cmf_rising + above_ma200 + cci_rising,70.0,80.0,-6.3,0.46,22.0,16.3,17.0,18.1,1.11,删除
+B,rsi_lt25 + cmf_rising + above_ma200 + wr_rising3,65.0,41.0,2.4,0.72,18.0,9.2,7.0,-1.5,1.36,保留
+A,rsi_lt25 + cmf_rising + rsi_div + bullish_engulf,71.4,75.0,-0.4,-0.15,29.0,13.7,17.0,12.1,1.18,降级
+SSS,rsi_lt25 + stoch_rising + above_ma200 + cci_rising,72.7,104.0,-0.9,0.84,34.0,21.8,20.0,21.7,1.54,降级
+SSS,rsi_lt25 + stoch_rising + above_ma200 + rsi_div,77.3,50.0,4.3,0.66,17.0,18.7,10.0,21.6,0.89,保留
+SSS,rsi_lt25 + stoch_rising + above_ma200 + wr_rising3,77.8,48.0,6.7,0.93,25.0,24.2,7.0,-1.5,1.36,保留
+B,rsi_lt25 + stoch_rising + rsi_div + bullish_engulf,69.0,82.0,-3.8,-0.03,36.0,14.9,19.0,15.3,1.14,降级
+SSS,rsi_lt25 + above_ma200 + cci_rising + wr_rising3,74.1,49.0,5.5,0.91,25.0,24.2,7.0,-1.5,1.36,保留
+B,rsi_lt25 + cci_rising + rsi_div + bullish_engulf,68.3,82.0,-3.8,-0.03,35.0,16.8,19.0,15.3,1.14,降级
+B,rsi_lt25 + rsi_div + bullish_engulf + wr_rising3,65.4,29.0,-9.0,0.57,22.0,-2.0,8.0,3.9,0.81,删除
+A,cmf_pos + below_kelt + wr_lt80 + obv_rising,70.4,151.0,-8.2,0.1,43.0,8.6,31.0,6.1,0.07,删除
+B,cmf_pos + below_kelt + wr_lt80 + stoch_rising,68.0,199.0,-5.2,0.25,63.0,2.0,42.0,5.9,0.19,删除
+B,cmf_pos + below_kelt + wr_lt80 + cci_rising,68.3,218.0,-5.8,0.21,68.0,2.5,44.0,2.9,-0.01,删除
+SSS,cmf_pos + below_kelt + cmf_rising + vol_lt08,68.3,102.0,-2.8,0.34,32.0,10.6,18.0,-20.0,-1.39,删除
+B,cmf_pos + below_kelt + obv_rising + cci_rising,65.3,221.0,-4.6,0.0,62.0,9.5,50.0,-0.6,-0.36,删除
+SSS,cmf_pos + below_kelt + obv_rising + vol_lt08,71.1,104.0,-9.7,-0.36,31.0,19.2,18.0,-8.7,-0.97,删除
+A,cmf_pos + below_kelt + obv_rising + rsi_div,74.2,76.0,-11.8,-0.3,21.0,19.6,11.0,14.2,0.94,删除
+SSS,cmf_pos + below_kelt + stoch_rising + vol_lt08,71.7,146.0,-5.2,0.12,37.0,13.0,24.0,-4.5,-0.61,删除
+B,cmf_pos + below_kelt + cci_rising + vol_lt08,69.2,158.0,-5.1,0.09,42.0,10.1,26.0,-8.8,-0.99,删除
+B,cmf_pos + wr_lt80 + obv_rising + stoch_rising,66.7,188.0,-7.1,-0.43,50.0,2.0,46.0,9.1,0.2,删除
+B,cmf_pos + wr_lt80 + obv_rising + cci_rising,66.7,198.0,-7.0,-0.39,53.0,2.8,46.0,9.1,0.13,删除
+A,cmf_pos + wr_lt80 + obv_rising + rsi_div,70.0,86.0,-10.9,-1.21,26.0,9.6,14.0,13.0,1.14,删除
+SSS,cmf_pos + cmf_rising + obv_rising + vol_lt08,60.4,111.0,-5.2,0.11,41.0,6.6,14.0,-23.1,-1.6,删除
+SSS,cmf_pos + cmf_rising + stoch_rising + gap_down_close,85.7,42.0,-1.4,0.07,15.0,21.4,4.0,41.5,0.92,降级
+SSS,cmf_pos + cmf_rising + cci_rising + gap_down_close,85.7,42.0,-6.2,-0.51,15.0,21.4,4.0,16.4,0.62,删除
+SSS,cmf_pos + cmf_rising + vol_lt08 + wr_rising3,63.6,77.0,2.1,0.16,32.0,10.6,8.0,-8.6,-1.04,保留
+SSS,cmf_pos + obv_rising + stoch_rising + gap_down_close,85.0,36.0,-1.0,-0.29,15.0,21.4,5.0,21.5,1.01,降级
+SSS,cmf_pos + obv_rising + cci_rising + gap_down_close,85.0,33.0,-5.3,-0.38,15.0,21.4,4.0,16.4,0.69,删除
+SSS,cmf_pos + stoch_rising + cci_rising + gap_down_close,86.4,39.0,-5.1,0.06,16.0,23.1,5.0,21.5,0.53,删除
+B,below_kelt + wr_lt80 + obv_rising + gap_down_close,66.1,97.0,10.3,0.87,44.0,11.8,12.0,-0.3,0.97,降级
+B,below_kelt + wr_lt80 + cci_rising + gap_down_close,66.2,123.0,8.2,0.65,58.0,12.0,19.0,-6.0,0.76,降级
+SSS,below_kelt + wr_lt80 + gap_down_close + wr_rising3,62.5,71.0,9.7,1.07,38.0,3.3,9.0,-3.1,1.43,保留
+SSS,below_kelt + cmf_rising + gap_down_close + wr_rising3,63.8,76.0,5.5,0.43,45.0,1.3,9.0,8.1,2.0,保留
+B,below_kelt + obv_rising + rsi_div + gap_down_close,65.2,32.0,5.6,-0.37,22.0,20.9,2.0,-8.6,-6.58,降级
+SSS,below_kelt + cci_rising + gap_down_close + wr_rising3,64.6,86.0,9.1,0.7,48.0,2.2,10.0,1.4,1.69,升级
+B,wr_lt80 + cmf_rising + rsi_div + gap_down_close,65.4,31.0,-2.1,-1.02,27.0,14.8,5.0,-18.7,-2.76,降级
+SSS,wr_lt80 + cmf_rising + gap_down_close + wr_rising3,63.6,76.0,9.5,0.6,41.0,4.2,9.0,-14.2,0.74,保留
+B,wr_lt80 + obv_rising + cci_rising + gap_down_close,66.7,110.0,13.7,0.84,50.0,14.3,13.0,-4.8,0.61,降级
+B,wr_lt80 + obv_rising + bullish_engulf + wr_rising3,67.3,110.0,-6.6,0.36,36.0,6.4,20.0,1.4,-0.18,删除
+B,wr_lt80 + stoch_rising + cci_rising + gap_down_close,65.8,137.0,9.9,0.51,62.0,9.5,17.0,-11.7,-0.22,降级
+B,wr_lt80 + cci_rising + rsi_div + gap_down_close,65.4,32.0,-3.8,-0.79,28.0,16.0,5.0,-18.7,-2.76,降级
+SSS,wr_lt80 + cci_rising + gap_down_close + wr_rising3,64.4,85.0,12.3,0.87,44.0,4.9,11.0,-13.2,0.72,降级
+B,cmf_rising + obv_rising + cci_rising + gap_down_close,67.3,269.0,9.4,0.02,80.0,18.6,20.0,-3.6,0.68,降级
+B,cmf_rising + obv_rising + gap_down_close + wr_rising3,68.3,196.0,15.0,0.1,61.0,15.6,13.0,-4.8,0.87,降级
+B,cmf_rising + stoch_rising + cci_rising + gap_down_close,67.4,314.0,8.7,0.0,101.0,13.9,26.0,-4.8,0.14,降级
+B,cmf_rising + stoch_rising + gap_down_close + wr_rising3,67.6,214.0,13.9,0.08,70.0,8.2,19.0,-0.7,0.93,降级
+B,cmf_rising + cci_rising + gap_down_close + wr_rising3,68.9,211.0,14.4,0.16,72.0,9.4,18.0,-3.1,0.85,降级
+B,obv_rising + stoch_rising + cci_rising + gap_down_close,68.2,286.0,11.0,0.15,81.0,17.7,20.0,-8.7,-0.17,降级
+B,obv_rising + stoch_rising + gap_down_close + wr_rising3,68.8,210.0,16.2,0.26,61.0,13.9,15.0,-5.3,0.84,降级
+B,obv_rising + cci_rising + gap_down_close + wr_rising3,68.8,204.0,17.3,0.37,63.0,15.0,14.0,-8.7,0.73,降级
+B,obv_rising + rsi_div + gap_down_close + wr_rising3,68.2,47.0,18.7,-0.4,24.0,27.4,2.0,-8.6,-2.02,降级
+B,stoch_rising + cci_rising + gap_down_close + wr_rising3,68.9,222.0,16.1,0.32,72.0,7.9,20.0,-3.6,0.83,降级

@@ -291,6 +291,35 @@ def match_grade(conds, combos):
     return best_grade, best_combo
 
 
+# ── 星级（2026-11 复查后的新分级，见 analysis/rebuild/NEW_SCHEME.md）──────────
+# 逐个验证 334 个组合后发现：起作用的主要是「跳空收正」和「十字星底」两个条件，S/A/B 等级本身没有作用。
+# 实测数字：2000–2026 年标普500 基础信号（VIX<30），次日收盘入场持有 5 天。随便买一只的基准是 53.7% / +0.37%。
+TIER_ORDER = ['★★★', '★★', '★', '参考']
+TIER_STATS = {   # (T+5 上涨比例 %, T+5 平均涨幅 %, 每年约多少次)
+    '★★★': (64.7, 2.00, 21),
+    '★★':  (59.7, 0.89, 23),
+    '★':   (54.5, 0.66, 34),
+    '参考': (52.9, 0.27, 343),
+}
+TIER_RULE = {
+    '★★★': '跳空收正（低开 1% 以上、收盘高于开盘）',
+    '★★':  '十字星底',
+    '★':   '命中 SSS 组合（不含上面两个条件）',
+    '参考': '只有基础信号，或只命中 S/A/B 组合',
+}
+
+
+def star_tier(conds, grade):
+    """按条件给星级：跳空收正 > 十字星底 > SSS 组合 > 参考"""
+    if conds.get('gap_down_close'):
+        return '★★★'
+    if conds.get('doji_bottom'):
+        return '★★'
+    if grade == 'SSS':
+        return '★'
+    return '参考'
+
+
 # ── 选股记录与实际表现 ────────────────────────────────────
 # picks_history.json 是选股记录的唯一来源：每日扫描追加当天结果，backfill.py 负责补算缺失的日子。
 # scan_date 的含义：信号出现后的下一个交易日（即可以入场的那天），收益从这天的收盘价起算。
@@ -425,27 +454,33 @@ def main():
                 continue
 
             grade, best_combo = match_grade(conds, combos)
-
-            if grade is None:
-                continue
+            tier = star_tier(conds, grade)   # 新星级；没命中任何组合的基础信号也保留，标为「参考」
 
             matched_signals = ['MACD收窄', 'RSI<30反弹']
-            for cond_name in best_combo['conditions']:
+            shown = list(best_combo['conditions']) if best_combo else []
+            for key in ('gap_down_close', 'doji_bottom'):   # 决定星级的条件一定显示出来
+                if conds.get(key) and key not in shown:
+                    shown.append(key)
+            for cond_name in shown:
                 matched_signals.append(COND_LABEL.get(cond_name, cond_name))
 
             chg = float((close.iloc[-1] - close.iloc[-2]) / close.iloc[-2] * 100)
 
             r = dict(display)
+            bc = best_combo or {}
             r.update({
-                'grade': grade,
+                'grade': grade or '',
+                'tier': tier,
+                'tier_wr5': TIER_STATS[tier][0],
+                'tier_ret5': TIER_STATS[tier][1],
                 'matched_signals': matched_signals,
-                'wr1': best_combo.get('wr1', 0),
-                'wr3': best_combo.get('wr3', 0),
-                'wr5': best_combo.get('wr5', 0),
-                'wr10': best_combo.get('wr10', 0),
-                'win_rate_5': best_combo['wr5'],
-                'matched_combo': ' + '.join(best_combo['conditions']),
-                'sample': best_combo['n'],
+                'wr1': bc.get('wr1', 0),
+                'wr3': bc.get('wr3', 0),
+                'wr5': bc.get('wr5', 0),
+                'wr10': bc.get('wr10', 0),
+                'win_rate_5': bc.get('wr5', 0),
+                'matched_combo': ' + '.join(bc['conditions']) if bc else '（无组合）',
+                'sample': bc.get('n', 0),
                 'ticker': ticker,
                 'name': name_map.get(ticker, ticker),
                 'sector': sector_map.get(ticker, '—'),
@@ -481,22 +516,23 @@ def main():
     today_str = datetime.now().strftime('%Y-%m-%d')
     cutoff_str = (datetime.now().date() - timedelta(days=14)).strftime('%Y-%m-%d')
     history = load_history()
-    recent_tickers = {p['ticker'] for p in history if cutoff_str <= p['scan_date'] < today_str}
+    recent_tickers = {p['ticker'] for p in history if cutoff_str <= p['scan_date'] < today_str
+                      and p.get('tier') != '参考'}   # 只按带星的推荐去重，「参考」不占名额
     before = len(results)
     results = [r for r in results if r['ticker'] not in recent_tickers]
     n_deduped = before - len(results)
     if n_deduped:
         print(f"  去重过滤: 移除 {before - len(results)} 只（近10交易日已推荐）")
 
-    # 按胜率排序（不分级别）
-    results.sort(key=lambda x: -x.get('win_rate_5', 0))
+    # 按星级排序，同级里按原组合胜率
+    results.sort(key=lambda x: (TIER_ORDER.index(x['tier']), -x.get('win_rate_5', 0)))
     for r in results:
         r['n_base_day'] = n_base   # 今天全市场通过基础信号的股票数
 
     print("生成近期选股表现...")
     # 把今天的结果记进选股记录（同一天重跑则覆盖）
     history = [p for p in history if p['scan_date'] != today_str]
-    history += [{'ticker': r['ticker'], 'scan_date': today_str, 'grade': r['grade'],
+    history += [{'ticker': r['ticker'], 'scan_date': today_str, 'grade': r['grade'], 'tier': r['tier'],
                  'wr5': r['wr5'], 'source': 'live'} for r in results]
     save_history(history)
     recent = pick_performance(history)
@@ -524,7 +560,7 @@ def main():
 
     print(f"\n✅ 报告已生成：{OUTPUT_HTML}")
     for r in results:
-        print(f"   {r['ticker']:6} RSI={r['rsi']:5.1f} T+5胜率={r['win_rate_5']:.1f}% 匹配: {r['matched_combo']}")
+        print(f"   {r['tier']:4} {r['ticker']:6} RSI={r['rsi']:5.1f} 原等级={r['grade'] or '—'} 匹配: {r['matched_combo']}")
     print(f"\n   总计: {len(results)} 只")
 
     if '--no-open' not in sys.argv:

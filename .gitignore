@@ -3,5 +3,11 @@ analysis/rebuild/data/
 analysis/rebuild/data2000/
 analysis/rebuild/out*/combos_*.parquet
 analysis/explore_rules_all.csv
+# 策略大排行的中间结果和缓存（可用 lab/ 下脚本重跑）
+analysis/rebuild/lab/**/cache/
+analysis/rebuild/lab/**/partial*.parquet
+analysis/rebuild/lab/out/*.parquet
+analysis/rebuild/lab/out/leaderboard_all.csv
+*.npy
 __pycache__/
 *.pyc

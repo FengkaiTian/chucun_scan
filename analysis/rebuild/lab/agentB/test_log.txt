@@ -1,0 +1,2 @@
+﻿jobs=500 pairs=88
+done 500 in 11s

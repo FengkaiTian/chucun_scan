@@ -9,6 +9,13 @@ from collections import defaultdict
 from html import escape
 
 GRADE_ORDER = ['SSS', 'S', 'A', 'B']
+TIER_ORDER = ['★★★', '★★', '★', '参考']
+TIER_INFO = {   # 规则, T+5 上涨比例, T+5 平均涨幅, 每年约多少次（2000–2026 实测，见 analysis/rebuild/NEW_SCHEME.md）
+    '★★★': ('跳空收正：低开 1% 以上、收盘高于开盘', 64.7, 2.00, 21),
+    '★★':  ('十字星底', 59.7, 0.89, 23),
+    '★':   ('命中 SSS 组合（不含上面两个条件）', 54.5, 0.66, 34),
+    '参考': ('只有基础信号，或只命中 S/A/B 组合', 52.9, 0.27, 343),
+}
 GRADE_DESC = {
     'SSS': ('高收益区', '5日中位收益 >2%，样本较少'),
     'S':   ('最强',     '5日胜率 ≥80%'),
@@ -16,6 +23,7 @@ GRADE_DESC = {
     'B':   ('有效',     '5日胜率 65–70%'),
 }
 BASE_SIGNALS = ('MACD收窄', 'RSI<30反弹')
+TIER_CLS = {'★★★': 't3', '★★': 't2', '★': 't1', '参考': 't0'}
 
 CSS = '''
 :root{
@@ -89,6 +97,12 @@ th:first-child,td:first-child{padding-left:18px} th:last-child,td:last-child{pad
   font-size:12px;font-weight:700;letter-spacing:.03em;color:#fff}
 @media (prefers-color-scheme:dark){.grade{color:#10141b}}
 .g-SSS{background:var(--g-sss)} .g-S{background:var(--g-s)} .g-A{background:var(--g-a)} .g-B{background:var(--g-b)}
+.tier{display:inline-block;min-width:44px;text-align:center;padding:3px 8px;border-radius:6px;font-size:13px;font-weight:700;white-space:nowrap}
+.t3{background:var(--g-sss);color:#fff} .t2{background:var(--warn-soft);color:var(--warn)}
+.t1{background:var(--accent-soft);color:var(--accent)} .t0{background:var(--soft);color:var(--ink3);font-weight:500;font-size:12px}
+@media (prefers-color-scheme:dark){.t3{color:#10141b}}
+.oldg{display:block;margin-top:4px;font-size:11px;color:var(--ink3)}
+tr.ref td{opacity:.62}
 
 .chips{display:flex;flex-wrap:wrap;gap:4px;width:230px}
 .chip{padding:2px 8px;border-radius:999px;font-size:11.5px;white-space:nowrap;background:var(--accent-soft);color:var(--accent);font-weight:600}
@@ -171,13 +185,7 @@ def _signals_table(rows, bl):
     if not rows:
         return ('<div class="empty"><b>今天没有符合条件的股票</b>'
                 '基础信号（MACD 柱零轴下连续收窄 + RSI 从 30 以下回升）本身就少见，'
-                '再叠加回测验证过的组合后，空仓日是常态。</div>')
-
-    def wr(r, key, main=False):
-        v = r.get(key, 0)
-        w = max(0, min(100, (v - 50) * 2))
-        return (f'<td class="n wr{" main" if main else ""}" data-k="{key}" data-v="{v}">'
-                f'<span>{v:.1f}%</span><i style="--w:{w:.0f}%"></i></td>')
+                '带星的信号平均每周只有一两次，空仓日是常态。</div>')
 
     body = ''
     for r in rows:
@@ -186,13 +194,18 @@ def _signals_table(rows, bl):
         chips += ''.join(f'<span class="chip">{escape(s)}</span>' for s in extra)
         earn = (f'<span class="earn">财报 {escape(r["earnings_warn"])}，持仓期内注意</span>'
                 if r.get('earnings_warn') else '')
+        t = r['tier']
         g = r['grade']
-        body += f'''<tr>
+        oldg = f'<span class="oldg">原等级 {g}</span>' if g else ''
+        sample = f'<span class="sample">原组合回测 T+5 {r["wr5"]:.0f}%（偏高）· 样本 {r["sample"]} 次</span>' if g else ''
+        w = max(0, min(100, (r['tier_wr5'] - 50) * 4))
+        body += f'''<tr{' class="ref"' if t == '参考' else ''}>
   <td class="stock" data-k="ticker" data-v="{r["ticker"]}"><b>{r["ticker"]}</b> $<span class="px">{r["price"]}</span><span class="chg {_sign_cls(r["chg"])}">{r["chg"]:+.2f}%</span>
     <span class="co" title="{escape(r["name"])} · {escape(r["sector"])}">{escape(r["name"])} · {escape(r["sector"])}</span>{earn}</td>
-  <td data-k="grade" data-v="{3 - GRADE_ORDER.index(g)}"><span class="grade g-{g}" title="{GRADE_DESC[g][0]} · {GRADE_DESC[g][1]}">{g}</span></td>
-  <td><div class="chips">{chips}</div><span class="sample">回测样本 {r["sample"]} 次</span></td>
-  {wr(r, "wr1")}{wr(r, "wr3")}{wr(r, "wr5", True)}{wr(r, "wr10")}
+  <td data-k="tier" data-v="{3 - TIER_ORDER.index(t)}"><span class="tier {TIER_CLS[t]}">{t}</span>{oldg}</td>
+  <td><div class="chips">{chips}</div>{sample}</td>
+  <td class="n wr main" data-k="twr" data-v="{r["tier_wr5"]}"><span>{r["tier_wr5"]:.1f}%</span><i style="--w:{w:.0f}%"></i></td>
+  <td class="n" data-k="tret" data-v="{r["tier_ret5"]}"><b class="{_sign_cls(r["tier_ret5"])}">{r["tier_ret5"]:+.2f}%</b></td>
   <td class="n" data-k="rsi" data-v="{r["rsi"]}">{r["rsi"]}</td>
   <td class="n" data-k="cci" data-v="{r["cci"]}">{r["cci"]}</td>
   <td class="n" data-k="cmf" data-v="{r["cmf"]}">{r["cmf"]:+.3f}</td>
@@ -208,9 +221,9 @@ def _signals_table(rows, bl):
 <thead>
 <tr>
   <th rowspan="2" data-sort="ticker">股票</th>
-  <th rowspan="2" data-sort="grade">评级</th>
-  <th rowspan="2">匹配的信号组合</th>
-  <th colspan="4" class="grp">该组合的历史回测胜率</th>
+  <th rowspan="2" data-sort="tier" aria-sort="descending">星级</th>
+  <th rowspan="2">命中的条件</th>
+  <th colspan="2" class="grp">该星级实测（2000–2026，持有 5 天）</th>
   <th rowspan="2" class="n" data-sort="rsi">RSI</th>
   <th rowspan="2" class="n" data-sort="cci">CCI</th>
   <th rowspan="2" class="n" data-sort="cmf">CMF</th>
@@ -222,10 +235,8 @@ def _signals_table(rows, bl):
   <th rowspan="2" class="n">止损价</th>
 </tr>
 <tr>
-  <th class="n" data-sort="wr1" title="随机基准 {bl["ret1"]}%">T+1</th>
-  <th class="n" data-sort="wr3" title="随机基准 {bl["ret3"]}%">T+3</th>
-  <th class="n main" data-sort="wr5" aria-sort="descending" title="随机基准 {bl["ret5"]}%">T+5</th>
-  <th class="n" data-sort="wr10" title="随机基准 {bl["ret10"]}%">T+10</th>
+  <th class="n main" data-sort="twr" title="随便买一只标普500股票：53.7%">上涨比例</th>
+  <th class="n" data-sort="tret" title="随便买一只标普500股票：+0.37%">平均涨幅</th>
 </tr>
 </thead>
 <tbody>{body}</tbody></table></div>'''
@@ -237,10 +248,10 @@ def _sector_card(rows):
     stats = defaultdict(lambda: [0, 0.0])
     for r in rows:
         stats[r['sector']][0] += 1
-        stats[r['sector']][1] += r.get('wr5', 0)
+        stats[r['sector']][1] += r.get('tier_wr5', r.get('wr5', 0))
     ordered = sorted(stats.items(), key=lambda x: -x[1][0])
     top = ordered[0][1][0]
-    cells = '<span class="h">板块</span><span class="h"></span><span class="h">信号数</span><span class="h">平均 T+5 胜率</span>'
+    cells = '<span class="h">板块</span><span class="h"></span><span class="h">信号数</span><span class="h">星级实测上涨比例</span>'
     for sec, (n, s) in ordered:
         cells += (f'<span>{escape(sec)}</span><span class="bar"><i style="width:{n / top * 100:.0f}%"></i></span>'
                   f'<b class="num">{n}</b><span class="num">{s / n:.1f}%</span>')
@@ -261,8 +272,11 @@ def _recent_card(picks):
 
     body = ''
     for p in picks:
-        g = p.get('grade')
-        grade = f'<span class="grade g-{g}">{g}</span>' if g else '<span class="muted">—</span>'
+        t, g = p.get('tier'), p.get('grade')
+        if t:
+            grade = f'<span class="tier {TIER_CLS[t]}">{t}</span>'
+        else:   # 2026-11-18 之前的记录只有旧等级
+            grade = f'<span class="grade g-{g}">{g}</span>' if g else '<span class="muted">—</span>'
         tag = '<span class="tag">补算</span>' if p.get('source') == 'backfill' else ''
         body += (f'<tr><td><span style="font-weight:700">{p["ticker"]}</span>{tag}</td>'
                  f'<td>{grade}</td><td class="num muted">{p["scan_date"]}</td>'
@@ -303,7 +317,7 @@ def _recent_card(picks):
   {stats}
   <header><h2 style="font-size:14px">逐条明细</h2><p>— 表示交易日还没到</p></header>
   <div class="scroll tall"><table>
-    <thead><tr><th>股票</th><th>评级</th><th>入场日</th><th class="c">T+1</th><th class="c">T+3</th><th class="c">T+5</th><th class="c">T+10</th></tr></thead>
+    <thead><tr><th>股票</th><th>星级 / 旧等级</th><th>入场日</th><th class="c">T+1</th><th class="c">T+3</th><th class="c">T+5</th><th class="c">T+10</th></tr></thead>
     <tbody>{body}</tbody>
   </table></div>
 </section>'''
@@ -353,9 +367,11 @@ def render_report(ctx):
     if f['deduped']:
         funnel_bits.append(f'近期已推荐 {f["deduped"]} 只已剔除')
     grade_rows = ''.join(
-        f'<tr><td><span class="grade g-{g}">{g}</span></td><td>{GRADE_DESC[g][0]}</td>'
-        f'<td>{GRADE_DESC[g][1]}</td><td class="n">{ctx["grade_counts"].get(g, 0)} 种</td></tr>'
-        for g in GRADE_ORDER)
+        f'<tr><td><span class="tier {TIER_CLS[t]}">{t}</span></td><td>{TIER_INFO[t][0]}</td>'
+        f'<td class="n">{TIER_INFO[t][1]:.1f}%</td><td class="n">{TIER_INFO[t][2]:+.2f}%</td><td class="n">{TIER_INFO[t][3]}</td></tr>'
+        for t in TIER_ORDER)
+    n_tier = {t: sum(r['tier'] == t for r in results) for t in TIER_ORDER}
+    n_star = len(results) - n_tier['参考']
 
     return f'''<!DOCTYPE html>
 <html lang="zh-CN">
@@ -371,13 +387,13 @@ def render_report(ctx):
 <div class="top">
   <div>
     <h1>标普500 每日信号扫描</h1>
-    <p class="sub">在 MACD 金叉之前入场 · {ctx["n_combos"]} 种经 6 年回测验证的信号组合</p>
+    <p class="sub">在 MACD 金叉之前入场 · 星级按 2000–2026 年实测成绩划分</p>
   </div>
   <div class="stamp">扫描时间<b class="num">{ctx["date_str"]}</b></div>
 </div>
 
 <div class="tiles">
-  <div class="tile"><div class="k">今日信号</div><div class="v num">{len(results)} <span style="font-size:14px;font-weight:500;color:var(--ink2)">只</span></div><div class="d">{" · ".join(funnel_bits)}</div></div>
+  <div class="tile"><div class="k">今日带星信号</div><div class="v num">{n_star} <span style="font-size:14px;font-weight:500;color:var(--ink2)">只</span></div><div class="d">★★★ {n_tier["★★★"]} · ★★ {n_tier["★★"]} · ★ {n_tier["★"]} · 参考 {n_tier["参考"]}<br>{" · ".join(funnel_bits)}</div></div>
   <div class="tile"><div class="k">市场环境</div><div class="v {env_cls}">{"牛市" if ctx["is_bull"] else "熊市"}</div><div class="d">标普500 在 200 日均线{"上方" if ctx["is_bull"] else "下方"}</div></div>
   <div class="tile"><div class="k">标普500</div><div class="v num">{ctx["spy_price"]:,.0f}</div><div class="d">较 200 日均线 <span class="num {env_cls}">{ctx["spy_pct"]:+.1f}%</span></div></div>
   <div class="tile"><div class="k">VIX 恐慌指数</div><div class="v num" style="{vix_style}">{vix:.1f}</div><div class="d">{vix_word}（20 以上偏高，30 以上暂停）</div></div>
@@ -386,7 +402,7 @@ def render_report(ctx):
 {alert}
 
 <section class="card">
-  <header><h2>今日信号</h2><p>按 T+5 胜率排序，点表头可换排序 · 建议持仓 5 个交易日</p></header>
+  <header><h2>今日信号</h2><p>按星级排序，点表头可换排序 · 建议持仓 5 个交易日 · 灰色的「参考」只作对照，不建议买</p></header>
   {_reading(results, f)}
   {_signals_table(results, bl)}
 </section>
@@ -402,17 +418,17 @@ def render_report(ctx):
       <div>
         <h3>选股逻辑</h3>
         <p>先要求基础信号：MACD 柱状图在零轴下方连续 3 根收窄（空头减弱），同时 RSI 从 30 以下开始回升。</p>
-        <p>再看这只股票还满足哪些附加条件，只有命中「回测中 T+1 / T+3 / T+5 / T+10 全部跑赢随机基准」的组合才会出现在表里。</p>
+        <p>再按附加条件给星级：有「跳空收正」的 ★★★，有「十字星底」的 ★★，命中原 SSS 组合的 ★，其余只作参考。</p>
         <h3 style="margin-top:14px">表里的数字</h3>
-        <p><b>回测胜率</b>是这个信号组合在 2020–2025 年历史上的上涨概率，不是对这只股票的预测。随机买入的基准是 T+1 {bl["ret1"]}%、T+3 {bl["ret3"]}%、T+5 {bl["ret5"]}%、T+10 {bl["ret10"]}%，进度条从 50% 起算。</p>
+        <p><b>上涨比例 / 平均涨幅</b>是这个星级在 2000–2026 年全部历史信号里的实测成绩（次日收盘买入，持有 5 天），不是对这只股票的预测。随便买一只标普500 股票的基准是 53.7% / +0.37%。</p>
         <p><b>止损价</b> = 20 日均线 × 0.97。<b>成交量</b>是当日相对 5 日均量的倍数。</p>
-        <p><b>回测胜率偏高，请打折看：</b>这些组合是从 1626 种里挑出来的，存在选择偏差。同一批信号在回测期内的实际 T+5 上涨比例约 56–59%，而不是表里的 65–80%；其中约 70% 的收益来自大盘本身的涨跌。评级只有 SSS 一档还显示出弱的排序价值。</p>
+        <p><b>为什么改成星级：</b>2026-11 用 2000–2026 年数据逐个复查了原来的 334 个组合，S/A/B 等级和组合好坏基本对不上；真正起作用的是「跳空收正」和「十字星底」两个条件。原等级仍显示在星级下面，供对照。这两个条件是看完全部历史后挑出来的，要靠今后的实盘记录继续检验。</p>
         <p>涨跌颜色：<span class="up">红色上涨</span>，<span class="down">绿色下跌</span>。</p>
       </div>
       <div>
-        <h3>评级</h3>
+        <h3>星级（2000–2026 实测，持有 5 天）</h3>
         <table>
-          <thead><tr><th>等级</th><th>含义</th><th>标准</th><th class="n">组合数</th></tr></thead>
+          <thead><tr><th>星级</th><th>规则</th><th class="n">上涨比例</th><th class="n">平均涨幅</th><th class="n">每年约</th></tr></thead>
           <tbody>{grade_rows}</tbody>
         </table>
       </div>

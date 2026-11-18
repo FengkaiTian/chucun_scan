@@ -1,0 +1,19 @@
+﻿combos 7918 x 5 = 39590 + random 300
+pool ready
+500/7918 23s  ETA 5.7min
+1000/7918 38s  ETA 4.4min
+1500/7918 56s  ETA 4.0min
+2000/7918 74s  ETA 3.6min
+2500/7918 97s  ETA 3.5min
+3000/7918 125s  ETA 3.4min
+3500/7918 152s  ETA 3.2min
+4000/7918 179s  ETA 2.9min
+4500/7918 210s  ETA 2.7min
+5000/7918 232s  ETA 2.3min
+5500/7918 254s  ETA 1.9min
+6000/7918 277s  ETA 1.5min
+6500/7918 300s  ETA 1.1min
+7000/7918 323s  ETA 0.7min
+7500/7918 347s  ETA 0.3min
+done 39890 rows 363.5 s; per combo 0.046
+saved C:\Users\ft7b6\Desktop\美股\chucun_scan\analysis\rebuild\lab\out\agentA.parquet 39890
