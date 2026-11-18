@@ -101,6 +101,9 @@ td.wr i{display:block;height:3px;margin-top:4px;border-radius:2px;background:var
 td.wr i::after{content:"";position:absolute;inset:0 auto 0 0;width:var(--w);background:var(--accent);border-radius:2px}
 td.wr.main span{font-size:15px;color:var(--accent)}
 th.main{color:var(--ink)}
+td.hot{color:var(--warn);font-weight:700}
+.reading{margin:0 18px 12px;padding:9px 12px;border-radius:8px;background:var(--soft);color:var(--ink2);font-size:12.5px}
+.reading b{color:var(--ink)}
 
 .empty{padding:36px 18px 40px;text-align:center;color:var(--ink2)}
 .empty b{display:block;font-size:16px;color:var(--ink);margin-bottom:6px}
@@ -196,6 +199,8 @@ def _signals_table(rows, bl):
   <td class="n" data-k="wr" data-v="{r["wr"]}">{r["wr"]}</td>
   <td class="n" data-k="d52" data-v="{r["dist_52w"]}">+{r["dist_52w"]:.1f}%</td>
   <td class="n">{escape(r["volume_status"])}</td>
+  <td class="n {"hot" if r.get("atr_pct", 0) >= 4 else ""}" data-k="atr" data-v="{r.get("atr_pct", 0)}">{r.get("atr_pct", 0):.1f}%</td>
+  <td class="n" data-k="h252" data-v="{r.get("dist_high252", 0)}">{r.get("dist_high252", 0):.0f}%</td>
   <td class="n">${r["stop_loss"]}</td>
 </tr>'''
 
@@ -212,6 +217,8 @@ def _signals_table(rows, bl):
   <th rowspan="2" class="n" data-sort="wr">威廉%R</th>
   <th rowspan="2" class="n" data-sort="d52">距52周低</th>
   <th rowspan="2" class="n">成交量/5日均</th>
+  <th rowspan="2" class="n" data-sort="atr" title="14日平均真实波幅占股价比例，衡量单日波动">ATR%</th>
+  <th rowspan="2" class="n" data-sort="h252" title="现价距过去一年最高收盘价">距1年高点</th>
   <th rowspan="2" class="n">止损价</th>
 </tr>
 <tr>
@@ -302,6 +309,22 @@ def _recent_card(picks):
 </section>'''
 
 
+def _reading(results, f):
+    """回测复盘得出的几条参考（只是倾向，统计上不显著，不是过滤规则）"""
+    if not results:
+        return ''
+    n = f['base']
+    if n >= 5:
+        env = f'今天全市场有 <b>{n}</b> 只股票触发基础信号（≥5 只，说明是大盘整体超卖）：回测中这类日子反弹更好、大跌更少。'
+    elif n == 1:
+        env = '今天全市场只有 <b>1</b> 只触发基础信号（孤立信号）：回测中这类日子表现偏弱，更像个股自身问题而非大盘超卖。'
+    else:
+        env = f'今天全市场有 <b>{n}</b> 只股票触发基础信号。'
+    return (f'<div class="reading">{env}<br>'
+            '<b>财报</b>落在持仓期内的，回测中 T+5 大跌（≤-5%）比例约 28% 对 10%，建议回避或减仓；'
+            '<b>ATR% ≥ 4</b>（橙色）既容易大涨也容易大跌，建议仓位减半。</div>')
+
+
 def render_report(ctx):
     """ctx: date_str, n_combos, grade_counts, bl, is_bull, spy_price, spy_pct,
     vix_price, vix_high, vix_extreme, results, funnel, recent"""
@@ -364,6 +387,7 @@ def render_report(ctx):
 
 <section class="card">
   <header><h2>今日信号</h2><p>按 T+5 胜率排序，点表头可换排序 · 建议持仓 5 个交易日</p></header>
+  {_reading(results, f)}
   {_signals_table(results, bl)}
 </section>
 
@@ -382,6 +406,7 @@ def render_report(ctx):
         <h3 style="margin-top:14px">表里的数字</h3>
         <p><b>回测胜率</b>是这个信号组合在 2020–2025 年历史上的上涨概率，不是对这只股票的预测。随机买入的基准是 T+1 {bl["ret1"]}%、T+3 {bl["ret3"]}%、T+5 {bl["ret5"]}%、T+10 {bl["ret10"]}%，进度条从 50% 起算。</p>
         <p><b>止损价</b> = 20 日均线 × 0.97。<b>成交量</b>是当日相对 5 日均量的倍数。</p>
+        <p><b>回测胜率偏高，请打折看：</b>这些组合是从 1626 种里挑出来的，存在选择偏差。同一批信号在回测期内的实际 T+5 上涨比例约 56–59%，而不是表里的 65–80%；其中约 70% 的收益来自大盘本身的涨跌。评级只有 SSS 一档还显示出弱的排序价值。</p>
         <p>涨跌颜色：<span class="up">红色上涨</span>，<span class="down">绿色下跌</span>。</p>
       </div>
       <div>

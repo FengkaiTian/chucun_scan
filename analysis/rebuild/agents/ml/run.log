@@ -1,0 +1,121 @@
+rows 11374 feats 95
+lin_cls 0.001 rho08-24=0.0231  t=2s
+lin_cls 0.01 rho08-24=0.0331  t=3s
+lin_cls 0.1 rho08-24=0.0302  t=5s
+lin_reg 100.0 rho08-24=0.0326  t=7s
+lin_reg 1000.0 rho08-24=0.0318  t=8s
+lin_reg 10000.0 rho08-24=0.0260  t=9s
+gbm_cls {'leaf': 100, 'l2': 10.0} rho08-24=0.0020  t=28s
+gbm_cls {'leaf': 300, 'l2': 10.0} rho08-24=0.0119  t=46s
+gbm_reg {'leaf': 100, 'l2': 10.0} rho08-24=-0.0130  t=61s
+gbm_reg {'leaf': 300, 'l2': 10.0} rho08-24=0.0098  t=76s
+           rho_08_24 rho_25_26                         hp
+lin_cls     0.033085 -0.058208                       0.01
+lin_reg     0.032604 -0.040961                      100.0
+gbm_cls      0.01193 -0.071664  {'leaf': 300, 'l2': 10.0}
+gbm_reg     0.009798 -0.044233  {'leaf': 300, 'l2': 10.0}
+SSS          0.03412  0.040942                        NaN
+NB5        -0.010854  0.175465                        NaN
+SSS_or_NB5 -0.012169  0.164077                        NaN
+       period               rule     n  wr_r5  wr_x5  mean_r5  mean_x5  t_x5_cluster
+0   2008-2024                ALL  7748   54.1   49.2    0.496    0.104          1.32
+1   2008-2024                SSS  1243   59.8   52.0    1.241    0.545          3.43
+2   2008-2024                NB5  5228   55.3   49.7    0.534    0.053          0.55
+3   2008-2024         SSS_or_NB5  5691   55.2   49.6    0.539    0.065          0.73
+4   2008-2024      lin_cls_top20  1556   57.2   50.4    0.870    0.346          1.92
+5   2008-2024      lin_cls_top33  2560   56.6   49.5    0.791    0.260          1.96
+6   2008-2024  lin_cls_top33&NB5  1587   58.7   49.8    0.868    0.204          1.44
+7   2008-2024      lin_reg_top20  1556   57.4   50.0    0.811    0.262          1.91
+8   2008-2024      lin_reg_top33  2560   57.1   50.2    0.810    0.298          2.18
+9   2008-2024  lin_reg_top33&NB5  1579   59.0   51.6    0.895    0.272          1.77
+10  2008-2024      gbm_cls_top20  1556   59.7   50.7    1.070    0.186          1.22
+11  2008-2024      gbm_cls_top33  2564   57.7   49.4    0.774    0.062          0.54
+12  2008-2024  gbm_cls_top33&NB5  1673   60.3   50.5    1.055    0.159          1.01
+13  2008-2024      gbm_reg_top20  1678   56.6   50.2    0.835    0.206          1.38
+14  2008-2024      gbm_reg_top33  2617   56.2   50.8    0.697    0.182          1.56
+15  2008-2024  gbm_reg_top33&NB5  1649   58.4   52.5    0.937    0.365          2.24
+16  2025-2026                ALL  1425   58.6   55.9    0.657    0.487          2.32
+17  2025-2026                SSS   230   65.2   57.0    1.164    0.984          2.95
+18  2025-2026                NB5  1025   62.1   61.0    1.068    0.951          3.79
+19  2025-2026         SSS_or_NB5  1099   62.1   59.9    1.018    0.887          3.74
+20  2025-2026      lin_cls_top20   286   58.4   53.8    0.870    0.297          0.84
+21  2025-2026      lin_cls_top33   470   59.8   54.7    0.838    0.363          1.29
+22  2025-2026  lin_cls_top33&NB5   321   65.1   61.1    1.558    1.113          3.63
+23  2025-2026      lin_reg_top20   286   54.9   51.4    0.591    0.214          0.62
+24  2025-2026      lin_reg_top33   470   55.3   51.7    0.594    0.240          0.96
+25  2025-2026  lin_reg_top33&NB5   313   59.1   57.5    1.180    0.887          3.20
+26  2025-2026      gbm_cls_top20   287   60.3   56.1    0.975    0.475          1.18
+27  2025-2026      gbm_cls_top33   474   60.1   55.9    0.865    0.388          1.26
+28  2025-2026  gbm_cls_top33&NB5   353   63.5   58.9    1.289    0.670          2.00
+29  2025-2026      gbm_reg_top20   322   56.2   53.1    0.948    0.522          1.33
+30  2025-2026      gbm_reg_top33   669   57.8   52.6    0.738    0.240          0.92
+31  2025-2026  gbm_reg_top33&NB5   466   61.6   56.2    1.223    0.595          1.91
+32  2008-2026                ALL  9173   54.8   50.3    0.521    0.164          2.18
+33  2008-2026                SSS  1473   60.6   52.7    1.229    0.614          4.25
+34  2008-2026                NB5  6253   56.4   51.5    0.621    0.200          2.17
+35  2008-2026         SSS_or_NB5  6790   56.3   51.3    0.616    0.198          2.30
+36  2008-2026      lin_cls_top20  1842   57.4   51.0    0.870    0.338          2.09
+37  2008-2026      lin_cls_top33  3030   57.1   50.3    0.798    0.276          2.30
+38  2008-2026  lin_cls_top33&NB5  1908   59.7   51.7    0.984    0.357          2.74
+39  2008-2026      lin_reg_top20  1842   57.0   50.2    0.777    0.255          2.00
+40  2008-2026      lin_reg_top33  3030   56.8   50.4    0.776    0.289          2.37
+41  2008-2026  lin_reg_top33&NB5  1892   59.0   52.6    0.942    0.374          2.73
+42  2008-2026      gbm_cls_top20  1843   59.8   51.5    1.056    0.231          1.60
+43  2008-2026      gbm_cls_top33  3038   58.1   50.4    0.788    0.113          1.03
+44  2008-2026  gbm_cls_top33&NB5  2026   60.8   52.0    1.096    0.248          1.72
+45  2008-2026      gbm_reg_top20  2000   56.6   50.7    0.853    0.257          1.83
+46  2008-2026      gbm_reg_top33  3286   56.5   51.2    0.705    0.193          1.81
+47  2008-2026  gbm_reg_top33&NB5  2115   59.1   53.3    1.000    0.416          2.88
+t=77s
+lin_cls perm done t=357s
+gbm_cls perm done t=390s
+      model          feature      group  rho_drop
+97  lin_cls     GROUP:market      GROUP  0.021991
+85  lin_cls   spx_dist_ma200     market  0.015105
+63  lin_cls          ret120d  stock_num  0.009138
+96  lin_cls  GROUP:stock_num      GROUP  0.008986
+43  lin_cls         dist_52w  stock_num  0.008176
+91  lin_cls          weekday     market  0.006658
+89  lin_cls         vix_chg5     market  0.006196
+79  lin_cls            vol60  stock_num  0.006152
+76  lin_cls    ma200_slope20  stock_num  0.006058
+60  lin_cls            ret1d  stock_num  0.003644
+86  lin_cls        spx_ret5d     market  0.003389
+48  lin_cls           ret20d  stock_num  0.002871
+28  lin_cls      ret3d_lt_m5       bool  0.002489
+93  lin_cls       n_base_day     market  0.002445
+70  lin_cls     lower_shadow  stock_num  0.002283
+       model         feature      group  rho_drop
+183  gbm_cls  spx_dist_ma200     market  0.016753
+195  gbm_cls    GROUP:market      GROUP  0.007128
+178  gbm_cls        cmf_chg5  stock_num  0.005645
+188  gbm_cls      rel_ret20d  stock_num  0.004372
+161  gbm_cls         ret120d  stock_num  0.003701
+171  gbm_cls       gap_today  stock_num  0.003021
+185  gbm_cls      spx_ret20d     market  0.002503
+180  gbm_cls       log_price  stock_num  0.001988
+193  gbm_cls      GROUP:bool      GROUP  0.000868
+156  gbm_cls      hist_slope  stock_num  0.000837
+164  gbm_cls         bb_pctb  stock_num  0.000781
+189  gbm_cls         weekday     market  0.000699
+150  gbm_cls        rsi_min5  stock_num  0.000654
+174  gbm_cls   ma200_slope20  stock_num  0.000647
+114  gbm_cls        vol_gt12       bool  0.000584
+          period                   rule     n  wr_r5  wr_x5  mean_r5  mean_x5  t_x5_cluster  rho_yearly
+0   IS_2008-2026  lin_cls_FULLFIT_top20  1842   63.0   58.0    1.465    0.657          5.04      0.0946
+1   WF_2008-2026       lin_cls_WF_top20  1842   57.4   51.0    0.870    0.338          2.09      0.0235
+2   IS_2025-2026  lin_cls_FULLFIT_top20   286   64.7   64.7    1.419    1.022          2.99      0.0877
+3   WF_2025-2026       lin_cls_WF_top20   286   58.4   53.8    0.870    0.297          0.84     -0.0582
+4   IS_2008-2026  lin_reg_FULLFIT_top20  1842   61.6   56.0    1.582    0.899          6.80      0.1033
+5   WF_2008-2026       lin_reg_WF_top20  1842   57.0   50.2    0.777    0.255          2.00      0.0249
+6   IS_2025-2026  lin_reg_FULLFIT_top20   286   58.7   58.4    1.253    0.968          3.04      0.0820
+7   WF_2025-2026       lin_reg_WF_top20   286   54.9   51.4    0.591    0.214          0.62     -0.0410
+8   IS_2008-2026  gbm_cls_FULLFIT_top20  1842   73.1   73.7    2.668    1.862          9.78      0.3088
+9   WF_2008-2026       gbm_cls_WF_top20  1843   59.8   51.5    1.056    0.231          1.60      0.0031
+10  IS_2025-2026  gbm_cls_FULLFIT_top20   286   76.6   82.2    2.464    2.294          7.42      0.3699
+11  WF_2025-2026       gbm_cls_WF_top20   287   60.3   56.1    0.975    0.475          1.18     -0.0717
+12  IS_2008-2026  gbm_reg_FULLFIT_top20  1842   72.1   67.9    3.244    2.412         11.12      0.2855
+13  WF_2008-2026       gbm_reg_WF_top20  2000   56.6   50.7    0.853    0.257          1.83      0.0041
+14  IS_2025-2026  gbm_reg_FULLFIT_top20   286   75.9   75.9    3.059    3.048          8.22      0.3836
+15  WF_2025-2026       gbm_reg_WF_top20   322   56.2   53.1    0.948    0.522          1.33     -0.0442
+done t=392s

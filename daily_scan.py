@@ -261,6 +261,9 @@ def compute_conditions(close, high, low, volume, open_):
         'ma20': round(ma20, 2),
         'stop_loss': round(ma20 * 0.97, 2),
         'price': round(c, 2),
+        # 回测分析追加的参考信息（只展示，不参与选股）
+        'atr_pct': round(float(atr.iloc[-1]) / c * 100, 1),
+        'dist_high252': round((c / close.iloc[-252:].max() - 1) * 100, 1),
     }
 
     return conds, display
@@ -487,6 +490,8 @@ def main():
 
     # 按胜率排序（不分级别）
     results.sort(key=lambda x: -x.get('win_rate_5', 0))
+    for r in results:
+        r['n_base_day'] = n_base   # 今天全市场通过基础信号的股票数
 
     print("生成近期选股表现...")
     # 把今天的结果记进选股记录（同一天重跑则覆盖）

@@ -1,0 +1,136 @@
+602 231 0.0946843853820598 0.12554112554112554 0.5913621262458472 0.5584415584415584
+IS
+bad                  0      1
+rsi              29.80  29.40
+cmf              -0.17  -0.18
+hist             -0.74  -1.01
+dist_52w          4.10   4.10
+deviation         0.10   0.15
+vol_ratio5        0.83   0.82
+ret5d            -2.25  -2.42
+ret20d          -12.37 -14.35
+ret60d          -13.59 -16.07
+dist_high252    -24.37 -30.80
+dist_ma200      -12.00 -13.62
+atr_pct           2.67   3.06
+gap_open_pct      0.08   0.00
+spx_vs_ma200      6.87   6.19
+spx_ret5         -0.17  -0.27
+spx_ret20        -0.01  -0.61
+vix              17.30  18.20
+vix_chg5          0.00   0.00
+n_base_day        7.00   7.00
+n_graded_day      4.00   3.00
+sector_n_day      2.00   2.00
+days_to_earn     55.00  34.00
+days_since_earn  36.00  57.00
+earn_in_hold      0.00   0.00
+combo_wr5        69.30  69.00
+OOS
+bad                  0      1
+rsi              29.55  30.30
+cmf              -0.19  -0.24
+hist             -0.80  -1.13
+dist_52w          4.00   2.50
+deviation        -0.06  -0.08
+vol_ratio5        0.83   0.88
+ret5d            -2.49  -3.95
+ret20d          -13.55 -16.17
+ret60d          -13.22 -19.98
+dist_high252    -25.24 -38.77
+dist_ma200      -12.07 -21.31
+atr_pct           3.06   3.77
+gap_open_pct      0.19   0.41
+spx_vs_ma200      6.34   6.99
+spx_ret5         -0.49  -0.19
+spx_ret20        -0.20   0.37
+vix              17.40  17.40
+vix_chg5          0.20   0.20
+n_base_day       12.00   5.00
+n_graded_day      5.00   2.00
+sector_n_day      2.00   1.00
+days_to_earn     39.00  36.00
+days_since_earn  49.00  50.00
+earn_in_hold      0.00   0.00
+combo_wr5        69.10  66.80
+                          n   bad    up
+sector                                 
+Communication Services   28  0.14  0.54
+Consumer Discretionary   88  0.10  0.64
+Consumer Staples         81  0.10  0.52
+Energy                   28  0.04  0.82
+Financials               98  0.08  0.67
+Health Care             139  0.14  0.47
+Industrials             120  0.05  0.57
+Information Technology  102  0.16  0.56
+Materials                50  0.10  0.56
+Real Estate              57  0.14  0.63
+Utilities                42  0.05  0.67
+earn_in_hold 
+  IS hit n=64 up=0.59 bad=0.20 ex=0.40 | rest n=538 up=0.59 bad=0.08 ex=0.31 | killed winners=59% 
+  OOS hit n=29 up=0.45 bad=0.28 ex=-0.44 | rest n=202 up=0.57 bad=0.10 ex=0.08 | killed winners=45%  
+  boot ex diff CI [-1.42  1.11] P(<0)=0.578
+earn<=7 
+  IS hit n=28 up=0.54 bad=0.18 ex=0.59 | rest n=574 up=0.59 bad=0.09 ex=0.31 | killed winners=54% 
+  OOS hit n=13 up=0.62 bad=0.31 ex=-0.01 | rest n=218 up=0.56 bad=0.11 ex=0.02 | killed winners=62%  
+  boot ex diff CI [-2.19  2.37] P(<0)=0.459
+post-earn fall 
+  IS hit n=135 up=0.59 bad=0.12 ex=0.24 | rest n=467 up=0.59 bad=0.09 ex=0.35 | killed winners=59% 
+  OOS hit n=39 up=0.64 bad=0.10 ex=0.67 | rest n=192 up=0.54 bad=0.13 ex=-0.12 | killed winners=64%  
+  boot ex diff CI [-0.71  0.93] P(<0)=0.372
+ret20<-15 
+  IS hit n=206 up=0.65 bad=0.14 ex=0.96 | rest n=396 up=0.56 bad=0.07 ex=-0.01 | killed winners=65% 
+  OOS hit n=99 up=0.60 bad=0.16 ex=0.44 | rest n=132 up=0.53 bad=0.10 ex=-0.30 | killed winners=60%  
+  boot ex diff CI [0.09 1.82] P(<0)=0.011
+ma200<-15 
+  IS hit n=228 up=0.61 bad=0.10 ex=0.69 | rest n=374 up=0.58 bad=0.09 ex=0.10 | killed winners=61% 
+  OOS hit n=108 up=0.55 bad=0.19 ex=-0.08 | rest n=123 up=0.57 bad=0.07 ex=0.10 | killed winners=55%  
+  boot ex diff CI [-0.46  1.19] P(<0)=0.215
+atr>=5 
+  IS hit n=50 up=0.64 bad=0.16 ex=2.17 | rest n=552 up=0.59 bad=0.09 ex=0.15 | killed winners=64% 
+  OOS hit n=23 up=0.57 bad=0.35 ex=-0.78 | rest n=208 up=0.56 bad=0.10 ex=0.10 | killed winners=57%  
+  boot ex diff CI [-1.03  3.97] P(<0)=0.189
+atr>=4 
+  IS hit n=106 up=0.66 bad=0.16 ex=1.26 | rest n=496 up=0.58 bad=0.08 ex=0.12 | killed winners=66% 
+  OOS hit n=51 up=0.63 bad=0.22 ex=0.68 | rest n=180 up=0.54 bad=0.10 ex=-0.17 | killed winners=63%  
+  boot ex diff CI [-0.26  2.58] P(<0)=0.059
+spx<0 
+  IS hit n=86 up=0.73 bad=0.13 ex=0.68 | rest n=516 up=0.57 bad=0.09 ex=0.26 | killed winners=73% 
+  OOS hit n=26 up=0.69 bad=0.04 ex=0.61 | rest n=205 up=0.54 bad=0.14 ex=-0.06 | killed winners=69%  
+  boot ex diff CI [-0.68  1.56] P(<0)=0.181
+vix>=25 
+  IS hit n=16 up=0.69 bad=0.06 ex=0.58 | rest n=586 up=0.59 bad=0.10 ex=0.31 | killed winners=69% 
+  OOS hit n=24 up=0.62 bad=0.04 ex=0.04 | rest n=207 up=0.55 bad=0.14 ex=0.01 | killed winners=62%  
+  boot ex diff CI [-1.09  1.34] P(<0)=0.471
+ngr>=3 
+  IS hit n=384 up=0.61 bad=0.09 ex=0.36 | rest n=218 up=0.55 bad=0.10 ex=0.25 | killed winners=61% 
+  OOS hit n=153 up=0.58 bad=0.08 ex=0.43 | rest n=78 up=0.51 bad=0.22 ex=-0.81 | killed winners=58%  
+  boot ex diff CI [-0.49  1.24] P(<0)=0.183
+sec>=3 
+  IS hit n=232 up=0.67 bad=0.06 ex=0.96 | rest n=370 up=0.54 bad=0.12 ex=-0.08 | killed winners=67% 
+  OOS hit n=104 up=0.56 bad=0.07 ex=-0.33 | rest n=127 up=0.56 bad=0.17 ex=0.30 | killed winners=56%  
+  boot ex diff CI [-0.21  1.27] P(<0)=0.077
+gap<=-2 
+  IS hit n=7 up=0.86 bad=0.00 ex=3.35 | rest n=595 up=0.59 bad=0.10 ex=0.29 | killed winners=86% 
+  OOS hit n=7 up=0.57 bad=0.14 ex=1.60 | rest n=224 up=0.56 bad=0.12 ex=-0.03 | killed winners=57%  
+  boot ex diff CI [-0.37  4.89] P(<0)=0.048
+earn_hold&ma200<-10 
+  IS hit n=29 up=0.45 bad=0.28 ex=-0.68 | rest n=573 up=0.60 bad=0.09 ex=0.37 | killed winners=45% 
+  OOS hit n=20 up=0.50 bad=0.30 ex=-0.05 | rest n=211 up=0.56 bad=0.11 ex=0.02 | killed winners=50%  
+  boot ex diff CI [-2.76  1.33] P(<0)=0.761
+earnhold&ret20<-10 
+  IS hit n=38 up=0.58 bad=0.21 ex=0.43 | rest n=564 up=0.59 bad=0.09 ex=0.31 | killed winners=58% 
+  OOS hit n=21 up=0.48 bad=0.29 ex=-0.11 | rest n=210 up=0.57 bad=0.11 ex=0.03 | killed winners=48%  
+  boot ex diff CI [-1.53  1.41] P(<0)=0.506
+ma200<-15|atr>=5 
+  IS hit n=241 up=0.62 bad=0.10 ex=0.86 | rest n=361 up=0.57 bad=0.09 ex=-0.04 | killed winners=62% 
+  OOS hit n=112 up=0.54 bad=0.21 ex=-0.06 | rest n=119 up=0.57 bad=0.05 ex=0.09 | killed winners=54%  
+  boot ex diff CI [-0.2   1.41] P(<0)=0.080
+ret60<-25 
+  IS hit n=72 up=0.53 bad=0.18 ex=1.27 | rest n=530 up=0.60 bad=0.08 ex=0.19 | killed winners=53% 
+  OOS hit n=39 up=0.54 bad=0.28 ex=-0.99 | rest n=192 up=0.56 bad=0.09 ex=0.22 | killed winners=54%  
+  boot ex diff CI [-1.36  2.31] P(<0)=0.394
+hi252<-40 
+  IS hit n=83 up=0.64 bad=0.11 ex=1.95 | rest n=519 up=0.58 bad=0.09 ex=0.06 | killed winners=64% 
+  OOS hit n=53 up=0.60 bad=0.23 ex=-0.08 | rest n=178 up=0.54 bad=0.10 ex=0.04 | killed winners=60%  
+  boot ex diff CI [-0.2   2.73] P(<0)=0.064

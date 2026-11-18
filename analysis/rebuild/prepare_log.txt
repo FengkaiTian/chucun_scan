@@ -1,0 +1,515 @@
+1/3 时点成分股...
+  251 个月，累计 849 只出现过
+2/3 下载 2005 年至今日线...
+$ALXN: possibly delisted; no timezone found
+HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"Quote not found for symbol: ANR"}}}
+$ABMD: possibly delisted; no timezone found
+$AVP: possibly delisted; no timezone found
+$ANDV: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$ANR: possibly delisted; no timezone found
+$ATVI: possibly delisted; no timezone found
+$AGN: possibly delisted; no timezone found
+$ABK: possibly delisted; no timezone found
+$AKS: possibly delisted; no timezone found
+$ARNC: possibly delisted; no timezone found
+$ABS: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$ADS: possibly delisted; no timezone found
+$ACE: possibly delisted; no timezone found
+$ALTR: possibly delisted; no timezone found
+$APOL: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$ACAS: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$ARG: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$AET: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$ANSS: possibly delisted; no timezone found
+
+19 Failed downloads:
+['ALXN', 'ABMD', 'AVP', 'ANR', 'ATVI', 'AGN', 'ABK', 'AKS', 'ARNC', 'ADS', 'ACE', 'ALTR', 'ANSS']: possibly delisted; no timezone found
+['ANDV', 'ABS', 'APOL', 'ACAS', 'ARG', 'AET']: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+  下载 80/849（第 1 轮）
+$BHI: possibly delisted; no timezone found
+$BRCM: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$BJS: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$CFC: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$CBE: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$BMC: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$BMS: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$BCR: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$CFN: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$CCE: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$CA: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17)
+$AYE: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$BXLT: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$CERN: possibly delisted; no timezone found
+$BIG: possibly delisted; no timezone found
+$CHK: possibly delisted; no timezone found
+$CEPH: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$CELG: possibly delisted; no timezone found
+
+18 Failed downloads:
+['BHI', 'CERN', 'BIG', 'CHK', 'CELG']: possibly delisted; no timezone found
+['BRCM', 'BJS', 'CFC', 'CBE', 'BMC', 'BMS', 'BCR', 'CFN', 'CCE', 'AYE', 'BXLT', 'CEPH']: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+['CA']: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17)
+  下载 160/849（第 1 轮）
+$CTRA: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17)
+$CPGX: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$DNR: possibly delisted; no timezone found
+$DF: possibly delisted; no timezone found
+$CVC: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$DAY: possibly delisted; no timezone found
+$CTXS: possibly delisted; no timezone found
+$CVG: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$CXO: possibly delisted; no timezone found
+$CVH: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$DISCK: possibly delisted; no timezone found
+$CTLT: possibly delisted; no timezone found
+$CTX: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$CSC: possibly delisted; no timezone found
+$DISCA: possibly delisted; no timezone found
+$CMCSK: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$DISH: possibly delisted; no timezone found
+$DJ: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$DFS: possibly delisted; no timezone found
+$COV: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$DNB: possibly delisted; no timezone found
+$DO: possibly delisted; no timezone found
+$COL: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$CMA: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17)
+
+24 Failed downloads:
+['CTRA', 'CMA']: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17)
+['CPGX', 'CVC', 'CVG', 'CVH', 'CTX', 'CMCSK', 'DJ', 'COV', 'COL']: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+['DNR', 'DF', 'DAY', 'CTXS', 'CXO', 'DISCK', 'CTLT', 'CSC', 'DISCA', 'DISH', 'DFS', 'DNB', 'DO']: possibly delisted; no timezone found
+  下载 240/849（第 1 轮）
+$DRE: possibly delisted; no timezone found
+$ENDP: possibly delisted; no timezone found
+$EVHC: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$ESRX: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$FDO: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$DWDP: possibly delisted; no timezone found
+$FII: possibly delisted; no timezone found
+$FBHS: possibly delisted; no timezone found
+$FDC: possibly delisted; no timezone found
+$FL: possibly delisted; no timezone found
+$DTV: possibly delisted; no timezone found
+$ETFC: possibly delisted; no timezone found
+$DPS: possibly delisted; no timezone found
+$ESV: possibly delisted; no timezone found
+$FLIR: possibly delisted; no timezone found
+$EK: possibly delisted; no timezone found
+$FNM: possibly delisted; no timezone found
+
+17 Failed downloads:
+['DRE', 'ENDP', 'DWDP', 'FII', 'FBHS', 'FDC', 'FL', 'DTV', 'ETFC', 'DPS', 'ESV', 'FLIR', 'EK', 'FNM']: possibly delisted; no timezone found
+['EVHC', 'ESRX', 'FDO']: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+  下载 320/849（第 1 轮）
+$HES: possibly delisted; no timezone found
+$HFC: possibly delisted; no timezone found
+$GAS: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$HNZ: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$IGT: possibly delisted; no timezone found
+$HOLX: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$GR: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17)
+$FRX: possibly delisted; no timezone found
+$HSP: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$HAR: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$FRE: possibly delisted; no timezone found
+$HOT: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$FTR: possibly delisted; no timezone found
+$GMCR: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$HBI: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17)
+$FRC: possibly delisted; no timezone found
+$HCBK: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$GGP: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$GPS: possibly delisted; no timezone found
+
+19 Failed downloads:
+['HES', 'HFC', 'IGT', 'FRX', 'FRE', 'FTR', 'FRC', 'GPS']: possibly delisted; no timezone found
+['GAS', 'HNZ', 'HOLX', 'HSP', 'HAR', 'HOT', 'GMCR', 'HCBK', 'GGP']: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+['GR', 'HBI']: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17)
+  下载 400/849（第 1 轮）
+$K: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17)
+$LLL: possibly delisted; no timezone found
+$JCP |: possibly delisted; no timezone found
+$LSI: possibly delisted; no timezone found
+$JOY: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$JNPR: possibly delisted; no timezone found
+$LLTC: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$JNY: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$LO: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$IPG: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17)
+$ITT |: possibly delisted; no timezone found
+$KFT: possibly delisted; no timezone found
+$LEH: possibly delisted; no timezone found
+$KSU: possibly delisted; no timezone found
+$LM: possibly delisted; no timezone found
+$JNS: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$KRFT: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$KSE: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$LVLT: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$JWN: possibly delisted; no timezone found
+$JDSU: possibly delisted; no timezone found
+
+21 Failed downloads:
+['K', 'IPG']: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17)
+['LLL', 'JCP |', 'LSI', 'JNPR', 'ITT |', 'KFT', 'LEH', 'KSU', 'LM', 'JWN', 'JDSU']: possibly delisted; no timezone found
+['JOY', 'LLTC', 'JNY', 'LO', 'JNS', 'KRFT', 'KSE', 'LVLT']: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+  下载 480/849（第 1 轮）
+$NCR: possibly delisted; no timezone found
+$MHS: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$MRO: possibly delisted; no timezone found
+$MOLX: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$NBL: possibly delisted; no timezone found
+$MFE: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$MNK: possibly delisted; no timezone found
+$MJN: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$LXK: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$NLSN: possibly delisted; no timezone found
+$MXIM: possibly delisted; no timezone found
+$MIL: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$MWW: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$MEE: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$MDP: possibly delisted; no timezone found
+$NOVL: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$MON: possibly delisted; no timezone found
+
+17 Failed downloads:
+['NCR', 'MRO', 'NBL', 'MNK', 'NLSN', 'MXIM', 'MDP', 'MON']: possibly delisted; no timezone found
+['MHS', 'MOLX', 'MFE', 'MJN', 'LXK', 'MIL', 'MWW', 'MEE', 'NOVL']: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+  下载 560/849（第 1 轮）
+$OMX: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$PXD: possibly delisted; no timezone found
+$ODP: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17)
+$NSM: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$PTV: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$QEP: possibly delisted; no timezone found
+$PCP: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$NVLS: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$PGN: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$NYX: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17)
+$PETM: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$PBCT: possibly delisted; no timezone found
+$PDCO: possibly delisted; no timezone found
+$PLL: possibly delisted; no timezone found
+
+14 Failed downloads:
+['OMX', 'NSM', 'PTV', 'PCP', 'NVLS', 'PGN', 'PETM']: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+['PXD', 'QEP', 'PBCT', 'PDCO', 'PLL']: possibly delisted; no timezone found
+['ODP', 'NYX']: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17)
+  下载 640/849（第 1 轮）
+$SVU: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$STJ: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$RHT: possibly delisted; no timezone found
+$RAI: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$RDC: possibly delisted; no timezone found
+$SEE: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17)
+$SIVB: possibly delisted; no timezone found
+$SWN: possibly delisted; no timezone found
+$RSH: possibly delisted; no timezone found
+$SLR: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$SIAL: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$SCG: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$RRD: possibly delisted; no timezone found
+$STR: possibly delisted; no timezone found
+$SBL: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$SRCL: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$SNI: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$RX: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$SWY: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$SAI: possibly delisted; no timezone found
+$RTN: possibly delisted; no timezone found
+
+21 Failed downloads:
+['SVU', 'STJ', 'RAI', 'SLR', 'SIAL', 'SCG', 'SBL', 'SRCL', 'SNI', 'RX', 'SWY']: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+['RHT', 'RDC', 'SIVB', 'SWN', 'RSH', 'RRD', 'STR', 'SAI', 'RTN']: possibly delisted; no timezone found
+['SEE']: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17)
+  下载 720/849（第 1 轮）
+$TWC: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$TFCFA: possibly delisted; no timezone found
+$TFCF: possibly delisted; no timezone found
+$TYC: possibly delisted; no timezone found
+$TEG: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$TWX: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$TRB: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$TSS: possibly delisted; no timezone found
+$VIAB: possibly delisted; no timezone found
+$TLAB: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$TGNA: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17)
+$VAR: possibly delisted; no timezone found
+$TSG: possibly delisted; no timezone found
+$TIF: possibly delisted; no timezone found
+$TIE: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$TWTR: possibly delisted; no timezone found
+
+16 Failed downloads:
+['TWC', 'TEG', 'TWX', 'TRB', 'TLAB', 'TIE']: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+['TFCFA', 'TFCF', 'TYC', 'TSS', 'VIAB', 'VAR', 'TSG', 'TIF', 'TWTR']: possibly delisted; no timezone found
+['TGNA']: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17)
+  下载 800/849（第 1 轮）
+$WFR: possibly delisted; no timezone found
+$WYN: possibly delisted; no timezone found
+$XLNX: possibly delisted; no timezone found
+$WBA: possibly delisted; no timezone found
+$WIN: possibly delisted; no timezone found
+$XEC: possibly delisted; no timezone found
+$WFM: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$YHOO: possibly delisted; no timezone found
+$XTO: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17)
+$XL: possibly delisted; no timezone found
+$X: possibly delisted; no timezone found
+$WLTW: possibly delisted; no timezone found
+$WCG: possibly delisted; no timezone found
+$WPX: possibly delisted; no timezone found
+
+14 Failed downloads:
+['WFR', 'WYN', 'XLNX', 'WBA', 'WIN', 'XEC', 'YHOO', 'XL', 'X', 'WLTW', 'WCG', 'WPX']: possibly delisted; no timezone found
+['WFM']: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+['XTO']: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17)
+  下载 849/849（第 1 轮）
+$CTRA: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17)
+$CPGX: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$EVHC: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$BHI: possibly delisted; no timezone found
+$ABMD: possibly delisted; no timezone found
+$BJS: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$BRCM: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$ATVI: possibly delisted; no timezone found
+$DRE: possibly delisted; no timezone found
+$DNR: possibly delisted; no timezone found
+$CVC: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$DF: possibly delisted; no timezone found
+$ALXN: possibly delisted; no timezone found
+$ANR: possibly delisted; no timezone found
+$FDO: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$CFC: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$ANDV: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$ENDP: possibly delisted; no timezone found
+$AVP: possibly delisted; no timezone found
+$CVG: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$BMS: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$DAY: possibly delisted; no timezone found
+$DWDP: possibly delisted; no timezone found
+$BMC: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$CTXS: possibly delisted; no timezone found
+$CVH: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$CTLT: possibly delisted; no timezone found
+$DISCK: possibly delisted; no timezone found
+$ESRX: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$CBE: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$CA: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17)
+$BCR: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$CTX: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$AGN: possibly delisted; no timezone found
+$ARNC: possibly delisted; no timezone found
+$FDC: possibly delisted; no timezone found
+$CXO: possibly delisted; no timezone found
+$CFN: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$FII: possibly delisted; no timezone found
+$FL: possibly delisted; no timezone found
+$ABK: possibly delisted; no timezone found
+$ABS: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$AKS: possibly delisted; no timezone found
+$DISCA: possibly delisted; no timezone found
+$CCE: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$FBHS: possibly delisted; no timezone found
+$DJ: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$CMCSK: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$DTV: possibly delisted; no timezone found
+$DFS: possibly delisted; no timezone found
+$AYE: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$CSC: possibly delisted; no timezone found
+$DISH: possibly delisted; no timezone found
+$FLIR: possibly delisted; no timezone found
+$ADS: possibly delisted; no timezone found
+$APOL: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$BXLT: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$ALTR: possibly delisted; no timezone found
+$ETFC: possibly delisted; no timezone found
+$CEPH: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$ACE: possibly delisted; no timezone found
+$BIG: possibly delisted; no timezone found
+$CMA: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17)
+$DO: possibly delisted; no timezone found
+$ACAS: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$ARG: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$AET: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$CERN: possibly delisted; no timezone found
+$COV: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$DPS: possibly delisted; no timezone found
+$ANSS: possibly delisted; no timezone found
+$CHK: possibly delisted; no timezone found
+$EK: possibly delisted; no timezone found
+$ESV: possibly delisted; no timezone found
+$CELG: possibly delisted; no timezone found
+$FNM: possibly delisted; no timezone found
+$DNB: possibly delisted; no timezone found
+$COL: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+
+78 Failed downloads:
+['CTRA', 'CA', 'CMA']: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17)
+['CPGX', 'EVHC', 'BJS', 'BRCM', 'CVC', 'FDO', 'CFC', 'ANDV', 'CVG', 'BMS', 'BMC', 'CVH', 'ESRX', 'CBE', 'BCR', 'CTX', 'CFN', 'ABS', 'CCE', 'DJ', 'CMCSK', 'AYE', 'APOL', 'BXLT', 'CEPH', 'ACAS', 'ARG', 'AET', 'COV', 'COL']: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+['BHI', 'ABMD', 'ATVI', 'DRE', 'DNR', 'DF', 'ALXN', 'ANR', 'ENDP', 'AVP', 'DAY', 'DWDP', 'CTXS', 'CTLT', 'DISCK', 'AGN', 'ARNC', 'FDC', 'CXO', 'FII', 'FL', 'ABK', 'AKS', 'DISCA', 'FBHS', 'DTV', 'DFS', 'CSC', 'DISH', 'FLIR', 'ADS', 'ALTR', 'ETFC', 'ACE', 'BIG', 'DO', 'CERN', 'DPS', 'ANSS', 'CHK', 'EK', 'ESV', 'CELG', 'FNM', 'DNB']: possibly delisted; no timezone found
+  下载 80/206（第 2 轮）
+$K: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17)
+$RHT: possibly delisted; no timezone found
+$GAS: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$MFE: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$NBL: possibly delisted; no timezone found
+$MHS: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$RAI: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$MRO: possibly delisted; no timezone found
+$RDC: possibly delisted; no timezone found
+$MNK: possibly delisted; no timezone found
+$OMX: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$NCR: possibly delisted; no timezone found
+$HFC: possibly delisted; no timezone found
+$MOLX: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$LLL: possibly delisted; no timezone found
+$GR: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17)
+$ODP: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17)
+$MJN: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$HOLX: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$FRX: possibly delisted; no timezone found
+$JOY: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$IGT: possibly delisted; no timezone found
+$JCP |: possibly delisted; no timezone found
+$HNZ: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$PXD: possibly delisted; no timezone found
+$HSP: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$HES: possibly delisted; no timezone found
+$LSI: possibly delisted; no timezone found
+$JNPR: possibly delisted; no timezone found
+$NSM: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$IPG: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17)
+$LLTC: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$PTV: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$JNY: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$HAR: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$RSH: possibly delisted; no timezone found
+$FRE: possibly delisted; no timezone found
+$MWW: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$LO: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$QEP: possibly delisted; no timezone found
+$RRD: possibly delisted; no timezone found
+$NLSN: possibly delisted; no timezone found
+$LXK: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$HOT: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$MIL: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$MXIM: possibly delisted; no timezone found
+$HBI: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17)
+$KRFT: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$PCP: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$KSU: possibly delisted; no timezone found
+$FTR: possibly delisted; no timezone found
+$ITT |: possibly delisted; no timezone found
+$GMCR: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$NVLS: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$PGN: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$JNS: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$MDP: possibly delisted; no timezone found
+$LEH: possibly delisted; no timezone found
+$LM: possibly delisted; no timezone found
+$KFT: possibly delisted; no timezone found
+$PBCT: possibly delisted; no timezone found
+$NYX: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17)
+$FRC: possibly delisted; no timezone found
+$JWN: possibly delisted; no timezone found
+$LVLT: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$PLL: possibly delisted; no timezone found
+$RTN: possibly delisted; no timezone found
+$MON: possibly delisted; no timezone found
+$MEE: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$HCBK: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$JDSU: possibly delisted; no timezone found
+$GPS: possibly delisted; no timezone found
+$PDCO: possibly delisted; no timezone found
+$KSE: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$NOVL: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$GGP: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$PETM: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+
+77 Failed downloads:
+['K', 'GR', 'ODP', 'IPG', 'HBI', 'NYX']: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17)
+['RHT', 'NBL', 'MRO', 'RDC', 'MNK', 'NCR', 'HFC', 'LLL', 'FRX', 'IGT', 'JCP |', 'PXD', 'HES', 'LSI', 'JNPR', 'RSH', 'FRE', 'QEP', 'RRD', 'NLSN', 'MXIM', 'KSU', 'FTR', 'ITT |', 'MDP', 'LEH', 'LM', 'KFT', 'PBCT', 'FRC', 'JWN', 'PLL', 'RTN', 'MON', 'JDSU', 'GPS', 'PDCO']: possibly delisted; no timezone found
+['GAS', 'MFE', 'MHS', 'RAI', 'OMX', 'MOLX', 'MJN', 'HOLX', 'JOY', 'HNZ', 'HSP', 'NSM', 'LLTC', 'PTV', 'JNY', 'HAR', 'MWW', 'LO', 'LXK', 'HOT', 'MIL', 'KRFT', 'PCP', 'GMCR', 'NVLS', 'PGN', 'JNS', 'LVLT', 'MEE', 'HCBK', 'KSE', 'NOVL', 'GGP', 'PETM']: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+  下载 160/206（第 2 轮）
+$SEE: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17)
+$WIN: possibly delisted; no timezone found
+$XLNX: possibly delisted; no timezone found
+$WFM: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$SBL: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$TWX: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$TEG: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$WYN: possibly delisted; no timezone found
+$TSS: possibly delisted; no timezone found
+$TFCFA: possibly delisted; no timezone found
+$WBA: possibly delisted; no timezone found
+$WFR: possibly delisted; no timezone found
+$SVU: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$TIF: possibly delisted; no timezone found
+$VAR: possibly delisted; no timezone found
+$XTO: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17)
+$VIAB: possibly delisted; no timezone found
+$SRCL: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$TSG: possibly delisted; no timezone found
+$XL: possibly delisted; no timezone found
+$YHOO: possibly delisted; no timezone found
+$STJ: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$TLAB: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$SNI: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$XEC: possibly delisted; no timezone found
+$STR: possibly delisted; no timezone found
+$SIVB: possibly delisted; no timezone found
+$X: possibly delisted; no timezone found
+$TYC: possibly delisted; no timezone found
+$SWY: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$SWN: possibly delisted; no timezone found
+$TGNA: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17)
+$TWC: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$WLTW: possibly delisted; no timezone found
+$TRB: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$WCG: possibly delisted; no timezone found
+$SCG: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$SIAL: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$TIE: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$SLR: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$TWTR: possibly delisted; no timezone found
+$WPX: possibly delisted; no timezone found
+$RX: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+$SAI: possibly delisted; no timezone found
+$TFCF: possibly delisted; no timezone found
+
+45 Failed downloads:
+['SEE', 'XTO', 'TGNA']: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17)
+['WIN', 'XLNX', 'WYN', 'TSS', 'TFCFA', 'WBA', 'WFR', 'TIF', 'VAR', 'VIAB', 'TSG', 'XL', 'YHOO', 'XEC', 'STR', 'SIVB', 'X', 'TYC', 'SWN', 'WLTW', 'WCG', 'TWTR', 'WPX', 'SAI', 'TFCF']: possibly delisted; no timezone found
+['WFM', 'SBL', 'TWX', 'TEG', 'SVU', 'SRCL', 'STJ', 'TLAB', 'SNI', 'SWY', 'TWC', 'TRB', 'SCG', 'SIAL', 'TIE', 'SLR', 'RX']: possibly delisted; no price data found  (1d 2005-01-01 -> 2026-11-17) (Yahoo error = "No data found, symbol may be delisted")
+  下载 206/206（第 2 轮）
+  成功 643 只，失败 206 只（多为已退市）
+3/3 计算信号和条件...
+  计算 200/643  14s
+  计算 300/643  21s
+  计算 400/643  31s
+  计算 500/643  40s
+  计算 600/643  48s
+
+基础信号 15197 条（其中当时在指数内 11251 条），2006-01-17 → 2026-11-13
+ month_end  members  with_data  pct
+2006-11-30      517        367 71.0
+2007-11-30      514        368 71.6
+2008-11-30      512        371 72.5
+2009-11-30      511        374 73.2
+2010-11-30      510        375 73.5
+2011-11-30      509        382 75.0
+2012-11-30      509        389 76.4
+2013-11-30      507        397 78.3
+2014-11-30      507        399 78.7
+2015-11-30      510        414 81.2
+2016-11-30      509        425 83.5
+2017-11-30      508        435 85.6
+2018-11-30      507        442 87.2
+2019-11-30      507        453 89.3
+2020-11-30      507        462 91.1
+2021-11-30      506        468 92.5
+2022-11-30      504        479 95.0
+2023-11-30      504        484 96.0
+2024-11-30      504        488 96.8
+2025-11-30      504        496 98.4

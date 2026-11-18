@@ -1,0 +1,7 @@
+# 回测用的大数据文件（可用 analysis/rebuild/prepare_data.py 重新生成）
+analysis/rebuild/data/
+analysis/rebuild/data2000/
+analysis/rebuild/out*/combos_*.parquet
+analysis/explore_rules_all.csv
+__pycache__/
+*.pyc

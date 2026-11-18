@@ -623,5 +623,6 @@
 {"ticker": "FIX", "scan_date": "2026-10-28", "grade": "A", "wr5": 71.4, "source": "backfill"},
 {"ticker": "SCHW", "scan_date": "2026-10-30", "grade": "B", "wr5": 66.0, "source": "backfill"},
 {"ticker": "FTNT", "scan_date": "2026-11-10", "grade": "SSS", "wr5": 71.4, "source": "backfill"},
-{"ticker": "NOW", "scan_date": "2026-11-10", "grade": "SSS", "wr5": 71.4, "source": "backfill"}
+{"ticker": "NOW", "scan_date": "2026-11-10", "grade": "SSS", "wr5": 71.4, "source": "backfill"},
+{"ticker": "FFIV", "scan_date": "2026-11-18", "grade": "SSS", "wr5": 72.7, "source": "live"}
 ]
