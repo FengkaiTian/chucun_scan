@@ -145,12 +145,13 @@ def _holding(picks, hold):
     body = ''
     for p in sorted(rows, key=lambda p: p['scan_date']):
         held = p.get('held') or 0
-        ex = (p['rnow'] - 0.10 - p['bnow']) if p.get('rnow') is not None and p.get('bnow') is not None else None
+        rn = p.get('rnow')
+        state = '<span class="muted">—</span>' if rn is None else ('<span class="up">赢</span>' if rn > 0.10 else '<span class="down">输</span>')
         body += (f'<tr><td><b>{escape(p["ticker"])}</b></td><td class="num">{p["scan_date"]}</td>'
                  f'<td><span class="prog"><i style="width:{held / hold * 100:.0f}%"></i></span><span class="num">{held}/{hold}</span></td>'
-                 f'<td class="n">{_pct(p.get("rnow"))}</td><td class="n">{_pct(p.get("bnow"))}</td><td class="n">{_pct(ex)}</td></tr>')
+                 f'<td class="n">{_pct(rn)}</td><td class="n">{state}</td></tr>')
     return f'''<div class="scroll"><table>
-<thead><tr><th>股票</th><th>买入日</th><th>已持有（交易日）</th><th class="n">至今涨跌</th><th class="n">同期标普500</th><th class="n">扣费后超额</th></tr></thead>
+<thead><tr><th>股票</th><th>买入日</th><th>已持有（交易日）</th><th class="n">至今涨跌</th><th class="n">目前（涨超 0.1% 算赢）</th></tr></thead>
 <tbody>{body}</tbody></table></div>'''
 
 
@@ -161,17 +162,17 @@ def _live_record(picks, hold):
         return (f'<div class="kpis">'
                 f'<div class="kpi"><div class="k">已出结果</div><div class="v num">0</div><div class="d">共 {n_all} 只主推，2026-11-19 开始记录</div></div>'
                 f'<div class="kpi"><div class="k">回测每笔净收益</div><div class="v num up">+{BT["net"]:.2f}%</div><div class="d">2000–2025，t {BT["t"]}</div></div>'
-                f'<div class="kpi"><div class="k">回测胜率</div><div class="v num">{BT["win"]}%</div><div class="d">2026 年 {BT["win26"]}%</div></div>'
+                f'<div class="kpi"><div class="k">回测胜率</div><div class="v num">{BT["win"]}%</div><div class="d">涨超 0.1% 算赢 · 2026 年 {BT["win26"]}%</div></div>'
                 f'<div class="kpi"><div class="k">随便买一只</div><div class="v num">+{BT["random"]:.2f}%</div><div class="d">同样持有 10 天</div></div></div>')
-    vals = [p[f'r{hold}'] - 0.10 for p in done]
-    bench = [p[f'b{hold}'] for p in done if p.get(f'b{hold}') is not None]
-    avg = sum(vals) / len(vals); win = sum(v > 0 for v in vals) / len(vals) * 100
-    ex = avg - sum(bench) / len(bench) if bench else None
+    raw = [p[f'r{hold}'] for p in done]
+    vals = [v - 0.10 for v in raw]
+    avg = sum(vals) / len(vals); win = sum(v > 0.10 for v in raw) / len(raw) * 100   # 涨超 0.1% 算赢
+    total = sum(vals)
     return (f'<div class="kpis">'
             f'<div class="kpi"><div class="k">已出结果</div><div class="v num">{len(done)}</div><div class="d">共 {n_all} 只主推</div></div>'
             f'<div class="kpi"><div class="k">实盘每笔净收益</div><div class="v num {_sign(avg)}">{avg:+.2f}%</div><div class="d">回测 +{BT["net"]:.2f}%</div></div>'
-            f'<div class="kpi"><div class="k">实盘胜率</div><div class="v num">{win:.0f}%</div><div class="d">回测 {BT["win"]}%</div></div>'
-            f'<div class="kpi"><div class="k">比标普500多赚</div><div class="v num">{_pct(ex)}</div><div class="d">回测 +{BT["excess"]:.2f}%</div></div></div>')
+            f'<div class="kpi"><div class="k">实盘胜率</div><div class="v num">{win:.0f}%</div><div class="d">涨超 0.1% 算赢 · 回测 {BT["win"]}%</div></div>'
+            f'<div class="kpi"><div class="k">累计净收益</div><div class="v num {_sign(total)}">{total:+.1f}%</div><div class="d">每笔收益相加</div></div></div>')
 
 
 def _rules(ctx):
@@ -200,10 +201,9 @@ def _rules(ctx):
       <tbody>
         <tr><td>笔数</td><td class="n">约 {BT["per_year"]} / 年</td><td class="n">{BT["n26"]}</td></tr>
         <tr><td>每笔净收益</td><td class="n up">+{BT["net"]:.2f}%</td><td class="n up">+{BT["net26"]:.2f}%</td></tr>
-        <tr><td>胜率</td><td class="n">{BT["win"]}%</td><td class="n">{BT["win26"]}%</td></tr>
+        <tr><td>胜率（涨超 0.1% 算赢）</td><td class="n">{BT["win"]}%</td><td class="n">{BT["win26"]}%</td></tr>
         <tr><td>赚钱的年份</td><td class="n">{BT["pos_years"]}%</td><td class="n">—</td></tr>
         <tr><td>最差连续 5 年每笔</td><td class="n up">+{BT["worst5"]:.2f}%</td><td class="n">—</td></tr>
-        <tr><td>比标普500多赚</td><td class="n">+{BT["excess"]:.2f}%</td><td class="n">—</td></tr>
       </tbody>
     </table>
     <p style="margin-top:10px">参照：随便挑一天随便买一只成分股，同样拿 10 天每笔 +{BT["random"]:.2f}%。主推多出来的部分主要来自大跌后的反弹，收益集中在少数恐慌日。数据为无幸存者偏差的历史成分股，训练 2000–2025、测试 2026。</p>
@@ -285,7 +285,7 @@ def render_report(ctx):
 </section>
 
 <section class="card">
-  <header><h2>主推实盘记录</h2><p>持有满 {ctx["hold"]} 天、扣 0.10% 成本后的结果，和回测对照</p></header>
+  <header><h2>主推实盘记录</h2><p>持有满 {ctx["hold"]} 天的结果：涨超 0.1%（来回成本）算赢，不和标普500比</p></header>
   {_live_record(recent, ctx["hold"])}
 </section>
 
