@@ -8,6 +8,13 @@ from html import escape
 # 主推规则回测（analysis/private/relax_grid.py；T1 收盘买、持有 10 个交易日、扣 0.10% 来回成本）
 BT = {'per_year': 120, 'net': 1.21, 't': 4.5, 'win': 57, 'pos_years': 81, 'worst5': 0.59, 'excess': 0.25,
       'n26': 156, 'net26': 2.43, 'win26': 65, 'random': 0.40}
+# 主推分档（analysis/private/rank_tiers.py）：(说明, 每年笔数, 训练每笔净%, 训练胜率%, 2026 笔数, 2026 每笔净%, 2026 胜率%)
+GRADES = {
+    'A': ('个股深低开 + 市场恐慌', 29, 2.94, 67, 26, 2.46, 69),
+    'B': ('只满足其中一项', 49, 1.30, 57, 67, 3.20, 72),
+    'C': ('两项都不满足', 41, -0.05, 53, 63, 1.60, 57),
+}
+GRADE_NOTE = {'A': '优先买', 'B': '正常买', 'C': '历史上不赚钱，只观察'}
 
 CSS = '''
 :root{
@@ -51,7 +58,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 -apple-system,
 .hero h2{color:var(--brand-ink)}
 .badge{display:inline-block;padding:2px 9px;border-radius:999px;background:var(--brand);color:#fff;font-size:12px;font-weight:700;vertical-align:2px;margin-left:6px}
 .plan{display:flex;gap:10px;flex-wrap:wrap;padding:12px 18px;border-bottom:1px solid var(--line);font-size:13.5px;color:var(--ink2)}
-.plan span{background:var(--soft);padding:4px 10px;border-radius:8px}
+.plan>span{background:var(--soft);padding:4px 10px;border-radius:8px}
 .plan b{color:var(--ink)}
 
 .picks{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;padding:16px 18px 18px}
@@ -75,6 +82,10 @@ th.n,td.n{text-align:right}
 .chip{display:inline-block;padding:1px 7px;margin:1px 2px 1px 0;border-radius:5px;background:var(--soft);color:var(--ink2);font-size:12px}
 .tier{display:inline-block;min-width:34px;text-align:center;padding:1px 7px;border-radius:5px;font-size:12px;font-weight:700;background:var(--soft);color:var(--ink2)}
 .tier.main{background:var(--brand);color:#fff}
+.gr{display:inline-block;min-width:26px;text-align:center;padding:1px 8px;border-radius:6px;font-weight:800;font-size:13px}
+.gA{background:var(--up);color:#fff} .gB{background:var(--brand);color:#fff} .gC{background:var(--soft);color:var(--ink2)}
+.pick .head{display:flex;justify-content:space-between;align-items:center}
+.pick .gnote{font-size:12px;color:var(--ink2);margin-top:2px}
 .prog{display:inline-block;width:70px;height:6px;border-radius:3px;background:var(--soft);vertical-align:middle;margin-right:6px;overflow:hidden}
 .prog i{display:block;height:100%;background:var(--brand)}
 
@@ -83,6 +94,7 @@ th.n,td.n{text-align:right}
 .kpi .k{font-size:12px;color:var(--ink3)} .kpi .v{font-size:22px;font-weight:700;margin-top:2px} .kpi .d{font-size:12px;color:var(--ink2)}
 
 .rules{display:grid;grid-template-columns:1fr 1fr;gap:18px 28px;font-size:13.5px;color:var(--ink2)}
+.rules>div{min-width:0} .rules table th,.rules table td{white-space:normal}
 .rules h3{margin:0 0 6px;font-size:14px;color:var(--ink)}
 .rules ol,.rules ul{margin:0;padding-left:20px} .rules li{margin:3px 0}
 .rules table td,.rules table th{padding:6px 8px} .rules table td:first-child,.rules table th:first-child{padding-left:0}
@@ -123,8 +135,14 @@ def _pick_cards(rows, ctx):
     for r in rows:
         earn = f'<span class="warnchip">财报 {escape(r["earnings_warn"])}，持有期内</span>' if r.get('earnings_warn') else ''
         atr = r.get('atr_pct', 0)
+        g = r.get('main_grade') or 'C'
+        why = []
+        if r.get('gap', 0) <= -1: why.append(f'低开 {r["gap"]:.1f}%')
+        elif r.get('open_lt_pl'): why.append('开盘低于昨日最低')
+        else: why.append(f'低开 {r.get("gap", 0):.1f}%')
         cards += f'''<div class="pick">
-  <div class="tk">{escape(r["ticker"])}</div>
+  <div class="head"><div class="tk">{escape(r["ticker"])}</div><span class="gr g{g}">{g}</span></div>
+  <div class="gnote">{GRADE_NOTE[g]} · {"、".join(why)}</div>
   <div class="co" title="{escape(r["name"])} · {escape(r["sector"])}">{escape(r["name"])} · {escape(r["sector"])}</div>
   <div class="px num">${r["price"]} <span class="{_sign(r["chg"])}">{r["chg"]:+.2f}%</span></div>
   <dl>
@@ -195,7 +213,13 @@ def _rules(ctx):
     </ul>
   </div>
   <div>
-    <h3>回测（T1 收盘买、持有 10 天、扣 0.10% 来回成本）</h3>
+    <h3>分档（同一天有多只时先买 A）</h3>
+    <table>
+      <thead><tr><th>档</th><th>条件</th><th class="n">每年</th><th class="n">每笔净收益</th><th class="n">胜率</th><th class="n">2026</th></tr></thead>
+      <tbody>{"".join(f'<tr><td><span class="gr g{k}">{k}</span></td><td>{v[0]}</td><td class="n">{v[1]}</td><td class="n {_sign(v[2])}">{v[2]:+.2f}%</td><td class="n">{v[3]}%</td><td class="n"><span class="{_sign(v[5])}">{v[5]:+.2f}%</span> · {v[6]}%</td></tr>' for k, v in GRADES.items())}</tbody>
+    </table>
+    <p style="margin:6px 0 14px">个股深低开 = 低开 ≥1% 或 开盘低于昨日最低；市场恐慌 = VIX ≥ 25 或 当天主推 ≥ 5 只。2000–2025 年挑、2026 年检验。</p>
+    <h3>整体回测（T1 收盘买、持有 10 天、扣 0.10% 来回成本）</h3>
     <table>
       <thead><tr><th></th><th class="n">2000–2025</th><th class="n">2026</th></tr></thead>
       <tbody>
@@ -233,12 +257,13 @@ def _all_picks(picks):
         return '<div class="empty" style="padding:18px">暂无记录</div>'
     body = ''
     for p in picks:
-        tag = '<span class="tier main">主推</span>' if p.get('new_rule') else f'<span class="tier">{escape(p.get("tier") or p.get("grade") or "—")}</span>'
+        g = p.get('main_grade')
+        tag = f'<span class="gr g{g}">{g}</span>' if g in GRADES else '<span class="tier main">主推</span>'
         body += (f'<tr><td><span style="font-weight:700">{escape(p["ticker"])}</span></td><td>{tag}</td>'
                  f'<td class="num muted">{p["scan_date"]}</td>'
                  + ''.join(f'<td class="n">{_pct(p.get(f"r{n}"))}</td>' for n in (1, 3, 5, 10)) + '</tr>')
     return f'''<div class="scroll tall"><table>
-<thead><tr><th>股票</th><th>类别</th><th>买入日</th><th class="n">T+1</th><th class="n">T+3</th><th class="n">T+5</th><th class="n">T+10</th></tr></thead>
+<thead><tr><th>股票</th><th>档</th><th>买入日</th><th class="n">T+1</th><th class="n">T+3</th><th class="n">T+5</th><th class="n">T+10</th></tr></thead>
 <tbody>{body}</tbody></table></div>'''
 
 
@@ -275,7 +300,7 @@ def render_report(ctx):
 
 <section class="card hero">
   <header><h2>今日主推<span class="badge">{len(main)} 只</span></h2><p>明天收盘买，持有 {ctx["hold"]} 个交易日</p></header>
-  <div class="plan"><span>买入日 <b>{ctx["entry_day"]}</b> 收盘</span><span>卖出日 约 <b>{ctx["exit_day"]}</b> 收盘</span><span>回测每笔 <b class="up">+{BT["net"]:.2f}%</b> · 胜率 <b>{BT["win"]}%</b></span></div>
+  <div class="plan"><span>买入日 <b>{ctx["entry_day"]}</b> 收盘</span><span>卖出日 约 <b>{ctx["exit_day"]}</b> 收盘</span>{"".join(f'<span><span class="gr g{k}">{k}</span> 每笔 <b class="{_sign(v[2])}">{v[2]:+.2f}%</b> · 胜率 <b>{v[3]}%</b></span>' for k, v in GRADES.items())}</div>
   {_pick_cards(main, ctx)}
 </section>
 
@@ -295,13 +320,8 @@ def render_report(ctx):
 </section>
 
 <details class="card">
-  <summary><h2>其他信号 <span class="muted">旧星级，仅参考 · {len(others)} 只</span></h2></summary>
-  {_others(others)}
-</details>
-
-<details class="card">
-  <summary><h2>全部选股记录 <span class="muted">近 180 天 · {len(recent)} 条</span></h2></summary>
-  {_all_picks(recent)}
+  <summary><h2>主推全部记录 <span class="muted">{sum(bool(p.get("new_rule")) for p in recent)} 条</span></h2></summary>
+  {_all_picks([p for p in recent if p.get("new_rule")])}
 </details>
 
 <footer>仅供研究参考，不构成投资建议。历史回测不代表未来表现。<br>红色上涨 · 绿色下跌</footer>

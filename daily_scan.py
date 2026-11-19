@@ -343,6 +343,13 @@ def new_rule_hit(close, open_):
     return kept_today
 
 
+def main_grade(gap_pct, open_lt_prev_low, vix, n_main_today):
+    """主推分档（analysis/private/rank_tiers.py）：个股深低开 1 分 + 市场恐慌 1 分。
+    深低开 = 低开 ≥1% 或 开盘 < 昨日最低；恐慌 = VIX ≥ 25 或 当天主推 ≥ 5 只。2 分 A，1 分 B，0 分 C"""
+    score = int(gap_pct <= -1 or open_lt_prev_low) + int(vix >= 25 or n_main_today >= 5)
+    return 'ABC'[2 - score]
+
+
 def star_tier(conds, grade):
     """按条件给星级：跳空收正 > 十字星底 > SSS 组合 > 参考"""
     if conds.get('gap_down_close'):
@@ -525,6 +532,8 @@ def main():
                 'grade': grade or '',
                 'tier': tier,
                 'new_rule': new_rule,
+                'gap': round(float(open_.iloc[-1] / close.iloc[-2] - 1) * 100, 2),
+                'open_lt_pl': bool(open_.iloc[-1] < low.iloc[-2]),
                 'tier_wr5': TIER_STATS[tier][0],
                 'tier_ret5': TIER_STATS[tier][1],
                 'matched_signals': matched_signals,
@@ -582,8 +591,11 @@ def main():
     if n_deduped:
         print(f"  去重过滤: 移除 {before - len(results)} 只（近10交易日已推荐）")
 
-    # 主推排最前，其余按星级排序，同级里按原组合胜率
-    results.sort(key=lambda x: (not x['new_rule'], TIER_ORDER.index(x['tier']), -x.get('win_rate_5', 0)))
+    # 主推分档 A/B/C；主推排最前（按档、再按低开幅度），其余按旧星级
+    n_main = sum(r['new_rule'] for r in results)
+    for r in results:
+        r['main_grade'] = main_grade(r['gap'], r['open_lt_pl'], vix_price, n_main) if r['new_rule'] else ''
+    results.sort(key=lambda x: (not x['new_rule'], x['main_grade'], x['gap'], TIER_ORDER.index(x['tier']), -x.get('win_rate_5', 0)))
     for r in results:
         r['n_base_day'] = n_base   # 今天全市场通过基础信号的股票数
 
@@ -591,7 +603,7 @@ def main():
     # 把今天的结果记进选股记录（同一天重跑则覆盖）
     history = [p for p in history if p['scan_date'] != today_str]
     history += [{'ticker': r['ticker'], 'scan_date': today_str, 'grade': r['grade'], 'tier': r['tier'],
-                 'new_rule': r['new_rule'], 'wr5': r['wr5'], 'source': 'live'} for r in results]
+                 'new_rule': r['new_rule'], 'main_grade': r['main_grade'], 'wr5': r['wr5'], 'source': 'live'} for r in results]
     save_history(history)
     recent = pick_performance(history)
 
@@ -623,7 +635,7 @@ def main():
 
     print(f"\n✅ 报告已生成：{OUTPUT_HTML}")
     for r in results:
-        print(f"   {'主推' if r['new_rule'] else '    '} {r['tier']:4} {r['ticker']:6} RSI={r['rsi']:5.1f} 原等级={r['grade'] or '—'} 匹配: {r['matched_combo']}")
+        print(f"   {'主推' + r['main_grade'] if r['new_rule'] else '     '} {r['tier']:4} {r['ticker']:6} RSI={r['rsi']:5.1f} 原等级={r['grade'] or '—'} 匹配: {r['matched_combo']}")
     print(f"\n   总计: {len(results)} 只")
 
     if '--no-open' not in sys.argv:
