@@ -98,6 +98,7 @@ th:first-child,td:first-child{padding-left:18px} th:last-child,td:last-child{pad
 @media (prefers-color-scheme:dark){.grade{color:#10141b}}
 .g-SSS{background:var(--g-sss)} .g-S{background:var(--g-s)} .g-A{background:var(--g-a)} .g-B{background:var(--g-b)}
 .tier{display:inline-block;min-width:44px;text-align:center;padding:3px 8px;border-radius:6px;font-size:13px;font-weight:700;white-space:nowrap}
+.tnew{background:var(--accent);color:#fff;margin-right:4px}
 .t3{background:var(--g-sss);color:#fff} .t2{background:var(--warn-soft);color:var(--warn)}
 .t1{background:var(--accent-soft);color:var(--accent)} .t0{background:var(--soft);color:var(--ink3);font-weight:500;font-size:12px}
 @media (prefers-color-scheme:dark){.t3{color:#10141b}}
@@ -202,7 +203,7 @@ def _signals_table(rows, bl):
         body += f'''<tr{' class="ref"' if t == '参考' else ''}>
   <td class="stock" data-k="ticker" data-v="{r["ticker"]}"><b>{r["ticker"]}</b> $<span class="px">{r["price"]}</span><span class="chg {_sign_cls(r["chg"])}">{r["chg"]:+.2f}%</span>
     <span class="co" title="{escape(r["name"])} · {escape(r["sector"])}">{escape(r["name"])} · {escape(r["sector"])}</span>{earn}</td>
-  <td data-k="tier" data-v="{3 - TIER_ORDER.index(t)}"><span class="tier {TIER_CLS[t]}">{t}</span>{oldg}</td>
+  <td data-k="tier" data-v="{(10 if r.get("new_rule") else 0) + 3 - TIER_ORDER.index(t)}">{'<span class="tier tnew">主推</span> ' if r.get("new_rule") else ''}<span class="tier {TIER_CLS[t]}">{t}</span>{oldg}</td>
   <td><div class="chips">{chips}</div>{sample}</td>
   <td class="n wr main" data-k="twr" data-v="{r["tier_wr5"]}"><span>{r["tier_wr5"]:.1f}%</span><i style="--w:{w:.0f}%"></i></td>
   <td class="n" data-k="tret" data-v="{r["tier_ret5"]}"><b class="{_sign_cls(r["tier_ret5"])}">{r["tier_ret5"]:+.2f}%</b></td>
@@ -357,8 +358,8 @@ def render_report(ctx):
 
     alert = ''
     if ctx['vix_extreme']:
-        alert = ('<div class="alert danger"><b>VIX ≥ 30，信号暂停</b>'
-                 '回测显示极端恐慌期的超卖信号失败率很高，等 VIX 回落到 30 以下再恢复出信号。</div>')
+        alert = ('<div class="alert danger"><b>VIX ≥ 30，旧星级信号暂停</b>'
+                 '主推规则不看 VIX，照常出信号；旧星级等 VIX 回落到 30 以下再恢复。</div>')
     elif ctx['vix_high']:
         alert = ('<div class="alert warn"><b>VIX 高于 20，信号可信度更高</b>'
                  '回测显示 VIX > 20 时超卖反弹信号的胜率大约高 5–10 个百分点。</div>')
@@ -372,6 +373,7 @@ def render_report(ctx):
         for t in TIER_ORDER)
     n_tier = {t: sum(r['tier'] == t for r in results) for t in TIER_ORDER}
     n_star = len(results) - n_tier['参考']
+    n_new = sum(bool(r.get('new_rule')) for r in results)
 
     return f'''<!DOCTYPE html>
 <html lang="zh-CN">
@@ -393,6 +395,7 @@ def render_report(ctx):
 </div>
 
 <div class="tiles">
+  <div class="tile"><div class="k">今日主推</div><div class="v num">{n_new} <span style="font-size:14px;font-weight:500;color:var(--ink2)">只</span></div><div class="d">基础信号 + 低开（开盘 &lt; 昨收），5 天内首次；次日收盘买，持有 10 个交易日<br>回测 2000–2025：每年约 120 笔，每笔扣费后 +1.21%；2026：156 笔，+2.43%，胜率 65%</div></div>
   <div class="tile"><div class="k">今日带星信号</div><div class="v num">{n_star} <span style="font-size:14px;font-weight:500;color:var(--ink2)">只</span></div><div class="d">★★★ {n_tier["★★★"]} · ★★ {n_tier["★★"]} · ★ {n_tier["★"]} · 参考 {n_tier["参考"]}<br>{" · ".join(funnel_bits)}</div></div>
   <div class="tile"><div class="k">市场环境</div><div class="v {env_cls}">{"牛市" if ctx["is_bull"] else "熊市"}</div><div class="d">标普500 在 200 日均线{"上方" if ctx["is_bull"] else "下方"}</div></div>
   <div class="tile"><div class="k">标普500</div><div class="v num">{ctx["spy_price"]:,.0f}</div><div class="d">较 200 日均线 <span class="num {env_cls}">{ctx["spy_pct"]:+.1f}%</span></div></div>

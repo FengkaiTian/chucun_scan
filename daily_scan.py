@@ -309,6 +309,37 @@ TIER_RULE = {
 }
 
 
+# ── 主推规则（2026-11-19 起）──────────────────────────────
+# 基础信号（同上，不变）+ 今天低开（开盘 < 昨收）+ 该股 5 个日历天内第一次出基础信号；不看 VIX。
+# 次日收盘买入，持有 10 个交易日。旧星级照常保留，仅作参考。
+NEW_RULE_DEDUP_DAYS = 5
+NEW_RULE_HOLD = 10
+
+
+def base_flags(close):
+    """每天是否满足基础信号（MACD 柱<0 且连续 3 根抬高、前一日 RSI<30 且今日回升）"""
+    rsi = calc_rsi(close)
+    _, _, hist = calc_macd(close)
+    return ((hist < 0) & (hist > hist.shift(1)) & (hist.shift(1) > hist.shift(2))
+            & (rsi.shift(1) < 30) & (rsi > rsi.shift(1)))
+
+
+def new_rule_hit(close, open_):
+    """今天是否命中主推规则。去重：基础信号按时间顺序，距上一次「算数」的基础信号超过 5 个日历天才算数"""
+    if not (float(open_.iloc[-1]) < float(close.iloc[-2])):
+        return False
+    b = base_flags(close).iloc[-80:]
+    last = None; kept_today = False
+    for d, v in b.items():
+        if not v:
+            continue
+        keep = last is None or (d - last).days > NEW_RULE_DEDUP_DAYS
+        if keep:
+            last = d
+        kept_today = keep and d == b.index[-1]
+    return kept_today
+
+
 def star_tier(conds, grade):
     """按条件给星级：跳空收正 > 十字星底 > SSS 组合 > 参考"""
     if conds.get('gap_down_close'):
@@ -454,9 +485,10 @@ def main():
             n_base += 1
 
             conds, display = result
+            new_rule = new_rule_hit(close, open_)
 
-            # VIX >= 30 暂停出信号
-            if vix_extreme:
+            # VIX >= 30 暂停旧星级信号；主推规则不看 VIX
+            if vix_extreme and not new_rule:
                 continue
 
             grade, best_combo = match_grade(conds, combos)
@@ -477,6 +509,7 @@ def main():
             r.update({
                 'grade': grade or '',
                 'tier': tier,
+                'new_rule': new_rule,
                 'tier_wr5': TIER_STATS[tier][0],
                 'tier_ret5': TIER_STATS[tier][1],
                 'matched_signals': matched_signals,
@@ -525,13 +558,13 @@ def main():
     recent_tickers = {p['ticker'] for p in history if cutoff_str <= p['scan_date'] < today_str
                       and p.get('tier') != '参考'}   # 只按带星的推荐去重，「参考」不占名额
     before = len(results)
-    results = [r for r in results if r['ticker'] not in recent_tickers]
+    results = [r for r in results if r['new_rule'] or r['ticker'] not in recent_tickers]   # 主推有自己的 5 天去重
     n_deduped = before - len(results)
     if n_deduped:
         print(f"  去重过滤: 移除 {before - len(results)} 只（近10交易日已推荐）")
 
-    # 按星级排序，同级里按原组合胜率
-    results.sort(key=lambda x: (TIER_ORDER.index(x['tier']), -x.get('win_rate_5', 0)))
+    # 主推排最前，其余按星级排序，同级里按原组合胜率
+    results.sort(key=lambda x: (not x['new_rule'], TIER_ORDER.index(x['tier']), -x.get('win_rate_5', 0)))
     for r in results:
         r['n_base_day'] = n_base   # 今天全市场通过基础信号的股票数
 
@@ -539,7 +572,7 @@ def main():
     # 把今天的结果记进选股记录（同一天重跑则覆盖）
     history = [p for p in history if p['scan_date'] != today_str]
     history += [{'ticker': r['ticker'], 'scan_date': today_str, 'grade': r['grade'], 'tier': r['tier'],
-                 'wr5': r['wr5'], 'source': 'live'} for r in results]
+                 'new_rule': r['new_rule'], 'wr5': r['wr5'], 'source': 'live'} for r in results]
     save_history(history)
     recent = pick_performance(history)
 
@@ -566,7 +599,7 @@ def main():
 
     print(f"\n✅ 报告已生成：{OUTPUT_HTML}")
     for r in results:
-        print(f"   {r['tier']:4} {r['ticker']:6} RSI={r['rsi']:5.1f} 原等级={r['grade'] or '—'} 匹配: {r['matched_combo']}")
+        print(f"   {'主推' if r['new_rule'] else '    '} {r['tier']:4} {r['ticker']:6} RSI={r['rsi']:5.1f} 原等级={r['grade'] or '—'} 匹配: {r['matched_combo']}")
     print(f"\n   总计: {len(results)} 只")
 
     if '--no-open' not in sys.argv:

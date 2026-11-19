@@ -12,11 +12,5 @@ analysis/rebuild/lab/out/leaderboard_all.csv
 __pycache__/
 *.pyc
 
-# 私人回测结果，不上传
-analysis/private/
-# 私人研究结果和前瞻记录，不上传
-analysis/rebuild/FROZEN_RULES.md
-analysis/rebuild/REPORT_*.md
-analysis/rebuild/lab/out/deep_study.txt
-analysis/rebuild/out_fix/
-forward_log.csv
+# 回测结果可以上传；中间数据文件太大不上传
+analysis/private/*.parquet
