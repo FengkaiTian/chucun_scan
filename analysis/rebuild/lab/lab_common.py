@@ -89,7 +89,7 @@ def _seal(year, t, r, sp):
     else:
         x = r[m] - COST
         d = {'n': int(m.sum()), 'win': float((x > 0).mean() * 100), 'avg': float(x.mean()),
-             't': float(_cluster_t(x, t[m])), 'excess': float((r[m] - sp[m]).mean())}
+             't': float(_cluster_t(x, t[m])), 'excess': float((r[m] - COST - sp[m]).mean())}   # 2026-11-18 起超额也扣成本
     return base64.b64encode(zlib.compress(json.dumps(d).encode())).decode()
 
 
@@ -109,7 +109,9 @@ def _cluster_t(y, g):
 
 
 class Lab:
-    def __init__(self):
+    def __init__(self, membership_file='membership.csv.gz', bench='gspc'):
+        """membership_file：成分股名单文件（membership_v2.csv.gz 是按入指日期修正过的）；
+        bench：'gspc' 标普500 价格指数，'spy_tr' 含分红的 SPY 总回报"""
         rd = lambda k: pd.read_parquet(os.path.join(DATA, f'ohlcv_{k}.parquet'))
         C = rd('close')
         self.dates = C.index; self.tickers = list(C.columns)
@@ -118,11 +120,11 @@ class Lab:
         self.H = rd('high')[self.tickers].values.astype(np.float64)
         self.L = rd('low')[self.tickers].values.astype(np.float64)
         self.V = rd('volume')[self.tickers].values.astype(np.float64)
-        self.spx = pd.read_parquet(os.path.join(DATA, 'index_gspc.parquet')).iloc[:, 0].reindex(self.dates).ffill().values
+        self.spx = pd.read_parquet(os.path.join(DATA, 'index_gspc.parquet' if bench == 'gspc' else 'index_spy_tr.parquet')).iloc[:, 0].reindex(self.dates).ffill().values
         self.vix = pd.read_parquet(os.path.join(DATA, 'index_vix.parquet')).iloc[:, 0].reindex(self.dates).ffill().values
         self.year = self.dates.year.values
         # 时点成分股
-        m = pd.read_csv(os.path.join(DATA, 'membership.csv.gz'), parse_dates=['month_end'])
+        m = pd.read_csv(os.path.join(DATA, membership_file), parse_dates=['month_end'])
         col = {t: i for i, t in enumerate(self.tickers)}
         me_sorted = np.sort(m.month_end.unique())
         sets = {me: np.zeros(len(self.tickers), bool) for me in me_sorted}
@@ -215,7 +217,7 @@ class Lab:
         for lab, lo, hi in (('train', *TRAIN), ('valid', *VALID)):
             m = (self.year[t] >= lo) & (self.year[t] <= hi)
             if m.sum():
-                ex = r[m] - sp[m]
+                ex = r[m] - COST - sp[m]   # 2026-11-18 修正：超额此前漏扣 0.10% 成本
                 res[f'{lab}_excess'] = float(ex.mean()); res[f'{lab}_t_excess'] = float(_cluster_t(ex, t[m]))
         return res
 
@@ -232,7 +234,7 @@ class Lab:
         for lab, lo, hi in (('train', *TRAIN), ('valid', *VALID)):
             m = (self.year[t] >= lo) & (self.year[t] <= hi)
             if m.sum():
-                ex = r[m] - sp[m]
+                ex = r[m] - COST - sp[m]   # 2026-11-18 修正：超额此前漏扣 0.10% 成本
                 res[f'{lab}_excess'] = float(ex.mean()); res[f'{lab}_t_excess'] = float(_cluster_t(ex, t[m]))
         return res
 

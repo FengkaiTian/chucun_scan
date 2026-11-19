@@ -412,6 +412,12 @@ def main():
 
     data = yf.download(tickers, period='15mo', group_by='ticker',
                        auto_adjust=True, threads=True, progress=True)
+    # 美股还没收盘时，yfinance 会给出当天的半截日线，信号会算错；只用完整日线
+    import zoneinfo
+    ny = datetime.now(zoneinfo.ZoneInfo('America/New_York'))
+    if len(data) and data.index[-1].date() == ny.date() and (ny.hour, ny.minute) < (16, 30):
+        data = data.iloc[:-1]
+        print(f"美股尚未收盘（纽约 {ny:%H:%M}），只用到 {data.index[-1].date()} 的完整日线")
     spy = yf.download('^GSPC', period='1y', auto_adjust=True, progress=False)['Close'].squeeze()
     vix_df = yf.download('^VIX', period='5d', auto_adjust=True, progress=False)['Close'].squeeze()
     vix_price = float(vix_df.iloc[-1]) if len(vix_df) > 0 else 0
