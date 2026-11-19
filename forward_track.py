@@ -37,6 +37,9 @@ def main():
     if C.index[-1].date() == ny.date() and (ny.hour, ny.minute) < (16, 30):
         C = C.iloc[:-1]
         print(f'美股尚未收盘（纽约 {ny:%H:%M}），只用到 {C.index[-1].date()} 的完整日线')
+    # --asof YYYY-MM-DD：补跑漏掉的某一天（只用到那天为止的数据）
+    if '--asof' in sys.argv:
+        C = C.loc[:sys.argv[sys.argv.index('--asof') + 1]]
     V = V.reindex(C.index)
     today = C.index[-1]
 

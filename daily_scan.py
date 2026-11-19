@@ -11,7 +11,10 @@ import os
 os.environ['MPLBACKEND'] = 'Agg'
 import requests, io, sys, json, webbrowser, warnings, subprocess, re, base64
 from datetime import datetime, timedelta
-from report import render_report
+from report import render_report            # 旧版页面（保留）
+from report_v2 import render_report as render_report_v2
+from pandas.tseries.holiday import USFederalHolidayCalendar
+BDAY = pd.offsets.CustomBusinessDay(calendar=USFederalHolidayCalendar())   # 美股交易日（近似，未含耶稣受难日）
 
 warnings.filterwarnings('ignore')
 sys.stdout.reconfigure(encoding='utf-8')
@@ -414,10 +417,22 @@ def pick_performance(history, days=180):
             return None
         return round(float((col[future[n]] / col[future[0]] - 1) * 100), 2)
 
+    def now_ret(ticker, scan_date):
+        """入场至今的收益和已持有交易日数（还没到入场日收盘则返回 None, 0）"""
+        if ticker not in prices.columns:
+            return None, 0
+        col = prices[ticker].dropna()
+        future = col.index[col.index >= pd.Timestamp(scan_date)]
+        if len(future) < 1:
+            return None, 0
+        return round(float((col[future[-1]] / col[future[0]] - 1) * 100), 2), len(future) - 1
+
     for p in picks:
         for n in (1, 3, 5, 10):
             p[f'r{n}'] = get_ret(p['ticker'], p['scan_date'], n)
             p[f'b{n}'] = get_ret('^GSPC', p['scan_date'], n)
+        p['rnow'], p['held'] = now_ret(p['ticker'], p['scan_date'])
+        p['bnow'], _ = now_ret('^GSPC', p['scan_date'])
     picks.sort(key=lambda p: (p['scan_date'], p.get('wr5', 0)), reverse=True)
     return picks
 
@@ -552,7 +567,11 @@ def main():
             pass
 
     # 过滤近10个交易日（约14日历天）已推荐的股票
-    today_str = datetime.now().strftime('%Y-%m-%d')
+    # scan_date = 入场日 = 信号日（最后一根完整日线）的下一个交易日；收盘后跑和第二天早上跑结果一致
+    signal_day = pd.Timestamp(data.index[-1]).normalize()
+    entry_day = signal_day + BDAY
+    exit_day = entry_day + NEW_RULE_HOLD * BDAY
+    today_str = entry_day.strftime('%Y-%m-%d')
     cutoff_str = (datetime.now().date() - timedelta(days=14)).strftime('%Y-%m-%d')
     history = load_history()
     recent_tickers = {p['ticker'] for p in history if cutoff_str <= p['scan_date'] < today_str
@@ -578,8 +597,13 @@ def main():
 
     date_str = datetime.now().strftime('%Y-%m-%d %H:%M')
 
-    html = render_report({
+    render = render_report if '--old-page' in sys.argv else render_report_v2   # --old-page：用旧版页面
+    html = render({
         'date_str': date_str,
+        'signal_day': signal_day.strftime('%Y-%m-%d'),
+        'entry_day': entry_day.strftime('%Y-%m-%d'),
+        'exit_day': exit_day.strftime('%Y-%m-%d'),
+        'hold': NEW_RULE_HOLD,
         'n_combos': len(combos),
         'grade_counts': grade_counts,
         'bl': bl,
