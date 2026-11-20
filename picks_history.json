@@ -626,6 +626,5 @@
 {"ticker": "NOW", "scan_date": "2026-11-10", "grade": "SSS", "wr5": 71.4, "source": "backfill"},
 {"ticker": "FFIV", "scan_date": "2026-11-18", "grade": "SSS", "tier": "★★", "wr5": 72.7, "source": "live"},
 {"ticker": "AXON", "scan_date": "2026-11-19", "grade": "", "tier": "参考", "new_rule": false, "wr5": 0, "source": "live"},
-{"ticker": "DDOG", "scan_date": "2026-11-19", "grade": "SSS", "tier": "★", "new_rule": false, "wr5": 71.4, "source": "live"},
-{"ticker": "AXON", "scan_date": "2026-11-20", "grade": "B", "tier": "参考", "new_rule": false, "main_grade": "", "wr5": 65.5, "source": "live"}
+{"ticker": "DDOG", "scan_date": "2026-11-19", "grade": "SSS", "tier": "★", "new_rule": false, "wr5": 71.4, "source": "live"}
 ]

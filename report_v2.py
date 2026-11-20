@@ -1,6 +1,6 @@
 """新版报告页面（2026-11-19）：以「主推」规则为中心。旧版页面仍在 report.py（daily_scan.py --old-page）。
 
-页面结构：今日主推 → 持仓中（主推，未满持有期）→ 主推实盘记录 → 规则与回测 → 其他信号（旧星级，折叠）→ 全部选股记录（折叠）。
+页面结构（2026-11-20 改版）：今天买不买 → 最近 20 笔 → 规则和历史回测（折叠）。
 注意：信号行的第一格保持 `<td ...><b>TICKER</b> $价格` 形状，daily_scan.git_history_picks 靠它从 git 历史反查。
 """
 from html import escape
@@ -19,107 +19,77 @@ GRADE_NOTE = {'A': '优先买', 'B': '正常买', 'C': '历史上不赚钱，只
 CSS = '''
 :root{
   color-scheme:light dark;
-  --bg:#f6f7f9; --card:#ffffff; --ink:#111827; --ink2:#4b5563; --ink3:#9ca3af; --line:#e5e7eb; --soft:#f3f4f6;
-  --brand:#2563eb; --brand-soft:#eff4ff; --brand-ink:#1d4ed8;
-  --up:#dc2626; --up-soft:#fef2f2; --down:#059669; --down-soft:#ecfdf5;   /* 红涨绿跌 */
-  --warn:#b45309; --warn-soft:#fffbeb;
-  --shadow:0 1px 2px rgba(16,24,40,.04),0 1px 3px rgba(16,24,40,.06);
+  --bg:#ffffff; --ink:#1c1c1c; --ink2:#5c5c5c; --ink3:#8f8f8f; --rule:#e3e3e3; --tint:#f5f5f2;
+  --up:#c8102e; --down:#087a4c; --hi:#c8102e;
+  --gA:#c8102e; --gB:#1f4e8c; --gC:#8f8f8f;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#0b0f17; --card:#131a24; --ink:#e5e9f0; --ink2:#a1abba; --ink3:#6b7686; --line:#232c39; --soft:#1a222e;
-  --brand:#6b9bff; --brand-soft:#17233d; --brand-ink:#9dbbff;
-  --up:#ff6b6b; --up-soft:#2e1719; --down:#34d399; --down-soft:#11291f;
-  --warn:#f5b454; --warn-soft:#2b2112; --shadow:none;
+  --bg:#1b1c1e; --ink:#ececec; --ink2:#b0b0b0; --ink3:#7d7d7d; --rule:#333539; --tint:#242528;
+  --up:#ff5c6c; --down:#3ccf8e; --hi:#ff5c6c;
+  --gA:#ff5c6c; --gB:#7aa7ff; --gC:#8a8a8a;
 }}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
-.wrap{max-width:1040px;margin:0 auto;padding:28px 16px 48px}
-.num,td.n,.n{font-variant-numeric:tabular-nums}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:16px/1.65 "PingFang SC","Hiragino Sans GB","Microsoft YaHei",-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:760px;margin:0 auto;padding:32px 16px 56px}
+.num,.n{font-variant-numeric:tabular-nums}
 .up{color:var(--up)} .down{color:var(--down)} .muted{color:var(--ink3)}
 
-.top{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:18px}
-.top h1{margin:0;font-size:24px;letter-spacing:-.01em}
-.top .sub{margin:4px 0 0;color:var(--ink2);font-size:13.5px}
-.mkt{display:flex;gap:8px;flex-wrap:wrap}
-.pill{display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-size:13px;color:var(--ink2);white-space:nowrap}
-.pill b{color:var(--ink)}
-.dot{width:7px;height:7px;border-radius:50%;background:var(--ink3)}
-.dot.g{background:var(--down)} .dot.r{background:var(--up)} .dot.y{background:var(--warn)}
+.mast{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;
+  padding-bottom:12px;border-bottom:2px solid var(--ink)}
+.mast h1{margin:0;font-size:17px;font-weight:700}
+.mast .mk{font-size:14px;color:var(--ink2)}
+.mast .mk b{color:var(--ink);font-weight:600}
 
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);margin-bottom:16px;overflow:hidden}
-.card>header{padding:16px 18px 10px;display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
-.card h2{margin:0;font-size:17px}
-.card header p{margin:0;color:var(--ink2);font-size:13px}
-.body{padding:0 18px 18px}
+.today{padding:34px 0 30px;border-bottom:1px solid var(--rule)}
+.today .date{font-size:15px;color:var(--ink2)}
+.today .verdict{margin:4px 0 14px;font-size:44px;line-height:1.15;font-weight:800;letter-spacing:-.01em}
+.today .verdict.buy{color:var(--hi)}
+.today p{margin:0 0 6px;color:var(--ink2);max-width:36em}
+.when{display:grid;grid-template-columns:auto 1fr;gap:6px 18px;margin:18px 0 0;font-size:15px}
+.when dt{color:var(--ink3)} .when dd{margin:0}
+.when dd b{font-weight:700}
 
-.hero{border-color:color-mix(in srgb,var(--brand) 35%,var(--line))}
-.hero>header{background:var(--brand-soft)}
-.hero h2{color:var(--brand-ink)}
-.badge{display:inline-block;padding:2px 9px;border-radius:999px;background:var(--brand);color:#fff;font-size:12px;font-weight:700;vertical-align:2px;margin-left:6px}
-.plan{display:flex;gap:10px;flex-wrap:wrap;padding:12px 18px;border-bottom:1px solid var(--line);font-size:13.5px;color:var(--ink2)}
-.plan>span{background:var(--soft);padding:4px 10px;border-radius:8px}
-.plan b{color:var(--ink)}
-
-.picks{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;padding:16px 18px 18px}
-.pick{border:1px solid var(--line);border-radius:12px;padding:14px;background:var(--card)}
-.pick .tk{font-size:22px;font-weight:800;letter-spacing:.01em}
-.pick .co{color:var(--ink2);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pick .px{margin-top:8px;font-size:15px}
-.pick dl{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;margin:10px 0 0;font-size:12.5px}
-.pick dt{color:var(--ink3)} .pick dd{margin:0;text-align:right}
-.warnchip{display:inline-block;margin-top:8px;padding:2px 8px;border-radius:6px;background:var(--warn-soft);color:var(--warn);font-size:12px;font-weight:600}
-.empty{padding:28px 18px 30px;text-align:center;color:var(--ink2);font-size:14px}
-.empty b{display:block;color:var(--ink);font-size:17px;margin-bottom:4px}
+h2{font-size:19px;margin:40px 0 6px}
+.lead{margin:0 0 14px;color:var(--ink2)}
+.lead b{color:var(--ink)}
 
 .scroll{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:13.5px}
-th{font-size:12px;font-weight:600;color:var(--ink3);text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
-td{padding:9px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
-tr:last-child td{border-bottom:0}
-th:first-child,td:first-child{padding-left:18px} th:last-child,td:last-child{padding-right:18px}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th{font-size:13px;font-weight:500;color:var(--ink3);text-align:left;padding:8px 8px 8px 0;border-bottom:1px solid var(--ink2);white-space:nowrap}
+td{padding:11px 8px 11px 0;border-bottom:1px solid var(--rule);white-space:nowrap;vertical-align:baseline}
+th:last-child,td:last-child{padding-right:0}
 th.n,td.n{text-align:right}
-.chip{display:inline-block;padding:1px 7px;margin:1px 2px 1px 0;border-radius:5px;background:var(--soft);color:var(--ink2);font-size:12px}
-.tier{display:inline-block;min-width:34px;text-align:center;padding:1px 7px;border-radius:5px;font-size:12px;font-weight:700;background:var(--soft);color:var(--ink2)}
-.tier.main{background:var(--brand);color:#fff}
-.co2{font-size:12px;max-width:150px;display:inline-block;overflow:hidden;text-overflow:ellipsis;vertical-align:bottom}
-.gr{display:inline-block;min-width:26px;text-align:center;padding:1px 8px;border-radius:6px;font-weight:800;font-size:13px}
-.gA{background:var(--up);color:#fff} .gB{background:var(--brand);color:#fff} .gC{background:var(--soft);color:var(--ink2)}
-.pick .head{display:flex;justify-content:space-between;align-items:center}
-.pick .gnote{font-size:12px;color:var(--ink2);margin-top:2px}
-.prog{display:inline-block;width:70px;height:6px;border-radius:3px;background:var(--soft);vertical-align:middle;margin-right:6px;overflow:hidden}
-.prog i{display:block;height:100%;background:var(--brand)}
+td .co{display:block;font-size:12.5px;color:var(--ink3);max-width:180px;overflow:hidden;text-overflow:ellipsis}
+.gr{display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;border-radius:3px;font-weight:800;font-size:13px;color:#fff}
+.gA{background:var(--gA)} .gB{background:var(--gB)} .gC{background:transparent;color:var(--gC);box-shadow:inset 0 0 0 1.5px var(--gC)}
+.note{font-size:13px;color:var(--ink3);margin:10px 0 0}
+.wrapc{white-space:normal}
+.wl{display:block;font-size:13px;color:var(--up)}
+.prog{display:inline-block;width:46px;height:4px;background:var(--rule);vertical-align:middle;margin-right:6px}
+.prog i{display:block;height:100%;background:var(--ink2)}
 
-.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border-top:1px solid var(--line)}
-.kpi{background:var(--card);padding:14px 18px}
-.kpi .k{font-size:12px;color:var(--ink3)} .kpi .v{font-size:22px;font-weight:700;margin-top:2px} .kpi .d{font-size:12px;color:var(--ink2)}
+details{margin-top:40px;border-top:1px solid var(--rule)}
+details>summary{cursor:pointer;padding:16px 0;font-size:17px;font-weight:700;list-style:none}
+details>summary::-webkit-details-marker{display:none}
+details>summary::before{content:"+";display:inline-block;width:18px;color:var(--ink3);font-weight:400}
+details[open]>summary::before{content:"−"}
+details>summary:focus-visible{outline:2px solid var(--gB);outline-offset:2px}
+.rules{font-size:15px;color:var(--ink2)}
+.rules h3{font-size:15px;color:var(--ink);margin:22px 0 6px}
+.rules ol,.rules ul{margin:0;padding-left:22px} .rules li{margin:4px 0}
+.rules table{font-size:14px} .rules td,.rules th{white-space:normal}
 
-.rules{display:grid;grid-template-columns:1fr 1fr;gap:18px 28px;font-size:13.5px;color:var(--ink2)}
-.rules>div{min-width:0} .rules table th,.rules table td{white-space:normal}
-.rules h3{margin:0 0 6px;font-size:14px;color:var(--ink)}
-.rules ol,.rules ul{margin:0;padding-left:20px} .rules li{margin:3px 0}
-.rules table td,.rules table th{padding:6px 8px} .rules table td:first-child,.rules table th:first-child{padding-left:0}
-
-details.card>summary{list-style:none;cursor:pointer;padding:15px 18px;display:flex;justify-content:space-between;align-items:center;gap:10px}
-details.card>summary::-webkit-details-marker{display:none}
-details.card>summary h2{font-size:16px}
-details.card>summary .muted{font-size:13px}
-details.card>summary::after{content:"展开";font-size:12.5px;color:var(--brand)}
-details.card[open]>summary::after{content:"收起"}
-details.card[open]>summary{border-bottom:1px solid var(--line)}
-.tall{max-height:520px;overflow:auto}
-.tall thead th{position:sticky;top:0;background:var(--card)}
-
-footer{color:var(--ink3);font-size:12px;text-align:center;margin-top:20px;line-height:1.8}
-@media (max-width:720px){
-  .wrap{padding:18px 12px 36px}
-  .top h1{font-size:20px}
-  .kpis{grid-template-columns:repeat(2,1fr)}
-  .rules{grid-template-columns:1fr}
-  .hide-sm{display:none} .co2{display:none}
+footer{color:var(--ink3);font-size:12.5px;margin-top:44px;padding-top:14px;border-top:1px solid var(--rule)}
+@media (max-width:640px){
+  .wrap{padding:22px 16px 44px}
+  .today .verdict{font-size:36px}
+  table{font-size:14px}
+  .hide-sm{display:none}
+  td .co{display:none}
 }
 '''
-
 
 def _sign(v, eps=0.0):
     return 'up' if v is not None and v > eps else 'down' if v is not None and v < -eps else ''
@@ -127,35 +97,6 @@ def _sign(v, eps=0.0):
 
 def _pct(v, digits=2):
     return '<span class="muted">—</span>' if v is None else f'<span class="{_sign(v)}">{v:+.{digits}f}%</span>'
-
-
-def _pick_cards(rows, ctx):
-    if not rows:
-        return (f'<div class="empty"><b>今天没有主推</b>'
-                f'这条规则平均每年约 {BT["per_year"]} 只，常常集中在大跌后的几天出现，空仓日很正常。</div>')
-    cards = ''
-    for r in rows:
-        earn = f'<span class="warnchip">财报 {escape(r["earnings_warn"])}，持有期内</span>' if r.get('earnings_warn') else ''
-        atr = r.get('atr_pct', 0)
-        g = r.get('main_grade') or 'C'
-        why = []
-        if r.get('gap', 0) <= -1: why.append(f'低开 {r["gap"]:.1f}%')
-        elif r.get('open_lt_pl'): why.append('开盘低于昨日最低')
-        else: why.append(f'低开 {r.get("gap", 0):.1f}%')
-        cards += f'''<div class="pick">
-  <div class="head"><div class="tk">{escape(r["ticker"])}</div><span class="gr g{g}">{g}</span></div>
-  <div class="gnote">{GRADE_NOTE[g]} · {"、".join(why)}</div>
-  <div class="co" title="{escape(r["name"])} · {escape(r["sector"])}">{escape(r["name"])} · {escape(r["sector"])}</div>
-  <div class="px num">${r["price"]} <span class="{_sign(r["chg"])}">{r["chg"]:+.2f}%</span></div>
-  <dl>
-    <dt>买入</dt><dd>{ctx["entry_day"]} 收盘</dd>
-    <dt>卖出</dt><dd>约 {ctx["exit_day"]} 收盘</dd>
-    <dt>RSI</dt><dd class="num">{r["rsi"]}</dd>
-    <dt>波动 ATR%</dt><dd class="num {"up" if atr >= 4 else ""}">{atr:.1f}%{"（偏大）" if atr >= 4 else ""}</dd>
-    <dt>距 1 年高点</dt><dd class="num">{r.get("dist_high252", 0):.0f}%</dd>
-  </dl>{earn}
-</div>'''
-    return f'<div class="picks">{cards}</div>'
 
 
 def _holding(picks, hold):
@@ -269,82 +210,184 @@ def _all_picks(picks):
 <tbody>{body}</tbody></table></div>'''
 
 
+WD = '一二三四五六日'
+
+
+def _ts(d):
+    import pandas as pd
+    return pd.Timestamp(d)
+
+
+def _day(d, wd=True):
+    t = _ts(d)
+    return f'{t.month}月{t.day}日' + (f'（周{WD[t.weekday()]}）' if wd else '')
+
+
+def _close_ct(d):
+    """美股收盘时间（美国中部时间）。感恩节次日、7/3、12/24 提前到 12:00 收盘。"""
+    t = _ts(d)
+    if t.month == 11 and t.weekday() == 4 and 23 <= t.day <= 29:
+        return '12:00'
+    if (t.month, t.day) in ((7, 3), (12, 24)):
+        return '12:00'
+    return '15:00'
+
+
+def _buy_time(d):
+    """收盘价买入：给出下单的时间窗口（美中）"""
+    c = _close_ct(d)
+    start = '11:50' if c == '12:00' else '14:50'
+    return f'{start}–{c}'
+
+
+def _pick_cards(rows, ctx):
+    """今日主推：一张表；提醒放在股票名下面，手机上不撑宽"""
+    body = ''
+    for r in rows:
+        g = r.get('main_grade') or 'C'
+        warn = []
+        if r.get('open_lt_pl'):
+            warn.append('开盘跌破前一天最低价')
+        if r.get('earnings_warn'):
+            warn.append(f'持有期内有财报（{escape(r["earnings_warn"])}），买一半')
+        if (r.get('atr_pct') or 0) >= 4:
+            warn.append(f'波动大（ATR {r["atr_pct"]:.1f}%），买一半')
+        w = ''.join(f'<span class="wl">{x}</span>' for x in warn)
+        body += (f'<tr><td class="wrapc"><b>{escape(r["ticker"])}</b> <span class="muted">{escape(r["name"])}</span>{w}</td>'
+                 f'<td><span class="gr g{g}">{g}</span></td>'
+                 f'<td class="n">{r.get("gap", 0):.1f}%</td>'
+                 f'<td class="n">${r["price"]}</td></tr>')
+    return f'''<div class="scroll"><table>
+<thead><tr><th>股票</th><th>档</th><th class="n">开盘跌幅</th><th class="n">收盘价</th></tr></thead>
+<tbody>{body}</tbody></table></div>'''
+
+
 def _last20(replay, hold):
     rows = [r for r in replay if r.get('status') in ('完成', '持有中')][:20]
     if not rows:
-        return '<div class="empty" style="padding:18px">最近没有主推</div>'
+        return '<p class="lead">最近没有主推。</p>'
     done = [r for r in rows if r['status'] == '完成']
-    def summ(rs, lab):
+
+    def summ(rs, lead):
         if not rs:
-            return f'<span>{lab}：暂无已完成</span>'
+            return ''
         v = [r['net'] for r in rs]
-        return (f'<span>{lab}：已完成 <b>{len(v)}</b> 笔 · 胜率 <b>{sum(x > 0 for x in v) / len(v) * 100:.0f}%</b>'
-                f' · 每笔 <b class="{_sign(sum(v) / len(v))}">{sum(v) / len(v):+.2f}%</b></span>')
-    head = summ(done, '全部') + summ([r for r in done if r['grade'] != 'C'], 'A+B')
+        avg = sum(v) / len(v)
+        return (f'{lead} <b>{len(v)}</b> 笔，赚钱 <b>{sum(x > 0 for x in v)}</b> 笔，'
+                f'平均每笔 <b class="{_sign(avg)}">{avg:+.2f}%</b>。')
+    ab = [r for r in done if r['grade'] != 'C']
+    lead = summ(done, '已卖出') + (summ(ab, '其中 A、B 档') if ab else '')
+    hold_n = len(rows) - len(done)
+    if hold_n:
+        lead += f'还有 {hold_n} 笔在持有。'
     body = ''
     for r in rows:
         g = r['grade']
         if r['status'] == '完成':
-            st = f'<span class="{"up" if r["net"] > 0 else "down"}">{"赢" if r["net"] > 0 else "输"}</span>'
+            st = f'<span class="{"up" if r["net"] > 0 else "down"}">{"赚" if r["net"] > 0 else "亏"}</span>'
         else:
-            st = f'<span class="prog"><i style="width:{r["held"] / hold * 100:.0f}%"></i></span><span class="num muted">{r["held"]}/{hold}</span>'
-        body += (f'<tr><td class="num muted">{r["signal_day"]:%m-%d}</td>'
-                 f'<td><b>{escape(r["ticker"])}</b> <span class="muted co2">{escape(r["name"])}</span></td>'
-                 f'<td><span class="gr g{g}">{g}</span></td><td class="n hide-sm">{r["gap"]:+.1f}%</td>'
-                 f'<td class="num hide-sm">{r["entry_day"]:%m-%d}</td><td class="n">{_pct(r["net"])}</td><td>{st}</td></tr>')
-    return f'''<div class="plan">{head}</div><div class="scroll"><table>
-<thead><tr><th>信号日</th><th>股票</th><th>档</th><th class="n hide-sm">低开</th><th class="hide-sm">买入日</th><th class="n">收益（扣费）</th><th>结果</th></tr></thead>
-<tbody>{body}</tbody></table></div>'''
+            st = (f'<span class="prog"><i style="width:{r["held"] / hold * 100:.0f}%"></i></span>'
+                  f'<span class="num muted">第 {r["held"]} 天</span>')
+        body += (f'<tr><td><b>{escape(r["ticker"])}</b><span class="co">{escape(r["name"])}</span></td>'
+                 f'<td><span class="gr g{g}">{g}</span></td>'
+                 f'<td class="num hide-sm muted">{r["signal_day"]:%m-%d}</td>'
+                 f'<td class="n hide-sm">{r["gap"]:.1f}%</td>'
+                 f'<td class="num">{r["entry_day"]:%m-%d} {_close_ct(r["entry_day"])}</td>'
+                 f'<td class="n">{_pct(r["net"])}</td><td>{st}</td></tr>')
+    return f'''<p class="lead">{lead}</p><div class="scroll"><table>
+<thead><tr><th>股票</th><th>档</th><th class="hide-sm">信号日</th><th class="n hide-sm">开盘跌幅</th><th>买入（美中）</th><th class="n">收益</th><th></th></tr></thead>
+<tbody>{body}</tbody></table></div>
+<p class="note">开盘跌幅：信号当天开盘价比前一天收盘价低多少。买入按收盘价，所以时间写的是收盘时刻。收益已减去 0.10% 的买卖成本。</p>'''
+
+
+def _rules_v3(ctx):
+    rows = ''.join(
+        f'<tr><td><span class="gr g{k}">{k}</span></td><td>{d}</td><td class="n">{v[1]}</td>'
+        f'<td class="n {_sign(v[2])}">{v[2]:+.2f}%</td><td class="n">{v[3]}%</td>'
+        f'<td class="n"><span class="{_sign(v[5])}">{v[5]:+.2f}%</span>，{v[6]}%</td></tr>'
+        for k, v, d in ((k, v, {'A': '两条都满足，优先买', 'B': '满足一条，正常买', 'C': '都不满足，只看不买'}[k])
+                        for k, v in GRADES.items()))
+    return f'''<div class="rules">
+<h3>什么时候出信号</h3>
+<ol>
+  <li>MACD 柱在零轴下方，连着 3 天往上抬（跌势在变弱）。</li>
+  <li>前一天 RSI14 低于 30，当天回升。</li>
+  <li>当天开盘就比前一天收盘低。</li>
+  <li>这只股票 5 天内第一次出现以上情况。</li>
+</ol>
+<h3>怎么买卖</h3>
+<ul>
+  <li>信号第二天收盘前买入（美中 14:50–15:00，提前收盘的日子是 11:50–12:00）。</li>
+  <li>拿满 {ctx["hold"]} 个交易日，收盘前卖出。</li>
+  <li>大跌后可能一天出十几只：先定好每天最多买几只，单只仓位要小。</li>
+  <li>持有期内有财报，或者波动特别大的，买一半。</li>
+</ul>
+<h3>分档</h3>
+<p>看两条：一是开盘跌得深（跌 1% 以上，或跌破前一天最低价）；二是整个市场在恐慌（VIX 25 以上，或当天有 5 只以上同时出信号）。</p>
+<div class="scroll"><table>
+<thead><tr><th>档</th><th></th><th class="n">每年几笔</th><th class="n">平均每笔</th><th class="n">赚钱比例</th><th class="n">2026 年</th></tr></thead>
+<tbody>{rows}</tbody></table></div>
+<p class="note">2000–2025 年的历史成分股（含后来被剔除的）回测，2026 年单独检验。收益已减成本。</p>
+<h3>整体</h3>
+<p>2000–2025 年平均每年约 {BT["per_year"]} 笔，平均每笔 +{BT["net"]:.2f}%，{BT["win"]}% 的交易赚钱，{BT["pos_years"]}% 的年份是赚的。
+2026 年到现在 {BT["n26"]} 笔，平均每笔 +{BT["net26"]:.2f}%，{BT["win26"]}% 赚钱。
+作为对比，随便挑一只成分股拿 10 天，平均每笔 +{BT["random"]:.2f}%。</p>
+</div>'''
 
 
 def render_report(ctx):
     results = ctx['results']
     main = [r for r in results if r.get('new_rule')]
-    others = [r for r in results if not r.get('new_rule')]
-    recent = ctx.get('recent') or []
     vix = ctx['vix_price']
-    vdot = 'r' if vix >= 30 else 'y' if vix >= 20 else 'g'
-    env_dot = 'g' if ctx['is_bull'] else 'r'
-    f = ctx['funnel']
+    sig = ctx['signal_day']; ent = ctx['entry_day']; ext = ctx['exit_day']
+    if main:
+        ab = sum((r.get('main_grade') or 'C') != 'C' for r in main)
+        verdict = f'<div class="verdict buy">买 {ab} 只</div>' if ab else '<div class="verdict">只有 C 档</div>'
+        intro = (f'<p>{_day(sig, False)}收盘后，有 {len(main)} 只股票符合条件'
+                 + (f'，其中 {ab} 只是 A、B 档。' if ab else '，都是 C 档，历史上不赚钱，只看不买。') + '</p>')
+        table = _pick_cards(main, ctx)
+    else:
+        verdict = '<div class="verdict">不买</div>'
+        intro = (f'<p>{_day(sig, False)}收盘后，没有股票符合条件。</p>'
+                 '<p>这类机会多半跟在大跌后面，一出就是好几只；市场平稳的时候，几周没有也正常。</p>')
+        table = ''
+    when = ''
+    if main:
+        when = (f'<dl class="when"><dt>买入</dt><dd><b>{_day(ent)} {_buy_time(ent)}</b>（美中，收盘前）</dd>'
+                f'<dt>卖出</dt><dd><b>{_day(ext)}</b> 收盘前，拿 {ctx["hold"]} 个交易日</dd></dl>')
     return f'''<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>标普500 主推信号</title>
+<title>标普500 抄底信号</title>
 <style>{CSS}</style>
 </head>
 <body>
 <div class="wrap">
 
-<div class="top">
-  <div>
-    <h1>标普500 主推信号</h1>
-    <p class="sub">信号日 {ctx["signal_day"]} 收盘 · 扫描于 {ctx["date_str"]} · 扫描 {f["universe"]} 只，基础信号 {f["base"]} 只</p>
-  </div>
-  <div class="mkt">
-    <span class="pill"><i class="dot {env_dot}"></i>标普500 <b class="num">{ctx["spy_price"]:,.0f}</b> <span class="num">{ctx["spy_pct"]:+.1f}%</span> vs 200 日线</span>
-    <span class="pill"><i class="dot {vdot}"></i>VIX <b class="num">{vix:.1f}</b></span>
-  </div>
-</div>
+<header class="mast">
+  <h1>标普500 抄底信号</h1>
+  <div class="mk">标普 <b class="num">{ctx["spy_price"]:,.0f}</b>，VIX <b class="num">{vix:.1f}</b></div>
+</header>
 
-<section class="card hero">
-  <header><h2>今日主推<span class="badge">{len(main)} 只</span></h2><p>明天收盘买，持有 {ctx["hold"]} 个交易日</p></header>
-  <div class="plan"><span>买入日 <b>{ctx["entry_day"]}</b> 收盘</span><span>卖出日 约 <b>{ctx["exit_day"]}</b> 收盘</span>{"".join(f'<span><span class="gr g{k}">{k}</span> 每笔 <b class="{_sign(v[2])}">{v[2]:+.2f}%</b> · 胜率 <b>{v[3]}%</b></span>' for k, v in GRADES.items())}</div>
-  {_pick_cards(main, ctx)}
+<section class="today">
+  <div class="date">{_day(sig)}收盘</div>
+  {verdict}
+  {intro}
+  {when}
 </section>
+{table}
 
-<section class="card">
-  <header><h2>最近 20 条主推</h2><p>按规则逐日回放：信号次日收盘买，持有 {ctx["hold"]} 个交易日；扣 0.10% 后涨超 0 算赢</p></header>
-  {_last20(ctx.get("replay") or [], ctx["hold"])}
-</section>
+<h2>最近 20 笔</h2>
+{_last20(ctx.get("replay") or [], ctx["hold"])}
 
-<details class="card">
-  <summary><h2>规则与长期回测 <span class="muted">2000–2026</span></h2></summary>
-  {_rules(ctx)}
+<details>
+  <summary>规则和历史回测</summary>
+  {_rules_v3(ctx)}
 </details>
 
-<footer>仅供研究参考，不构成投资建议。历史回测不代表未来表现。<br>红色上涨 · 绿色下跌</footer>
+<footer>{ctx["date_str"]} 更新，共看了 {ctx["funnel"]["universe"]} 只成分股。仅供自己研究，不是投资建议；红色是涨，绿色是跌。</footer>
 </div>
 </body>
 </html>'''
