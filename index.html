@@ -70,6 +70,7 @@ th.n,td.n{text-align:right}
 .chip{display:inline-block;padding:1px 7px;margin:1px 2px 1px 0;border-radius:5px;background:var(--soft);color:var(--ink2);font-size:12px}
 .tier{display:inline-block;min-width:34px;text-align:center;padding:1px 7px;border-radius:5px;font-size:12px;font-weight:700;background:var(--soft);color:var(--ink2)}
 .tier.main{background:var(--brand);color:#fff}
+.co2{font-size:12px;max-width:150px;display:inline-block;overflow:hidden;text-overflow:ellipsis;vertical-align:bottom}
 .gr{display:inline-block;min-width:26px;text-align:center;padding:1px 8px;border-radius:6px;font-weight:800;font-size:13px}
 .gA{background:var(--up);color:#fff} .gB{background:var(--brand);color:#fff} .gC{background:var(--soft);color:var(--ink2)}
 .pick .head{display:flex;justify-content:space-between;align-items:center}
@@ -103,6 +104,7 @@ footer{color:var(--ink3);font-size:12px;text-align:center;margin-top:20px;line-h
   .top h1{font-size:20px}
   .kpis{grid-template-columns:repeat(2,1fr)}
   .rules{grid-template-columns:1fr}
+  .hide-sm{display:none} .co2{display:none}
 }
 </style>
 </head>
@@ -112,7 +114,7 @@ footer{color:var(--ink3);font-size:12px;text-align:center;margin-top:20px;line-h
 <div class="top">
   <div>
     <h1>标普500 主推信号</h1>
-    <p class="sub">信号日 2026-11-19 收盘 · 扫描于 2026-11-19 16:28 · 扫描 499 只，基础信号 1 只</p>
+    <p class="sub">信号日 2026-11-19 收盘 · 扫描于 2026-11-20 00:32 · 扫描 500 只，基础信号 1 只</p>
   </div>
   <div class="mkt">
     <span class="pill"><i class="dot r"></i>标普500 <b class="num">7,176</b> <span class="num">-2.3%</span> vs 200 日线</span>
@@ -127,17 +129,14 @@ footer{color:var(--ink3);font-size:12px;text-align:center;margin-top:20px;line-h
 </section>
 
 <section class="card">
-  <header><h2>持有中</h2><p>还没满 10 个交易日的主推</p></header>
-  <div class="empty" style="padding:18px">目前没有持有中的主推</div>
+  <header><h2>最近 20 条主推</h2><p>按规则逐日回放：信号次日收盘买，持有 10 个交易日；扣 0.10% 后涨超 0 算赢</p></header>
+  <div class="plan"><span>全部：已完成 <b>19</b> 笔 · 胜率 <b>79%</b> · 每笔 <b class="up">+5.20%</b></span><span>A+B：已完成 <b>13</b> 笔 · 胜率 <b>77%</b> · 每笔 <b class="up">+4.03%</b></span></div><div class="scroll"><table>
+<thead><tr><th>信号日</th><th>股票</th><th>档</th><th class="n hide-sm">低开</th><th class="hide-sm">买入日</th><th class="n">收益（扣费）</th><th>结果</th></tr></thead>
+<tbody><tr><td class="num muted">11-09</td><td><b>NOW</b> <span class="muted co2">ServiceNow</span></td><td><span class="gr gC">C</span></td><td class="n hide-sm">-0.3%</td><td class="num hide-sm">11-10</td><td class="n"><span class="down">-10.88%</span></td><td><span class="prog"><i style="width:70%"></i></span><span class="num muted">7/10</span></td></tr><tr><td class="num muted">10-23</td><td><b>MOS</b> <span class="muted co2">Mosaic Company (The)</span></td><td><span class="gr gC">C</span></td><td class="n hide-sm">-0.2%</td><td class="num hide-sm">10-26</td><td class="n"><span class="up">+28.47%</span></td><td><span class="up">赢</span></td></tr><tr><td class="num muted">10-15</td><td><b>ALB</b> <span class="muted co2">Albemarle Corporation</span></td><td><span class="gr gC">C</span></td><td class="n hide-sm">-1.0%</td><td class="num hide-sm">10-16</td><td class="n"><span class="down">-4.79%</span></td><td><span class="down">输</span></td></tr><tr><td class="num muted">10-08</td><td><b>PNC</b> <span class="muted co2">PNC Financial Services</span></td><td><span class="gr gA">A</span></td><td class="n hide-sm">-0.8%</td><td class="num hide-sm">10-09</td><td class="n"><span class="up">+3.24%</span></td><td><span class="up">赢</span></td></tr><tr><td class="num muted">10-08</td><td><b>MGM</b> <span class="muted co2">MGM Resorts</span></td><td><span class="gr gB">B</span></td><td class="n hide-sm">-0.7%</td><td class="num hide-sm">10-09</td><td class="n"><span class="down">-4.23%</span></td><td><span class="down">输</span></td></tr><tr><td class="num muted">10-08</td><td><b>LVS</b> <span class="muted co2">Las Vegas Sands</span></td><td><span class="gr gA">A</span></td><td class="n hide-sm">-0.9%</td><td class="num hide-sm">10-09</td><td class="n"><span class="down">-1.45%</span></td><td><span class="down">输</span></td></tr><tr><td class="num muted">10-08</td><td><b>IP</b> <span class="muted co2">International Paper</span></td><td><span class="gr gB">B</span></td><td class="n hide-sm">-0.7%</td><td class="num hide-sm">10-09</td><td class="n"><span class="up">+3.23%</span></td><td><span class="up">赢</span></td></tr><tr><td class="num muted">10-08</td><td><b>GD</b> <span class="muted co2">General Dynamics</span></td><td><span class="gr gB">B</span></td><td class="n hide-sm">-0.2%</td><td class="num hide-sm">10-09</td><td class="n"><span class="up">+5.36%</span></td><td><span class="up">赢</span></td></tr><tr><td class="num muted">10-08</td><td><b>CMCSA</b> <span class="muted co2">Comcast</span></td><td><span class="gr gB">B</span></td><td class="n hide-sm">-0.1%</td><td class="num hide-sm">10-09</td><td class="n"><span class="up">+9.73%</span></td><td><span class="up">赢</span></td></tr><tr><td class="num muted">10-08</td><td><b>BNY</b> <span class="muted co2">BNY Mellon</span></td><td><span class="gr gB">B</span></td><td class="n hide-sm">-0.4%</td><td class="num hide-sm">10-09</td><td class="n"><span class="up">+1.69%</span></td><td><span class="up">赢</span></td></tr><tr><td class="num muted">10-06</td><td><b>WY</b> <span class="muted co2">Weyerhaeuser</span></td><td><span class="gr gC">C</span></td><td class="n hide-sm">-0.2%</td><td class="num hide-sm">10-07</td><td class="n"><span class="up">+2.11%</span></td><td><span class="up">赢</span></td></tr><tr><td class="num muted">10-06</td><td><b>WTW</b> <span class="muted co2">Willis Towers Watson</span></td><td><span class="gr gB">B</span></td><td class="n hide-sm">-1.2%</td><td class="num hide-sm">10-07</td><td class="n"><span class="up">+9.17%</span></td><td><span class="up">赢</span></td></tr><tr><td class="num muted">10-05</td><td><b>FISV</b> <span class="muted co2">Fiserv</span></td><td><span class="gr gC">C</span></td><td class="n hide-sm">-0.5%</td><td class="num hide-sm">10-06</td><td class="n"><span class="up">+5.99%</span></td><td><span class="up">赢</span></td></tr><tr><td class="num muted">10-05</td><td><b>BALL</b> <span class="muted co2">Ball Corporation</span></td><td><span class="gr gB">B</span></td><td class="n hide-sm">-0.2%</td><td class="num hide-sm">10-06</td><td class="n"><span class="up">+11.62%</span></td><td><span class="up">赢</span></td></tr><tr><td class="num muted">10-05</td><td><b>APO</b> <span class="muted co2">Apollo Global Management</span></td><td><span class="gr gB">B</span></td><td class="n hide-sm">-0.2%</td><td class="num hide-sm">10-06</td><td class="n"><span class="down">-4.18%</span></td><td><span class="down">输</span></td></tr><tr><td class="num muted">10-05</td><td><b>AON</b> <span class="muted co2">Aon plc</span></td><td><span class="gr gB">B</span></td><td class="n hide-sm">-0.7%</td><td class="num hide-sm">10-06</td><td class="n"><span class="up">+8.19%</span></td><td><span class="up">赢</span></td></tr><tr><td class="num muted">10-02</td><td><b>HSY</b> <span class="muted co2">Hershey Company (The)</span></td><td><span class="gr gC">C</span></td><td class="n hide-sm">-0.2%</td><td class="num hide-sm">10-05</td><td class="n"><span class="up">+3.62%</span></td><td><span class="up">赢</span></td></tr><tr><td class="num muted">10-02</td><td><b>EFX</b> <span class="muted co2">Equifax</span></td><td><span class="gr gC">C</span></td><td class="n hide-sm">-1.0%</td><td class="num hide-sm">10-05</td><td class="n"><span class="up">+11.10%</span></td><td><span class="up">赢</span></td></tr><tr><td class="num muted">10-01</td><td><b>SO</b> <span class="muted co2">Southern Company</span></td><td><span class="gr gA">A</span></td><td class="n hide-sm">-0.3%</td><td class="num hide-sm">10-02</td><td class="n"><span class="up">+8.81%</span></td><td><span class="up">赢</span></td></tr><tr><td class="num muted">10-01</td><td><b>RF</b> <span class="muted co2">Regions Financial Corporation</span></td><td><span class="gr gB">B</span></td><td class="n hide-sm">-0.3%</td><td class="num hide-sm">10-02</td><td class="n"><span class="up">+1.19%</span></td><td><span class="up">赢</span></td></tr></tbody></table></div>
 </section>
 
-<section class="card">
-  <header><h2>主推实盘记录</h2><p>持有满 10 天的结果：涨超 0.1%（来回成本）算赢，不和标普500比</p></header>
-  <div class="kpis"><div class="kpi"><div class="k">已出结果</div><div class="v num">0</div><div class="d">共 0 只主推，2026-11-19 开始记录</div></div><div class="kpi"><div class="k">回测每笔净收益</div><div class="v num up">+1.21%</div><div class="d">2000–2025，t 4.5</div></div><div class="kpi"><div class="k">回测胜率</div><div class="v num">57%</div><div class="d">涨超 0.1% 算赢 · 2026 年 65%</div></div><div class="kpi"><div class="k">随便买一只</div><div class="v num">+0.40%</div><div class="d">同样持有 10 天</div></div></div>
-</section>
-
-<section class="card">
-  <header><h2>规则与回测</h2><p>2026-11-19 起使用</p></header>
+<details class="card">
+  <summary><h2>规则与长期回测 <span class="muted">2000–2026</span></h2></summary>
   <div class="body"><div class="rules">
   <div>
     <h3>规则（一条都不能少）</h3>
@@ -177,11 +176,6 @@ footer{color:var(--ink3);font-size:12px;text-align:center;margin-top:20px;line-h
     <p style="margin-top:10px">参照：随便挑一天随便买一只成分股，同样拿 10 天每笔 +0.40%。主推多出来的部分主要来自大跌后的反弹，收益集中在少数恐慌日。数据为无幸存者偏差的历史成分股，训练 2000–2025、测试 2026。</p>
   </div>
 </div></div>
-</section>
-
-<details class="card">
-  <summary><h2>主推全部记录 <span class="muted">0 条</span></h2></summary>
-  <div class="empty" style="padding:18px">暂无记录</div>
 </details>
 
 <footer>仅供研究参考，不构成投资建议。历史回测不代表未来表现。<br>红色上涨 · 绿色下跌</footer>

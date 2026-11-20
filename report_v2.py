@@ -82,6 +82,7 @@ th.n,td.n{text-align:right}
 .chip{display:inline-block;padding:1px 7px;margin:1px 2px 1px 0;border-radius:5px;background:var(--soft);color:var(--ink2);font-size:12px}
 .tier{display:inline-block;min-width:34px;text-align:center;padding:1px 7px;border-radius:5px;font-size:12px;font-weight:700;background:var(--soft);color:var(--ink2)}
 .tier.main{background:var(--brand);color:#fff}
+.co2{font-size:12px;max-width:150px;display:inline-block;overflow:hidden;text-overflow:ellipsis;vertical-align:bottom}
 .gr{display:inline-block;min-width:26px;text-align:center;padding:1px 8px;border-radius:6px;font-weight:800;font-size:13px}
 .gA{background:var(--up);color:#fff} .gB{background:var(--brand);color:#fff} .gC{background:var(--soft);color:var(--ink2)}
 .pick .head{display:flex;justify-content:space-between;align-items:center}
@@ -115,6 +116,7 @@ footer{color:var(--ink3);font-size:12px;text-align:center;margin-top:20px;line-h
   .top h1{font-size:20px}
   .kpis{grid-template-columns:repeat(2,1fr)}
   .rules{grid-template-columns:1fr}
+  .hide-sm{display:none} .co2{display:none}
 }
 '''
 
@@ -267,6 +269,34 @@ def _all_picks(picks):
 <tbody>{body}</tbody></table></div>'''
 
 
+def _last20(replay, hold):
+    rows = [r for r in replay if r.get('status') in ('完成', '持有中')][:20]
+    if not rows:
+        return '<div class="empty" style="padding:18px">最近没有主推</div>'
+    done = [r for r in rows if r['status'] == '完成']
+    def summ(rs, lab):
+        if not rs:
+            return f'<span>{lab}：暂无已完成</span>'
+        v = [r['net'] for r in rs]
+        return (f'<span>{lab}：已完成 <b>{len(v)}</b> 笔 · 胜率 <b>{sum(x > 0 for x in v) / len(v) * 100:.0f}%</b>'
+                f' · 每笔 <b class="{_sign(sum(v) / len(v))}">{sum(v) / len(v):+.2f}%</b></span>')
+    head = summ(done, '全部') + summ([r for r in done if r['grade'] != 'C'], 'A+B')
+    body = ''
+    for r in rows:
+        g = r['grade']
+        if r['status'] == '完成':
+            st = f'<span class="{"up" if r["net"] > 0 else "down"}">{"赢" if r["net"] > 0 else "输"}</span>'
+        else:
+            st = f'<span class="prog"><i style="width:{r["held"] / hold * 100:.0f}%"></i></span><span class="num muted">{r["held"]}/{hold}</span>'
+        body += (f'<tr><td class="num muted">{r["signal_day"]:%m-%d}</td>'
+                 f'<td><b>{escape(r["ticker"])}</b> <span class="muted co2">{escape(r["name"])}</span></td>'
+                 f'<td><span class="gr g{g}">{g}</span></td><td class="n hide-sm">{r["gap"]:+.1f}%</td>'
+                 f'<td class="num hide-sm">{r["entry_day"]:%m-%d}</td><td class="n">{_pct(r["net"])}</td><td>{st}</td></tr>')
+    return f'''<div class="plan">{head}</div><div class="scroll"><table>
+<thead><tr><th>信号日</th><th>股票</th><th>档</th><th class="n hide-sm">低开</th><th class="hide-sm">买入日</th><th class="n">收益（扣费）</th><th>结果</th></tr></thead>
+<tbody>{body}</tbody></table></div>'''
+
+
 def render_report(ctx):
     results = ctx['results']
     main = [r for r in results if r.get('new_rule')]
@@ -305,23 +335,13 @@ def render_report(ctx):
 </section>
 
 <section class="card">
-  <header><h2>持有中</h2><p>还没满 {ctx["hold"]} 个交易日的主推</p></header>
-  {_holding(recent, ctx["hold"])}
-</section>
-
-<section class="card">
-  <header><h2>主推实盘记录</h2><p>持有满 {ctx["hold"]} 天的结果：涨超 0.1%（来回成本）算赢，不和标普500比</p></header>
-  {_live_record(recent, ctx["hold"])}
-</section>
-
-<section class="card">
-  <header><h2>规则与回测</h2><p>2026-11-19 起使用</p></header>
-  {_rules(ctx)}
+  <header><h2>最近 20 条主推</h2><p>按规则逐日回放：信号次日收盘买，持有 {ctx["hold"]} 个交易日；扣 0.10% 后涨超 0 算赢</p></header>
+  {_last20(ctx.get("replay") or [], ctx["hold"])}
 </section>
 
 <details class="card">
-  <summary><h2>主推全部记录 <span class="muted">{sum(bool(p.get("new_rule")) for p in recent)} 条</span></h2></summary>
-  {_all_picks([p for p in recent if p.get("new_rule")])}
+  <summary><h2>规则与长期回测 <span class="muted">2000–2026</span></h2></summary>
+  {_rules(ctx)}
 </details>
 
 <footer>仅供研究参考，不构成投资建议。历史回测不代表未来表现。<br>红色上涨 · 绿色下跌</footer>

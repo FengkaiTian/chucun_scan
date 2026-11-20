@@ -350,6 +350,52 @@ def main_grade(gap_pct, open_lt_prev_low, vix, n_main_today):
     return 'ABC'[2 - score]
 
 
+def replay_main(data, tickers, vix_hist, name_map, lookback=120):
+    """用已下载的日线，把主推规则在最近 lookback 个交易日逐日重放，得到最近的主推记录（回测）。
+    每条：信号日、入场日（T1 收盘）、持有 10 天的收益；没满 10 天的给出至今收益和已持有天数。
+    只覆盖当前成分股（近几个月影响很小）。"""
+    recs = []
+    for t in tickers:
+        try:
+            td = data[t].dropna()
+        except Exception:
+            continue
+        if len(td) < 260:
+            continue
+        c, o, l = td['Close'], td['Open'], td['Low']
+        b = base_flags(c)
+        idx = c.index; start = len(c) - lookback
+        last = None
+        for i in np.where(b.values)[0]:
+            d = idx[i]
+            keep = last is None or (d - last).days > NEW_RULE_DEDUP_DAYS
+            if keep:
+                last = d
+            if not keep or i < start or not (o.iloc[i] < c.iloc[i - 1]):
+                continue
+            rec = {'ticker': t, 'name': name_map.get(t, t), 'signal_day': d,
+                   'gap': float(o.iloc[i] / c.iloc[i - 1] - 1) * 100, 'open_lt_pl': bool(o.iloc[i] < l.iloc[i - 1])}
+            e = i + 1
+            if e >= len(c):
+                rec.update(status='待买入'); recs.append(rec); continue
+            rec['entry_day'] = idx[e]; ep = float(c.iloc[e])
+            x = e + NEW_RULE_HOLD
+            if x < len(c):
+                rec.update(status='完成', ret=(float(c.iloc[x]) / ep - 1) * 100, exit_day=idx[x], held=NEW_RULE_HOLD)
+            else:
+                rec.update(status='持有中', ret=(float(c.iloc[-1]) / ep - 1) * 100, held=len(c) - 1 - e)
+            recs.append(rec)
+    if not recs:
+        return []
+    nday = pd.Series([r['signal_day'] for r in recs]).value_counts()
+    vx = vix_hist.reindex(sorted(nday.index), method='ffill')
+    for r in recs:
+        r['grade'] = main_grade(r['gap'], r['open_lt_pl'], float(vx.get(r['signal_day'], 0) or 0), int(nday[r['signal_day']]))
+        r['net'] = r['ret'] - 0.10 if 'ret' in r else None
+    recs.sort(key=lambda r: (r['signal_day'], r['ticker']), reverse=True)
+    return recs
+
+
 def star_tier(conds, grade):
     """按条件给星级：跳空收正 > 十字星底 > SSS 组合 > 参考"""
     if conds.get('gap_down_close'):
@@ -472,7 +518,10 @@ def main():
         data = data.iloc[:-1]
         print(f"美股尚未收盘（纽约 {ny:%H:%M}），只用到 {data.index[-1].date()} 的完整日线")
     spy = yf.download('^GSPC', period='1y', auto_adjust=True, progress=False)['Close'].squeeze()
-    vix_df = yf.download('^VIX', period='5d', auto_adjust=True, progress=False)['Close'].squeeze()
+    vix_df = yf.download('^VIX', period='15mo', auto_adjust=True, progress=False)['Close'].squeeze()
+    vix_hist = vix_df.copy(); vix_hist.index = pd.to_datetime(vix_hist.index)
+    if vix_hist.index.tz is not None:
+        vix_hist.index = vix_hist.index.tz_localize(None)
     vix_price = float(vix_df.iloc[-1]) if len(vix_df) > 0 else 0
 
     spy_price = float(spy.iloc[-1])
@@ -606,6 +655,8 @@ def main():
                  'new_rule': r['new_rule'], 'main_grade': r['main_grade'], 'wr5': r['wr5'], 'source': 'live'} for r in results]
     save_history(history)
     recent = pick_performance(history)
+    print("重放最近的主推（回测记录）...")
+    replay = replay_main(data, tickers, vix_hist, name_map)
 
     date_str = datetime.now().strftime('%Y-%m-%d %H:%M')
 
@@ -616,6 +667,7 @@ def main():
         'entry_day': entry_day.strftime('%Y-%m-%d'),
         'exit_day': exit_day.strftime('%Y-%m-%d'),
         'hold': NEW_RULE_HOLD,
+        'replay': replay,
         'n_combos': len(combos),
         'grade_counts': grade_counts,
         'bl': bl,
