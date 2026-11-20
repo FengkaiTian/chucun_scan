@@ -6,131 +6,178 @@
 <title>标普500 抄底信号</title>
 <style>
 :root{
-  color-scheme:light dark;
-  --bg:#ffffff; --ink:#1c1c1c; --ink2:#5c5c5c; --ink3:#8f8f8f; --rule:#e3e3e3; --tint:#f5f5f2;
-  --up:#c8102e; --down:#087a4c; --hi:#c8102e;
-  --gA:#c8102e; --gB:#1f4e8c; --gC:#8f8f8f;
+  color-scheme:light;
+  --bg:#f3f3f1; --panel:#ffffff; --line:#e4e3de; --line2:#cfcec8;
+  --ink:#0b0b0b; --ink2:#52514e; --ink3:#86857f;
+  --up:#d03b2f; --down:#0f8a5f;
+  --gA:#6250d6; --gB:#2a78d6; --gC:#a3a29b;
+  --spx:#3d3c39; --hl:#fbf3e0;
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#1b1c1e; --ink:#ececec; --ink2:#b0b0b0; --ink3:#7d7d7d; --rule:#333539; --tint:#242528;
-  --up:#ff5c6c; --down:#3ccf8e; --hi:#ff5c6c;
-  --gA:#ff5c6c; --gB:#7aa7ff; --gC:#8a8a8a;
+@media (prefers-color-scheme:dark){:root:where(:not([data-theme="light"])){
+  color-scheme:dark;
+  --bg:#121211; --panel:#1a1a19; --line:#2c2c2a; --line2:#3d3d3a;
+  --ink:#f0efec; --ink2:#c3c2b7; --ink3:#8b8a83;
+  --up:#ef6b5f; --down:#3cc48f;
+  --gA:#9085e9; --gB:#3987e5; --gC:#6b6a64;
+  --spx:#d8d7d0; --hl:#2a2619;
 }}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#121211; --panel:#1a1a19; --line:#2c2c2a; --line2:#3d3d3a;
+  --ink:#f0efec; --ink2:#c3c2b7; --ink3:#8b8a83;
+  --up:#ef6b5f; --down:#3cc48f;
+  --gA:#9085e9; --gB:#3987e5; --gC:#6b6a64;
+  --spx:#d8d7d0; --hl:#2a2619;
+}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--ink);
-  font:16px/1.65 "PingFang SC","Hiragino Sans GB","Microsoft YaHei",-apple-system,"Segoe UI",sans-serif}
-.wrap{max-width:760px;margin:0 auto;padding:32px 16px 56px}
-.num,.n{font-variant-numeric:tabular-nums}
-.up{color:var(--up)} .down{color:var(--down)} .muted{color:var(--ink3)}
+  font:14px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+.wrap{max-width:1120px;margin:0 auto;padding:22px 16px 48px}
+.n,.num{font-variant-numeric:tabular-nums}
+.up{color:var(--up)} .down{color:var(--down)} .m{color:var(--ink3)}
 
-.mast{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;
-  padding-bottom:12px;border-bottom:2px solid var(--ink)}
-.mast h1{margin:0;font-size:17px;font-weight:700}
-.mast .mk{font-size:14px;color:var(--ink2)}
-.mast .mk b{color:var(--ink);font-weight:600}
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.top h1{margin:0;font-size:20px;font-weight:700}
+.top p{margin:0;color:var(--ink3);font-size:13px}
 
-.today{padding:34px 0 30px;border-bottom:1px solid var(--rule)}
-.today .date{font-size:15px;color:var(--ink2)}
-.today .verdict{margin:4px 0 14px;font-size:44px;line-height:1.15;font-weight:800;letter-spacing:-.01em}
-.today .verdict.buy{color:var(--hi)}
-.today p{margin:0 0 6px;color:var(--ink2);max-width:36em}
-.when{display:grid;grid-template-columns:auto 1fr;gap:6px 18px;margin:18px 0 0;font-size:15px}
-.when dt{color:var(--ink3)} .when dd{margin:0}
-.when dd b{font-weight:700}
+.stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-bottom:10px}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:11px 13px 9px;min-width:0}
+.tile .k{font-size:12.5px;color:var(--ink2)}
+.tile .v{font-size:22px;font-weight:650;line-height:1.25;margin-top:2px}
+.tile .v small{font-size:13px;font-weight:500;margin-left:6px}
+.tile .s{font-size:12px;color:var(--ink3);margin-top:1px;line-height:1.45}
+.tile svg{display:block;width:100%;height:26px;margin-top:6px}
 
-h2{font-size:19px;margin:40px 0 6px}
-.lead{margin:0 0 14px;color:var(--ink2)}
-.lead b{color:var(--ink)}
+.grid2{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:10px;margin-bottom:10px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;margin-bottom:10px;min-width:0}
+.grid2 .panel{margin-bottom:0}
+.ph{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;padding:13px 16px 9px}
+.ph h2{margin:0;font-size:15px;font-weight:650}
+.ph .r{font-size:12.5px;color:var(--ink3)}
+.pb{padding:0 16px 14px}
 
-.scroll{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:15px}
-th{font-size:13px;font-weight:500;color:var(--ink3);text-align:left;padding:8px 8px 8px 0;border-bottom:1px solid var(--ink2);white-space:nowrap}
-td{padding:11px 8px 11px 0;border-bottom:1px solid var(--rule);white-space:nowrap;vertical-align:baseline}
+.verdict{font-size:34px;font-weight:750;line-height:1.15;margin:2px 0 8px}
+.verdict.buy{color:var(--up)}
+.today p{margin:0 0 6px;color:var(--ink2)}
+.when{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:12px 0 4px;padding:10px 12px;background:var(--hl);border-radius:6px}
+.when dt{color:var(--ink3)} .when dd{margin:0} .when b{font-weight:650}
+
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{font-size:12px;font-weight:500;color:var(--ink3);text-align:left;padding:7px 10px 7px 0;border-bottom:1px solid var(--line2);white-space:nowrap}
+td{padding:8px 10px 8px 0;border-bottom:1px solid var(--line);white-space:nowrap}
+tbody tr:last-child td{border-bottom:0}
 th:last-child,td:last-child{padding-right:0}
 th.n,td.n{text-align:right}
-td .co{display:block;font-size:12.5px;color:var(--ink3);max-width:180px;overflow:hidden;text-overflow:ellipsis}
-.gr{display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;border-radius:3px;font-weight:800;font-size:13px;color:#fff}
-.gA{background:var(--gA)} .gB{background:var(--gB)} .gC{background:transparent;color:var(--gC);box-shadow:inset 0 0 0 1.5px var(--gC)}
-.note{font-size:13px;color:var(--ink3);margin:10px 0 0}
-.warn{font-size:13px;color:var(--up)}
-.prog{display:inline-block;width:46px;height:4px;background:var(--rule);vertical-align:middle;margin-right:6px}
-.prog i{display:block;height:100%;background:var(--ink2)}
+td .nm{display:block;font-size:12px;color:var(--ink3);max-width:170px;overflow:hidden;text-overflow:ellipsis}
+td.wr{white-space:normal}
+.wl{display:block;font-size:12px;color:var(--up)}
+.g{display:inline-block;width:20px;height:20px;line-height:20px;text-align:center;border-radius:4px;font-weight:700;font-size:12px;color:#fff}
+.gA{background:var(--gA)} .gB{background:var(--gB)} .gC{background:var(--gC)}
+.sp{display:block;width:96px;height:24px}
+.bar{display:inline-block;width:40px;height:4px;border-radius:2px;background:var(--line);vertical-align:middle;margin-right:5px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ink3)}
 
-details{margin-top:40px;border-top:1px solid var(--rule)}
-details>summary{cursor:pointer;padding:16px 0;font-size:17px;font-weight:700;list-style:none}
-details>summary::-webkit-details-marker{display:none}
-details>summary::before{content:"+";display:inline-block;width:18px;color:var(--ink3);font-weight:400}
-details[open]>summary::before{content:"−"}
-details>summary:focus-visible{outline:2px solid var(--gB);outline-offset:2px}
-.rules{font-size:15px;color:var(--ink2)}
-.rules h3{font-size:15px;color:var(--ink);margin:22px 0 6px}
-.rules ol,.rules ul{margin:0;padding-left:22px} .rules li{margin:4px 0}
-.rules table{font-size:14px} .rules td,.rules th{white-space:normal}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:0 0 6px}
+.kpi{padding:9px 16px}
+.kpi+.kpi{border-left:1px solid var(--line)}
+.kpi .k{font-size:12px;color:var(--ink3)} .kpi .v{font-size:19px;font-weight:650}
 
-footer{color:var(--ink3);font-size:12.5px;margin-top:44px;padding-top:14px;border-top:1px solid var(--rule)}
-@media (max-width:640px){
-  .wrap{padding:22px 16px 44px}
-  .today .verdict{font-size:36px}
-  table{font-size:14px}
-  .hide-sm{display:none}
-  td .co{display:none}
+.chart{position:relative;padding:0 56px 10px 16px}
+.chart svg{display:block;width:100%}
+.chart .ax{display:flex;justify-content:space-between;font-size:11.5px;color:var(--ink3);margin-top:3px}
+.chart .yl{position:absolute;right:8px;width:44px;font-size:11.5px;color:var(--ink3);background:var(--panel);padding:0 0 0 4px}
+.lg{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--ink2)}
+.lg i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.lg i.ln{height:2px;width:14px;border-radius:1px;vertical-align:3px}
+.cap{font-size:12px;color:var(--ink3);margin:0 0 4px}
+.tip{position:absolute;pointer-events:none;background:var(--panel);border:1px solid var(--line2);border-radius:6px;padding:7px 10px;font-size:12.5px;line-height:1.6;box-shadow:0 4px 14px rgba(0,0,0,.12);display:none;white-space:nowrap;z-index:2}
+.tip b{font-weight:650}
+.hair{position:absolute;top:0;width:1px;background:var(--ink3);opacity:.5;display:none;pointer-events:none}
+
+.rules{color:var(--ink2);font-size:13.5px}
+.rules ol,.rules ul{margin:0 0 10px;padding-left:20px} .rules li{margin:2px 0}
+.rules h3{font-size:13.5px;color:var(--ink);margin:4px 0 4px}
+.note{font-size:12px;color:var(--ink3);margin:8px 0 0}
+details summary{cursor:pointer;color:var(--ink2);font-size:13px;margin-top:6px}
+footer{color:var(--ink3);font-size:12px;margin-top:16px}
+
+@media (max-width:900px){
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stats .tile:first-child{grid-column:1/-1}
+  .grid2{grid-template-columns:minmax(0,1fr)}
+  .grid2 .panel{margin-bottom:0}
+}
+@media (max-width:600px){
+  .wrap{padding:16px 12px 40px}
+  .verdict{font-size:28px}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .kpi:nth-child(3){border-left:0}
+  .kpi:nth-child(n+3){border-top:1px solid var(--line)}
+  .hs{display:none}
+  td .nm{display:none}
 }
 </style>
 </head>
 <body>
 <div class="wrap">
-
-<header class="mast">
-  <h1>标普500 抄底信号</h1>
-  <div class="mk">标普 <b class="num">6,910</b>，VIX <b class="num">39.5</b></div>
-</header>
-
-<section class="today">
-  <div class="date">11月19日（周四）收盘</div>
-  <div class="verdict">不买</div>
-  <p>11月19日收盘后，没有股票符合条件。</p><p>这类机会多半跟在大跌后面，一出就是好几只；市场平稳的时候，几周没有也正常。</p>
-  
-</section>
-
-
-<h2>最近 20 笔</h2>
-<p class="lead">已卖出 <b>19</b> 笔，赚钱 <b>15</b> 笔，平均每笔 <b class="up">+5.20%</b>。其中 A、B 档 <b>13</b> 笔，赚钱 <b>10</b> 笔，平均每笔 <b class="up">+4.03%</b>。还有 1 笔在持有。</p><div class="scroll"><table>
-<thead><tr><th>股票</th><th>档</th><th class="hide-sm">信号日</th><th class="n hide-sm">开盘跌幅</th><th>买入（美中）</th><th class="n">收益</th><th></th></tr></thead>
-<tbody><tr><td><b>NOW</b><span class="co">ServiceNow</span></td><td><span class="gr gC">C</span></td><td class="num hide-sm muted">11-09</td><td class="n hide-sm">-0.3%</td><td class="num">11-10 15:00</td><td class="n"><span class="down">-10.88%</span></td><td><span class="prog"><i style="width:70%"></i></span><span class="num muted">第 7 天</span></td></tr><tr><td><b>MOS</b><span class="co">Mosaic Company (The)</span></td><td><span class="gr gC">C</span></td><td class="num hide-sm muted">10-23</td><td class="n hide-sm">-0.2%</td><td class="num">10-26 15:00</td><td class="n"><span class="up">+28.47%</span></td><td><span class="up">赚</span></td></tr><tr><td><b>ALB</b><span class="co">Albemarle Corporation</span></td><td><span class="gr gC">C</span></td><td class="num hide-sm muted">10-15</td><td class="n hide-sm">-1.0%</td><td class="num">10-16 15:00</td><td class="n"><span class="down">-4.79%</span></td><td><span class="down">亏</span></td></tr><tr><td><b>PNC</b><span class="co">PNC Financial Services</span></td><td><span class="gr gA">A</span></td><td class="num hide-sm muted">10-08</td><td class="n hide-sm">-0.8%</td><td class="num">10-09 15:00</td><td class="n"><span class="up">+3.24%</span></td><td><span class="up">赚</span></td></tr><tr><td><b>MGM</b><span class="co">MGM Resorts</span></td><td><span class="gr gB">B</span></td><td class="num hide-sm muted">10-08</td><td class="n hide-sm">-0.7%</td><td class="num">10-09 15:00</td><td class="n"><span class="down">-4.23%</span></td><td><span class="down">亏</span></td></tr><tr><td><b>LVS</b><span class="co">Las Vegas Sands</span></td><td><span class="gr gA">A</span></td><td class="num hide-sm muted">10-08</td><td class="n hide-sm">-0.9%</td><td class="num">10-09 15:00</td><td class="n"><span class="down">-1.45%</span></td><td><span class="down">亏</span></td></tr><tr><td><b>IP</b><span class="co">International Paper</span></td><td><span class="gr gB">B</span></td><td class="num hide-sm muted">10-08</td><td class="n hide-sm">-0.7%</td><td class="num">10-09 15:00</td><td class="n"><span class="up">+3.23%</span></td><td><span class="up">赚</span></td></tr><tr><td><b>GD</b><span class="co">General Dynamics</span></td><td><span class="gr gB">B</span></td><td class="num hide-sm muted">10-08</td><td class="n hide-sm">-0.2%</td><td class="num">10-09 15:00</td><td class="n"><span class="up">+5.36%</span></td><td><span class="up">赚</span></td></tr><tr><td><b>CMCSA</b><span class="co">Comcast</span></td><td><span class="gr gB">B</span></td><td class="num hide-sm muted">10-08</td><td class="n hide-sm">-0.1%</td><td class="num">10-09 15:00</td><td class="n"><span class="up">+9.73%</span></td><td><span class="up">赚</span></td></tr><tr><td><b>BNY</b><span class="co">BNY Mellon</span></td><td><span class="gr gB">B</span></td><td class="num hide-sm muted">10-08</td><td class="n hide-sm">-0.4%</td><td class="num">10-09 15:00</td><td class="n"><span class="up">+1.69%</span></td><td><span class="up">赚</span></td></tr><tr><td><b>WY</b><span class="co">Weyerhaeuser</span></td><td><span class="gr gC">C</span></td><td class="num hide-sm muted">10-06</td><td class="n hide-sm">-0.2%</td><td class="num">10-07 15:00</td><td class="n"><span class="up">+2.11%</span></td><td><span class="up">赚</span></td></tr><tr><td><b>WTW</b><span class="co">Willis Towers Watson</span></td><td><span class="gr gB">B</span></td><td class="num hide-sm muted">10-06</td><td class="n hide-sm">-1.2%</td><td class="num">10-07 15:00</td><td class="n"><span class="up">+9.17%</span></td><td><span class="up">赚</span></td></tr><tr><td><b>FISV</b><span class="co">Fiserv</span></td><td><span class="gr gC">C</span></td><td class="num hide-sm muted">10-05</td><td class="n hide-sm">-0.5%</td><td class="num">10-06 15:00</td><td class="n"><span class="up">+5.99%</span></td><td><span class="up">赚</span></td></tr><tr><td><b>BALL</b><span class="co">Ball Corporation</span></td><td><span class="gr gB">B</span></td><td class="num hide-sm muted">10-05</td><td class="n hide-sm">-0.2%</td><td class="num">10-06 15:00</td><td class="n"><span class="up">+11.62%</span></td><td><span class="up">赚</span></td></tr><tr><td><b>APO</b><span class="co">Apollo Global Management</span></td><td><span class="gr gB">B</span></td><td class="num hide-sm muted">10-05</td><td class="n hide-sm">-0.2%</td><td class="num">10-06 15:00</td><td class="n"><span class="down">-4.18%</span></td><td><span class="down">亏</span></td></tr><tr><td><b>AON</b><span class="co">Aon plc</span></td><td><span class="gr gB">B</span></td><td class="num hide-sm muted">10-05</td><td class="n hide-sm">-0.7%</td><td class="num">10-06 15:00</td><td class="n"><span class="up">+8.19%</span></td><td><span class="up">赚</span></td></tr><tr><td><b>HSY</b><span class="co">Hershey Company (The)</span></td><td><span class="gr gC">C</span></td><td class="num hide-sm muted">10-02</td><td class="n hide-sm">-0.2%</td><td class="num">10-05 15:00</td><td class="n"><span class="up">+3.62%</span></td><td><span class="up">赚</span></td></tr><tr><td><b>EFX</b><span class="co">Equifax</span></td><td><span class="gr gC">C</span></td><td class="num hide-sm muted">10-02</td><td class="n hide-sm">-1.0%</td><td class="num">10-05 15:00</td><td class="n"><span class="up">+11.10%</span></td><td><span class="up">赚</span></td></tr><tr><td><b>SO</b><span class="co">Southern Company</span></td><td><span class="gr gA">A</span></td><td class="num hide-sm muted">10-01</td><td class="n hide-sm">-0.3%</td><td class="num">10-02 15:00</td><td class="n"><span class="up">+8.81%</span></td><td><span class="up">赚</span></td></tr><tr><td><b>RF</b><span class="co">Regions Financial Corporation</span></td><td><span class="gr gB">B</span></td><td class="num hide-sm muted">10-01</td><td class="n hide-sm">-0.3%</td><td class="num">10-02 15:00</td><td class="n"><span class="up">+1.19%</span></td><td><span class="up">赚</span></td></tr></tbody></table></div>
-<p class="note">开盘跌幅：信号当天开盘价比前一天收盘价低多少。买入按收盘价，所以时间写的是收盘时刻。收益已减去 0.10% 的买卖成本。</p>
-
-<details>
-  <summary>规则和历史回测</summary>
-  <div class="rules">
-<h3>什么时候出信号</h3>
-<ol>
-  <li>MACD 柱在零轴下方，连着 3 天往上抬（跌势在变弱）。</li>
-  <li>前一天 RSI14 低于 30，当天回升。</li>
-  <li>当天开盘就比前一天收盘低。</li>
-  <li>这只股票 5 天内第一次出现以上情况。</li>
-</ol>
-<h3>怎么买卖</h3>
-<ul>
-  <li>信号第二天收盘前买入（美中 14:50–15:00，提前收盘的日子是 11:50–12:00）。</li>
-  <li>拿满 10 个交易日，收盘前卖出。</li>
-  <li>大跌后可能一天出十几只：先定好每天最多买几只，单只仓位要小。</li>
-  <li>持有期内有财报，或者波动特别大的，买一半。</li>
-</ul>
-<h3>分档</h3>
-<p>看两条：一是开盘跌得深（跌 1% 以上，或跌破前一天最低价）；二是整个市场在恐慌（VIX 25 以上，或当天有 5 只以上同时出信号）。</p>
-<div class="scroll"><table>
-<thead><tr><th>档</th><th></th><th class="n">每年几笔</th><th class="n">平均每笔</th><th class="n">赚钱比例</th><th class="n">2026 年</th></tr></thead>
-<tbody><tr><td><span class="gr gA">A</span></td><td>两条都满足，优先买</td><td class="n">29</td><td class="n up">+2.94%</td><td class="n">67%</td><td class="n"><span class="up">+2.46%</span>，69%</td></tr><tr><td><span class="gr gB">B</span></td><td>满足一条，正常买</td><td class="n">49</td><td class="n up">+1.30%</td><td class="n">57%</td><td class="n"><span class="up">+3.20%</span>，72%</td></tr><tr><td><span class="gr gC">C</span></td><td>都不满足，只看不买</td><td class="n">41</td><td class="n down">-0.05%</td><td class="n">53%</td><td class="n"><span class="up">+1.60%</span>，57%</td></tr></tbody></table></div>
-<p class="note">2000–2025 年的历史成分股（含后来被剔除的）回测，2026 年单独检验。收益已减成本。</p>
-<h3>整体</h3>
-<p>2000–2025 年平均每年约 120 笔，平均每笔 +1.21%，57% 的交易赚钱，81% 的年份是赚的。
-2026 年到现在 156 笔，平均每笔 +2.43%，65% 赚钱。
-作为对比，随便挑一只成分股拿 10 天，平均每笔 +0.40%。</p>
+<header class="top"><h1>标普500 抄底信号</h1><p>数据截至 11月20日（周五）收盘，2026-11-20 15:35 更新</p></header>
+<section class="stats"><div class="tile"><div class="k">标普500</div><div class="v n">6,910<small class="down">-3.70%</small></div><div class="s">比 200 日均线 -6.0%，半年 -8.5%</div><svg viewBox="0 0 120 26" preserveAspectRatio="none" aria-hidden="true"><polyline points="0.0,8.4 1.0,7.7 2.0,12.5 3.0,12.0 4.0,12.5 5.0,15.4 6.1,12.3 7.1,11.4 8.1,8.4 9.1,9.4 10.1,11.7 11.1,9.7 12.1,10.4 13.1,13.0 14.1,13.2 15.1,13.2 16.1,13.3 17.1,11.2 18.2,9.7 19.2,10.1 20.2,10.1 21.2,8.8 22.2,9.6 23.2,10.1 24.2,8.7 25.2,7.9 26.2,9.4 27.2,8.7 28.2,8.0 29.2,8.9 30.3,10.7 31.3,11.1 32.3,9.5 33.3,9.7 34.3,11.9 35.3,11.9 36.3,11.8 37.3,11.4 38.3,14.2 39.3,11.2 40.3,10.0 41.3,7.3 42.4,4.0 43.4,4.3 44.4,4.6 45.4,3.5 46.4,3.6 47.4,4.2 48.4,3.7 49.4,2.5 50.4,2.8 51.4,3.8 52.4,5.1 53.4,4.7 54.5,6.3 55.5,5.5 56.5,6.0 57.5,5.4 58.5,5.5 59.5,4.1 60.5,4.6 61.5,5.2 62.5,6.5 63.5,5.7 64.5,3.7 65.5,4.4 66.6,5.5 67.6,6.4 68.6,7.5 69.6,5.9 70.6,6.8 71.6,7.6 72.6,8.5 73.6,6.4 74.6,6.1 75.6,3.3 76.6,3.3 77.6,4.7 78.7,4.8 79.7,3.8 80.7,5.3 81.7,5.6 82.7,6.1 83.7,5.7 84.7,4.3 85.7,3.1 86.7,2.0 87.7,2.4 88.7,3.3 89.7,2.2 90.8,2.3 91.8,2.3 92.8,4.4 93.8,3.8 94.8,5.9 95.8,5.1 96.8,4.6 97.8,3.5 98.8,5.8 99.8,6.7 100.8,5.4 101.8,4.3 102.9,3.8 103.9,4.4 104.9,7.8 105.9,8.7 106.9,8.1 107.9,5.2 108.9,13.3 109.9,12.7 110.9,8.5 111.9,9.2 112.9,6.8 113.9,7.5 115.0,8.2 116.0,11.7 117.0,13.6 118.0,14.0 119.0,17.6 120.0,24.0" fill="none" stroke="var(--spx)" stroke-width="1.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg></div><div class="tile"><div class="k">VIX 恐慌指数</div><div class="v n">35.9<small class="m">恐慌</small></div><div class="s">25 以上算恐慌，A/B 档加分</div><svg viewBox="0 0 120 26" preserveAspectRatio="none" aria-hidden="true"><polyline points="0.0,22.1 1.0,22.8 2.0,16.6 3.0,19.2 4.0,18.3 5.0,15.9 6.1,18.7 7.1,20.5 8.1,22.0 9.1,21.8 10.1,19.7 11.1,21.8 12.1,20.9 13.1,18.6 14.1,19.5 15.1,19.3 16.1,19.7 17.1,20.5 18.2,21.7 19.2,21.6 20.2,22.0 21.2,22.6 22.2,22.1 23.2,21.3 24.2,22.3 25.2,23.2 26.2,21.0 27.2,21.7 28.2,22.5 29.2,21.4 30.3,19.4 31.3,19.5 32.3,21.1 33.3,21.5 34.3,19.4 35.3,19.6 36.3,19.5 37.3,19.9 38.3,17.5 39.3,21.1 40.3,22.2 41.3,22.3 42.4,21.7 43.4,22.4 44.4,23.0 45.4,23.3 46.4,22.7 47.4,22.9 48.4,23.7 49.4,23.6 50.4,24.0 51.4,23.0 52.4,22.3 53.4,23.3 54.5,22.2 55.5,23.1 56.5,22.3 57.5,22.7 58.5,23.0 59.5,23.7 60.5,23.8 61.5,23.3 62.5,21.8 63.5,23.0 64.5,23.9 65.5,23.7 66.6,22.5 67.6,21.7 68.6,20.3 69.6,22.3 70.6,21.1 71.6,21.0 72.6,20.4 73.6,22.8 74.6,23.4 75.6,23.3 76.6,24.0 77.6,23.0 78.7,22.5 79.7,23.3 80.7,22.1 81.7,22.1 82.7,21.8 83.7,21.8 84.7,22.9 85.7,22.7 86.7,23.2 87.7,23.1 88.7,22.8 89.7,23.4 90.8,23.0 91.8,22.9 92.8,21.3 93.8,21.7 94.8,18.1 95.8,19.7 96.8,20.9 97.8,21.5 98.8,19.1 99.8,18.7 100.8,19.8 101.8,20.6 102.9,21.3 103.9,21.0 104.9,18.7 105.9,17.0 106.9,17.3 107.9,21.6 108.9,9.8 109.9,12.4 110.9,18.2 111.9,18.7 112.9,20.7 113.9,19.4 115.0,18.8 116.0,15.2 117.0,12.6 118.0,13.5 119.0,9.6 120.0,2.0" fill="none" stroke="var(--up)" stroke-width="1.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg></div><div class="tile"><div class="k">站上 50 日均线</div><div class="v n">43%</div><div class="s">5 天前 72%，成分股比例</div><svg viewBox="0 0 120 26" preserveAspectRatio="none" aria-hidden="true"><polyline points="0.0,10.9 1.0,8.5 2.0,9.2 3.0,10.0 4.0,7.7 5.0,10.8 6.1,8.4 7.1,6.5 8.1,5.2 9.1,4.5 10.1,9.2 11.1,8.7 12.1,8.9 13.1,7.1 14.1,5.8 15.1,5.8 16.1,5.7 17.1,5.3 18.2,6.2 19.2,5.6 20.2,4.2 21.2,3.4 22.2,3.9 23.2,5.4 24.2,5.1 25.2,3.6 26.2,4.8 27.2,5.7 28.2,6.4 29.2,4.2 30.3,5.4 31.3,6.4 32.3,7.5 33.3,6.2 34.3,7.7 35.3,5.1 36.3,3.3 37.3,2.1 38.3,4.7 39.3,5.5 40.3,6.1 41.3,5.0 42.4,3.6 43.4,3.9 44.4,5.2 45.4,4.5 46.4,4.7 47.4,5.5 48.4,4.8 49.4,3.5 50.4,2.7 51.4,6.3 52.4,6.9 53.4,6.6 54.5,9.6 55.5,8.1 56.5,7.1 57.5,7.8 58.5,7.7 59.5,9.9 60.5,10.2 61.5,11.4 62.5,13.1 63.5,12.4 64.5,11.0 65.5,12.4 66.6,14.5 67.6,16.7 68.6,18.5 69.6,16.1 70.6,16.3 71.6,17.7 72.6,19.0 73.6,19.3 74.6,20.5 75.6,19.7 76.6,19.6 77.6,20.5 78.7,21.8 79.7,21.3 80.7,22.4 81.7,22.2 82.7,24.0 83.7,23.2 84.7,22.5 85.7,21.0 86.7,20.2 87.7,20.5 88.7,18.8 89.7,17.5 90.8,17.1 91.8,16.2 92.8,17.8 93.8,13.9 94.8,13.6 95.8,14.2 96.8,10.3 97.8,9.3 98.8,6.8 99.8,7.8 100.8,7.1 101.8,6.5 102.9,7.9 103.9,4.9 104.9,6.8 105.9,4.4 106.9,4.7 107.9,2.3 108.9,6.2 109.9,6.1 110.9,3.2 111.9,3.2 112.9,2.0 113.9,2.8 115.0,2.3 116.0,5.1 117.0,8.2 118.0,8.8 119.0,11.7 120.0,14.8" fill="none" stroke="var(--ink3)" stroke-width="1.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg></div><div class="tile"><div class="k">今天超卖</div><div class="v n">0<small class="m">只</small></div><div class="s">MACD 和 RSI 两条都满足的股票</div></div><div class="tile"><div class="k">观察名单</div><div class="v n">1<small class="m">只</small></div><div class="s">明天低开、收涨就会出信号</div></div></section>
+<div class="grid2"><section class="panel today"><div class="ph"><h2>今天买不买</h2><span class="r">11月20日（周五）收盘</span></div><div class="pb"><div class="verdict">今天不买</div><p>11月20日收盘后，没有股票符合主推条件。</p><p>这类机会多半跟在大跌后面，一出就是好几只；市场平稳时几周没有也正常。观察名单里 1 只离触发只差一天，明天收盘后再看。</p></div></section><section class="panel"><div class="ph"><h2>观察名单：明天可能触发</h2><span class="r">按离触发价远近排序</span></div><div class="pb"><div class="tw"><table><thead><tr><th>股票</th><th class="n">RSI</th><th class="n">今天收盘</th><th class="n">明天收盘至少</th></tr></thead><tbody><tr><td><b>NOW</b><span class="nm">ServiceNow</span></td><td class="n">24</td><td class="n">$87.61</td><td class="n">$87.61 <span class="m">(+0.0%)</span></td></tr></tbody></table></div><p class="note">明天要同时满足：开盘低于今天收盘，收盘不低于右列价格。满足就进主推，后天收盘买。</p></div></section></div>
+<section class="panel">
+<div class="ph"><h2>大盘和主推信号</h2><span class="r">最近 120 个交易日，共 69 个主推</span></div>
+<div class="pb" style="padding-bottom:6px"><div class="lg"><span><i class="ln" style="background:var(--spx)"></i>标普500</span><span><i style="background:var(--gA)"></i>A 档</span><span><i style="background:var(--gB)"></i>B 档</span><span><i style="background:var(--gC)"></i>C 档</span></div></div>
+<div class="chart" id="mc">
+  <span class="yl n" style="top:135px">7,000</span><span class="yl n" style="top:94px">7,250</span><span class="yl n" style="top:54px">7,500</span><span class="yl n" style="top:14px">7,750</span>
+  <svg viewBox="0 0 1000 170" preserveAspectRatio="none" style="height:170px"><line x1="0" x2="1000" y1="143.8" y2="143.8" stroke="var(--line)" vector-effect="non-scaling-stroke"/><line x1="0" x2="1000" y1="103.5" y2="103.5" stroke="var(--line)" vector-effect="non-scaling-stroke"/><line x1="0" x2="1000" y1="63.2" y2="63.2" stroke="var(--line)" vector-effect="non-scaling-stroke"/><line x1="0" x2="1000" y1="22.8" y2="22.8" stroke="var(--line)" vector-effect="non-scaling-stroke"/>
+    <polyline points="4.2,54.5 12.5,49.6 20.8,81.9 29.2,78.4 37.5,81.5 45.8,100.8 54.2,80.2 62.5,74.2 70.8,54.4 79.2,61.3 87.5,76.1 95.8,63.1 104.2,67.6 112.5,84.9 120.8,86.0 129.2,86.2 137.5,86.7 145.8,72.8 154.2,63.3 162.5,65.9 170.8,65.9 179.2,57.1 187.5,62.5 195.8,66.0 204.2,56.1 212.5,51.0 220.8,60.7 229.2,56.1 237.5,51.5 245.8,57.7 254.2,70.0 262.5,72.3 270.8,61.7 279.2,63.3 287.5,78.0 295.8,77.4 304.2,77.2 312.5,74.7 320.8,92.8 329.2,73.2 337.5,64.8 345.8,47.0 354.2,25.0 362.5,27.1 370.8,29.3 379.2,21.6 387.5,22.3 395.8,26.4 404.2,23.1 412.5,14.9 420.8,17.1 429.2,23.6 437.5,32.2 445.8,29.6 454.2,40.4 462.5,35.0 470.8,38.5 479.2,34.6 487.5,34.8 495.8,25.9 504.2,29.0 512.5,33.1 520.8,42.0 529.2,36.3 537.5,23.2 545.8,27.9 554.2,35.2 562.5,41.2 570.8,48.4 579.2,37.8 587.5,43.8 595.8,49.3 604.2,54.8 612.5,40.9 620.8,38.9 629.2,20.5 637.5,20.5 645.8,29.9 654.2,30.2 662.5,23.9 670.8,33.5 679.2,35.6 687.5,38.7 695.8,36.3 704.2,27.2 712.5,19.0 720.8,11.7 729.2,14.5 737.5,20.4 745.8,12.9 754.2,13.6 762.5,13.9 770.8,27.9 779.2,23.8 787.5,37.5 795.8,32.4 804.2,28.9 812.5,21.7 820.8,36.8 829.2,43.2 837.5,34.7 845.8,27.3 854.2,23.8 862.5,27.6 870.8,50.3 879.2,56.5 887.5,52.1 895.8,32.7 904.2,86.8 912.5,83.0 920.8,55.1 929.2,59.8 937.5,43.9 945.8,48.3 954.2,53.2 962.5,76.6 970.8,88.9 979.2,91.6 987.5,115.5 995.8,158.3" fill="none" stroke="var(--spx)" stroke-width="1.75" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg>
+  <p class="cap" style="margin-top:8px">每天出现的主推个数（最多 19 个）</p>
+  <svg viewBox="0 0 1000 70" preserveAspectRatio="none" style="height:70px">
+    <line x1="0" x2="1000" y1="70" y2="70" stroke="var(--line2)" vector-effect="non-scaling-stroke"/><rect x="1.2" y="66.5" width="5.8" height="2.5" fill="var(--gC)"/><rect x="34.6" y="66.5" width="5.8" height="2.5" fill="var(--gC)"/><rect x="101.2" y="66.5" width="5.8" height="2.5" fill="var(--gC)"/><rect x="101.2" y="63.1" width="5.8" height="2.5" fill="var(--gB)"/><rect x="151.2" y="66.5" width="5.8" height="2.5" fill="var(--gC)"/><rect x="176.2" y="63.1" width="5.8" height="5.9" fill="var(--gC)"/><rect x="192.9" y="66.5" width="5.8" height="2.5" fill="var(--gB)"/><rect x="284.6" y="66.5" width="5.8" height="2.5" fill="var(--gB)"/><rect x="334.6" y="66.5" width="5.8" height="2.5" fill="var(--gC)"/><rect x="376.2" y="66.5" width="5.8" height="2.5" fill="var(--gB)"/><rect x="417.9" y="66.5" width="5.8" height="2.5" fill="var(--gC)"/><rect x="484.6" y="66.5" width="5.8" height="2.5" fill="var(--gB)"/><rect x="567.9" y="66.5" width="5.8" height="2.5" fill="var(--gC)"/><rect x="567.9" y="63.1" width="5.8" height="2.5" fill="var(--gB)"/><rect x="584.6" y="66.5" width="5.8" height="2.5" fill="var(--gC)"/><rect x="592.9" y="63.1" width="5.8" height="5.9" fill="var(--gC)"/><rect x="617.9" y="66.5" width="5.8" height="2.5" fill="var(--gB)"/><rect x="634.6" y="66.5" width="5.8" height="2.5" fill="var(--gC)"/><rect x="642.9" y="63.1" width="5.8" height="5.9" fill="var(--gC)"/><rect x="659.6" y="63.1" width="5.8" height="5.9" fill="var(--gC)"/><rect x="667.9" y="66.5" width="5.8" height="2.5" fill="var(--gC)"/><rect x="667.9" y="63.1" width="5.8" height="2.5" fill="var(--gB)"/><rect x="676.2" y="28.3" width="5.8" height="40.7" fill="var(--gB)"/><rect x="676.2" y="4.0" width="5.8" height="23.3" fill="var(--gA)"/><rect x="692.9" y="63.1" width="5.8" height="5.9" fill="var(--gB)"/><rect x="692.9" y="49.2" width="5.8" height="12.9" fill="var(--gA)"/><rect x="701.2" y="63.1" width="5.8" height="5.9" fill="var(--gC)"/><rect x="709.6" y="66.5" width="5.8" height="2.5" fill="var(--gC)"/><rect x="709.6" y="56.1" width="5.8" height="9.4" fill="var(--gB)"/><rect x="717.9" y="66.5" width="5.8" height="2.5" fill="var(--gC)"/><rect x="717.9" y="63.1" width="5.8" height="2.5" fill="var(--gB)"/><rect x="734.6" y="52.6" width="5.8" height="16.4" fill="var(--gB)"/><rect x="734.6" y="45.7" width="5.8" height="5.9" fill="var(--gA)"/><rect x="776.2" y="66.5" width="5.8" height="2.5" fill="var(--gC)"/><rect x="826.3" y="66.5" width="5.8" height="2.5" fill="var(--gC)"/><rect x="917.9" y="66.5" width="5.8" height="2.5" fill="var(--gC)"/></svg>
+  <div class="ax n"><span>6月3日</span><span>7月17日</span><span>8月28日</span><span>10月12日</span><span>11月20日</span></div>
+  <div class="hair"></div><div class="tip"></div>
 </div>
-</details>
-
-<footer>2026-11-20 15:14 更新，共看了 500 只成分股。仅供自己研究，不是投资建议；红色是涨，绿色是跌。</footer>
+<script>
+(function(){
+  var D={"d":["2026-06-03","2026-06-04","2026-06-05","2026-06-08","2026-06-09","2026-06-10","2026-06-11","2026-06-12","2026-06-15","2026-06-16","2026-06-17","2026-06-18","2026-06-22","2026-06-23","2026-06-24","2026-06-25","2026-06-26","2026-06-29","2026-06-30","2026-07-01","2026-07-02","2026-07-06","2026-07-07","2026-07-08","2026-07-09","2026-07-10","2026-07-13","2026-07-14","2026-07-15","2026-07-16","2026-07-17","2026-07-20","2026-07-21","2026-07-22","2026-07-23","2026-07-24","2026-07-27","2026-07-28","2026-07-29","2026-07-30","2026-07-31","2026-08-03","2026-08-04","2026-08-05","2026-08-06","2026-08-07","2026-08-10","2026-08-11","2026-08-12","2026-08-13","2026-08-14","2026-08-17","2026-08-18","2026-08-19","2026-08-20","2026-08-21","2026-08-24","2026-08-25","2026-08-26","2026-08-27","2026-08-28","2026-08-31","2026-09-01","2026-09-02","2026-09-03","2026-09-04","2026-09-08","2026-09-09","2026-09-10","2026-09-11","2026-09-14","2026-09-15","2026-09-16","2026-09-17","2026-09-18","2026-09-21","2026-09-22","2026-09-23","2026-09-24","2026-09-25","2026-09-28","2026-09-29","2026-09-30","2026-10-01","2026-10-02","2026-10-05","2026-10-06","2026-10-07","2026-10-08","2026-10-09","2026-10-12","2026-10-13","2026-10-14","2026-10-15","2026-10-16","2026-10-19","2026-10-20","2026-10-21","2026-10-22","2026-10-23","2026-10-26","2026-10-27","2026-10-28","2026-10-29","2026-10-30","2026-11-02","2026-11-03","2026-11-04","2026-11-05","2026-11-06","2026-11-09","2026-11-10","2026-11-11","2026-11-12","2026-11-13","2026-11-16","2026-11-17","2026-11-18","2026-11-19","2026-11-20"],"s":[7553.68,7584.31,7383.74,7405.73,7386.65,7266.99,7394.3,7431.46,7554.29,7511.35,7420.1,7500.58,7472.79,7365.46,7358.22,7357.49,7354.02,7440.43,7499.36,7483.23,7483.24,7537.43,7503.85,7482.71,7543.64,7575.39,7515.34,7543.59,7572.4,7533.77,7457.69,7443.28,7509.2,7498.96,7408.3,7411.98,7413.18,7428.78,7316.15,7437.63,7489.72,7600.5,7736.52,7723.55,7709.96,7757.64,7753.11,7728.2,7748.5,7798.99,7785.76,7745.06,7691.76,7707.98,7641.16,7674.37,7652.86,7677.28,7675.7,7730.99,7711.76,7686.14,7631.47,7666.6,7747.71,7718.6,7673.52,7636.36,7591.7,7656.98,7619.98,7585.73,7551.81,7637.76,7650.5,7764.7,7764.64,7706.03,7704.13,7743.41,7683.69,7670.84,7651.54,7666.45,7722.72,7773.95,7818.93,7801.77,7765.36,7811.54,7807.24,7805.45,7718.94,7744.06,7659.44,7690.73,7712.57,7757.17,7663.43,7623.68,7676.77,7722.6,7743.98,7720.39,7580.07,7541.4,7568.92,7688.62,7353.73,7376.86,7549.94,7520.93,7619.38,7592.4,7561.67,7416.59,7340.53,7323.63,7175.83,6910.39],"v":[16.06,15.4,21.51,18.92,19.87,22.22,19.44,17.68,16.2,16.41,18.44,16.4,17.28,19.49,18.63,18.89,18.41,17.65,16.45,16.59,16.15,15.57,16.13,16.9,15.84,15.03,17.16,16.5,15.67,16.73,18.77,18.65,17.05,16.64,18.7,18.58,18.67,18.21,20.66,17.09,15.99,15.86,16.5,15.81,15.15,14.9,15.46,15.28,14.55,14.63,14.25,15.19,15.84,14.89,16.01,15.13,15.85,15.45,15.21,14.51,14.43,14.92,16.34,15.2,14.32,14.53,15.72,16.46,17.84,15.84,17.1,17.2,17.71,15.44,14.81,14.87,14.21,15.18,15.67,14.87,16.07,16.04,16.34,16.39,15.31,15.52,15.01,15.08,15.41,14.84,15.21,15.27,16.87,16.46,19.99,18.44,17.31,16.68,19.03,19.45,18.39,17.52,16.91,17.2,19.42,21.15,20.83,16.61,28.18,25.64,19.92,19.46,17.49,18.7,19.3,22.91,25.46,24.56,28.44,35.89],"b":[51.8,57.4,55.8,54.0,59.4,52.2,57.6,62.0,65.0,66.6,55.8,57.0,56.6,60.6,63.8,63.8,64.0,64.8,62.8,64.2,67.4,69.2,68.0,64.6,65.4,68.8,66.0,64.0,62.2,67.4,64.6,62.2,59.8,62.8,59.4,65.4,69.4,72.2,66.2,64.4,63.0,65.6,68.8,68.0,65.1,66.7,66.3,64.5,65.9,69.1,70.9,62.5,61.1,61.9,54.9,58.3,60.7,59.0,59.2,54.2,53.6,50.8,46.8,48.4,51.6,48.4,43.6,38.4,34.3,39.8,39.4,36.1,33.1,32.3,29.5,31.5,31.7,29.5,26.5,27.7,25.3,25.7,21.5,23.3,24.9,28.5,30.3,29.5,33.5,36.5,37.5,39.6,35.9,44.8,45.6,44.2,53.2,55.6,61.4,59.0,60.6,62.0,58.8,65.7,61.4,66.9,66.3,71.9,62.7,62.9,69.7,69.7,72.5,70.7,71.9,65.3,58.2,56.8,50.0,42.8],"c":[{"A":0,"B":0,"C":1},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":1},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":1,"C":1},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":1},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":2},{"A":0,"B":0,"C":0},{"A":0,"B":1,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":1,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":1},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":1,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":1},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":1,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":1,"C":1},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":1},{"A":0,"B":0,"C":2},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":1,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":1},{"A":0,"B":0,"C":2},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":2},{"A":0,"B":1,"C":1},{"A":7,"B":12,"C":0},{"A":0,"B":0,"C":0},{"A":4,"B":2,"C":0},{"A":0,"B":0,"C":2},{"A":0,"B":3,"C":1},{"A":0,"B":1,"C":1},{"A":0,"B":0,"C":0},{"A":2,"B":5,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":1},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":1},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":1},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0},{"A":0,"B":0,"C":0}]}, el=document.getElementById('mc'), tip=el.querySelector('.tip'), hair=el.querySelector('.hair'), n=D.d.length;
+  function fmt(x,d){return x==null?'—':x.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d})}
+  function show(e){
+    var r=el.getBoundingClientRect(), pad=16, w=r.width-pad-56, x=e.clientX-r.left-pad;
+    if(x<0||x>w){hide();return}
+    var i=Math.min(n-1,Math.max(0,Math.floor(x/w*n))), c=D.c[i], t=c.A+c.B+c.C, d=D.d[i];
+    hair.style.display='block'; hair.style.left=(pad+(i+.5)/n*w)+'px'; hair.style.height=(el.offsetHeight-22)+'px';
+    tip.innerHTML='<b>'+(+d.slice(5,7))+'月'+(+d.slice(8))+'日</b><br>标普 '+fmt(D.s[i],0)+'　VIX '+fmt(D.v[i],1)+
+      '<br>站上 50 日线 '+fmt(D.b[i],0)+'%<br>主推 '+(t?t+' 个（A '+c.A+'，B '+c.B+'，C '+c.C+'）':'无');
+    tip.style.display='block';
+    var tx=pad+(i+.5)/n*w+12; if(tx+tip.offsetWidth>r.width) tx=pad+(i+.5)/n*w-12-tip.offsetWidth;
+    tip.style.left=tx+'px'; tip.style.top='8px';
+  }
+  function hide(){tip.style.display='none';hair.style.display='none'}
+  el.addEventListener('mousemove',show); el.addEventListener('mouseleave',hide);
+  el.addEventListener('touchstart',function(e){show(e.touches[0])},{passive:true});
+  el.addEventListener('touchmove',function(e){show(e.touches[0])},{passive:true});
+})();
+</script>
+</section>
+<section class="panel"><div class="ph"><h2>最近 20 笔主推</h2><span class="r">按规则逐日回放，收益已减 0.10% 成本</span></div><div class="kpis"><div class="kpi"><div class="k">已卖出</div><div class="v n ">19 笔</div></div><div class="kpi"><div class="k">赚钱比例</div><div class="v n ">79%</div></div><div class="kpi"><div class="k">平均每笔</div><div class="v n up">+5.20%</div></div><div class="kpi"><div class="k">持有中</div><div class="v n ">1 笔</div></div></div><div class="pb"><div class="tw"><table><thead><tr><th>股票</th><th>档</th><th class="n hs">信号日</th><th class="n hs">开盘跌幅</th><th class="n">买入（美中）</th><th class="hs">10 天走势</th><th class="n">收益</th><th></th></tr></thead><tbody><tr><td><b>NOW</b><span class="nm">ServiceNow</span></td><td><span class="g gC">C</span></td><td class="n hs m">11-09</td><td class="n hs">-0.3%</td><td class="n">11-10 15:00</td><td class="hs"><svg class="sp" viewBox="0 0 96 24" preserveAspectRatio="none" aria-hidden="true"><line x1="0" x2="96" y1="6.2" y2="6.2" stroke="var(--line2)" stroke-dasharray="2 2" vector-effect="non-scaling-stroke"/><polyline points="0.0,6.2 9.6,2.0 19.2,4.8 28.8,2.7 38.4,6.5 48.0,15.0 57.6,18.1 67.2,20.3 76.8,22.0" fill="none" stroke="var(--down)" stroke-width="1.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg></td><td class="n"><span class="down">-12.15%</span></td><td><span class="bar hs"><i style="width:80%"></i></span><span class="m n">8/10天</span></td></tr><tr><td><b>MOS</b><span class="nm">Mosaic Company (The)</span></td><td><span class="g gC">C</span></td><td class="n hs m">10-23</td><td class="n hs">-0.2%</td><td class="n">10-26 15:00</td><td class="hs"><svg class="sp" viewBox="0 0 96 24" preserveAspectRatio="none" aria-hidden="true"><line x1="0" x2="96" y1="22.0" y2="22.0" stroke="var(--line2)" stroke-dasharray="2 2" vector-effect="non-scaling-stroke"/><polyline points="0.0,22.0 9.6,17.7 19.2,19.5 28.8,19.9 38.4,19.3 48.0,16.8 57.6,19.2 67.2,6.5 76.8,3.7 86.4,3.6 96.0,2.0" fill="none" stroke="var(--up)" stroke-width="1.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg></td><td class="n"><span class="up">+28.47%</span></td><td><span class="up">赚</span></td></tr><tr><td><b>ALB</b><span class="nm">Albemarle Corporation</span></td><td><span class="g gC">C</span></td><td class="n hs m">10-15</td><td class="n hs">-1.0%</td><td class="n">10-16 15:00</td><td class="hs"><svg class="sp" viewBox="0 0 96 24" preserveAspectRatio="none" aria-hidden="true"><line x1="0" x2="96" y1="10.7" y2="10.7" stroke="var(--line2)" stroke-dasharray="2 2" vector-effect="non-scaling-stroke"/><polyline points="0.0,10.7 9.6,12.9 19.2,10.0 28.8,13.3 38.4,18.1 48.0,15.3 57.6,15.9 67.2,2.0 76.8,7.0 86.4,16.3 96.0,22.0" fill="none" stroke="var(--down)" stroke-width="1.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg></td><td class="n"><span class="down">-4.79%</span></td><td><span class="down">亏</span></td></tr><tr><td><b>PNC</b><span class="nm">PNC Financial Services</span></td><td><span class="g gA">A</span></td><td class="n hs m">10-08</td><td class="n hs">-0.8%</td><td class="n">10-09 15:00</td><td class="hs"><svg class="sp" viewBox="0 0 96 24" preserveAspectRatio="none" aria-hidden="true"><line x1="0" x2="96" y1="17.7" y2="17.7" stroke="var(--line2)" stroke-dasharray="2 2" vector-effect="non-scaling-stroke"/><polyline points="0.0,17.7 9.6,13.8 19.2,17.2 28.8,20.4 38.4,22.0 48.0,17.4 57.6,19.6 67.2,10.6 76.8,7.0 86.4,2.0 96.0,4.0" fill="none" stroke="var(--up)" stroke-width="1.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg></td><td class="n"><span class="up">+3.24%</span></td><td><span class="up">赚</span></td></tr><tr><td><b>MGM</b><span class="nm">MGM Resorts</span></td><td><span class="g gB">B</span></td><td class="n hs m">10-08</td><td class="n hs">-0.7%</td><td class="n">10-09 15:00</td><td class="hs"><svg class="sp" viewBox="0 0 96 24" preserveAspectRatio="none" aria-hidden="true"><line x1="0" x2="96" y1="5.2" y2="5.2" stroke="var(--line2)" stroke-dasharray="2 2" vector-effect="non-scaling-stroke"/><polyline points="0.0,5.2 9.6,4.5 19.2,3.4 28.8,9.5 38.4,2.3 48.0,14.5 57.6,16.3 67.2,10.3 76.8,10.8 86.4,2.0 96.0,22.0" fill="none" stroke="var(--down)" stroke-width="1.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg></td><td class="n"><span class="down">-4.23%</span></td><td><span class="down">亏</span></td></tr><tr><td><b>LVS</b><span class="nm">Las Vegas Sands</span></td><td><span class="g gA">A</span></td><td class="n hs m">10-08</td><td class="n hs">-0.9%</td><td class="n">10-09 15:00</td><td class="hs"><svg class="sp" viewBox="0 0 96 24" preserveAspectRatio="none" aria-hidden="true"><line x1="0" x2="96" y1="18.3" y2="18.3" stroke="var(--line2)" stroke-dasharray="2 2" vector-effect="non-scaling-stroke"/><polyline points="0.0,18.3 9.6,18.5 19.2,11.7 28.8,11.8 38.4,2.0 48.0,4.3 57.6,4.3 67.2,3.1 76.8,8.1 86.4,15.6 96.0,22.0" fill="none" stroke="var(--down)" stroke-width="1.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg></td><td class="n"><span class="down">-1.45%</span></td><td><span class="down">亏</span></td></tr><tr><td><b>IP</b><span class="nm">International Paper</span></td><td><span class="g gB">B</span></td><td class="n hs m">10-08</td><td class="n hs">-0.7%</td><td class="n">10-09 15:00</td><td class="hs"><svg class="sp" viewBox="0 0 96 24" preserveAspectRatio="none" aria-hidden="true"><line x1="0" x2="96" y1="18.8" y2="18.8" stroke="var(--line2)" stroke-dasharray="2 2" vector-effect="non-scaling-stroke"/><polyline points="0.0,18.8 9.6,22.0 19.2,21.4 28.8,20.6 38.4,2.0 48.0,2.4 57.6,5.0 67.2,5.5 76.8,6.0 86.4,5.5 96.0,9.7" fill="none" stroke="var(--up)" stroke-width="1.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg></td><td class="n"><span class="up">+3.23%</span></td><td><span class="up">赚</span></td></tr><tr><td><b>GD</b><span class="nm">General Dynamics</span></td><td><span class="g gB">B</span></td><td class="n hs m">10-08</td><td class="n hs">-0.2%</td><td class="n">10-09 15:00</td><td class="hs"><svg class="sp" viewBox="0 0 96 24" preserveAspectRatio="none" aria-hidden="true"><line x1="0" x2="96" y1="22.0" y2="22.0" stroke="var(--line2)" stroke-dasharray="2 2" vector-effect="non-scaling-stroke"/><polyline points="0.0,22.0 9.6,17.7 19.2,20.8 28.8,18.5 38.4,16.1 48.0,8.7 57.6,11.6 67.2,8.5 76.8,8.2 86.4,2.0 96.0,3.5" fill="none" stroke="var(--up)" stroke-width="1.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg></td><td class="n"><span class="up">+5.36%</span></td><td><span class="up">赚</span></td></tr><tr><td><b>CMCSA</b><span class="nm">Comcast</span></td><td><span class="g gB">B</span></td><td class="n hs m">10-08</td><td class="n hs">-0.1%</td><td class="n">10-09 15:00</td><td class="hs"><svg class="sp" viewBox="0 0 96 24" preserveAspectRatio="none" aria-hidden="true"><line x1="0" x2="96" y1="22.0" y2="22.0" stroke="var(--line2)" stroke-dasharray="2 2" vector-effect="non-scaling-stroke"/><polyline points="0.0,22.0 9.6,21.8 19.2,20.0 28.8,18.4 38.4,11.8 48.0,10.6 57.6,10.6 67.2,6.4 76.8,9.0 86.4,2.0 96.0,3.4" fill="none" stroke="var(--up)" stroke-width="1.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg></td><td class="n"><span class="up">+9.73%</span></td><td><span class="up">赚</span></td></tr><tr><td><b>BNY</b><span class="nm">BNY Mellon</span></td><td><span class="g gB">B</span></td><td class="n hs m">10-08</td><td class="n hs">-0.4%</td><td class="n">10-09 15:00</td><td class="hs"><svg class="sp" viewBox="0 0 96 24" preserveAspectRatio="none" aria-hidden="true"><line x1="0" x2="96" y1="9.7" y2="9.7" stroke="var(--line2)" stroke-dasharray="2 2" vector-effect="non-scaling-stroke"/><polyline points="0.0,9.7 9.6,9.3 19.2,13.8 28.8,22.0 38.4,11.1 48.0,8.2 57.6,10.3 67.2,5.9 76.8,2.0 86.4,3.3 96.0,3.4" fill="none" stroke="var(--up)" stroke-width="1.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg></td><td class="n"><span class="up">+1.69%</span></td><td><span class="up">赚</span></td></tr><tr><td><b>WY</b><span class="nm">Weyerhaeuser</span></td><td><span class="g gC">C</span></td><td class="n hs m">10-06</td><td class="n hs">-0.2%</td><td class="n">10-07 15:00</td><td class="hs"><svg class="sp" viewBox="0 0 96 24" preserveAspectRatio="none" aria-hidden="true"><line x1="0" x2="96" y1="22.0" y2="22.0" stroke="var(--line2)" stroke-dasharray="2 2" vector-effect="non-scaling-stroke"/><polyline points="0.0,22.0 9.6,10.5 19.2,11.8 28.8,14.9 38.4,14.3 48.0,15.6 57.6,6.4 67.2,2.0 76.8,9.9 86.4,7.2 96.0,14.1" fill="none" stroke="var(--up)" stroke-width="1.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg></td><td class="n"><span class="up">+2.11%</span></td><td><span class="up">赚</span></td></tr><tr><td><b>WTW</b><span class="nm">Willis Towers Watson</span></td><td><span class="g gB">B</span></td><td class="n hs m">10-06</td><td class="n hs">-1.2%</td><td class="n">10-07 15:00</td><td class="hs"><svg class="sp" viewBox="0 0 96 24" preserveAspectRatio="none" aria-hidden="true"><line x1="0" x2="96" y1="22.0" y2="22.0" stroke="var(--line2)" stroke-dasharray="2 2" vector-effect="non-scaling-stroke"/><polyline points="0.0,22.0 9.6,16.9 19.2,18.0 28.8,16.5 38.4,17.4 48.0,17.4 57.6,8.0 67.2,4.3 76.8,5.0 86.4,2.0 96.0,2.8" fill="none" stroke="var(--up)" stroke-width="1.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg></td><td class="n"><span class="up">+9.17%</span></td><td><span class="up">赚</span></td></tr><tr><td><b>FISV</b><span class="nm">Fiserv</span></td><td><span class="g gC">C</span></td><td class="n hs m">10-05</td><td class="n hs">-0.5%</td><td class="n">10-06 15:00</td><td class="hs"><svg class="sp" viewBox="0 0 96 24" preserveAspectRatio="none" aria-hidden="true"><line x1="0" x2="96" y1="20.9" y2="20.9" stroke="var(--line2)" stroke-dasharray="2 2" vector-effect="non-scaling-stroke"/><polyline points="0.0,20.9 9.6,22.0 19.2,17.7 28.8,19.8 38.4,17.0 48.0,12.8 57.6,16.8 67.2,9.1 76.8,6.8 86.4,5.8 96.0,2.0" fill="none" stroke="var(--up)" stroke-width="1.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg></td><td class="n"><span class="up">+5.99%</span></td><td><span class="up">赚</span></td></tr><tr><td><b>BALL</b><span class="nm">Ball Corporation</span></td><td><span class="g gB">B</span></td><td class="n hs m">10-05</td><td class="n hs">-0.2%</td><td class="n">10-06 15:00</td><td class="hs"><svg class="sp" viewBox="0 0 96 24" preserveAspectRatio="none" aria-hidden="true"><line x1="0" x2="96" y1="22.0" y2="22.0" stroke="var(--line2)" stroke-dasharray="2 2" vector-effect="non-scaling-stroke"/><polyline points="0.0,22.0 9.6,21.8 19.2,19.2 28.8,18.9 38.4,16.8 48.0,15.7 57.6,13.1 67.2,6.0 76.8,4.8 86.4,3.0 96.0,2.0" fill="none" stroke="var(--up)" stroke-width="1.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg></td><td class="n"><span class="up">+11.62%</span></td><td><span class="up">赚</span></td></tr><tr><td><b>APO</b><span class="nm">Apollo Global Management</span></td><td><span class="g gB">B</span></td><td class="n hs m">10-05</td><td class="n hs">-0.2%</td><td class="n">10-06 15:00</td><td class="hs"><svg class="sp" viewBox="0 0 96 24" preserveAspectRatio="none" aria-hidden="true"><line x1="0" x2="96" y1="9.7" y2="9.7" stroke="var(--line2)" stroke-dasharray="2 2" vector-effect="non-scaling-stroke"/><polyline points="0.0,9.7 9.6,10.7 19.2,11.3 28.8,3.3 38.4,2.0 48.0,9.0 57.6,15.8 67.2,19.4 76.8,22.0 86.4,21.6 96.0,21.0" fill="none" stroke="var(--down)" stroke-width="1.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg></td><td class="n"><span class="down">-4.18%</span></td><td><span class="down">亏</span></td></tr><tr><td><b>AON</b><span class="nm">Aon plc</span></td><td><span class="g gB">B</span></td><td class="n hs m">10-05</td><td class="n hs">-0.7%</td><td class="n">10-06 15:00</td><td class="hs"><svg class="sp" viewBox="0 0 96 24" preserveAspectRatio="none" aria-hidden="true"><line x1="0" x2="96" y1="19.3" y2="19.3" stroke="var(--line2)" stroke-dasharray="2 2" vector-effect="non-scaling-stroke"/><polyline points="0.0,19.3 9.6,22.0 19.2,16.9 28.8,19.7 38.4,18.7 48.0,18.8 57.6,18.3 67.2,9.5 76.8,5.2 86.4,7.3 96.0,2.0" fill="none" stroke="var(--up)" stroke-width="1.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg></td><td class="n"><span class="up">+8.19%</span></td><td><span class="up">赚</span></td></tr><tr><td><b>HSY</b><span class="nm">Hershey Company (The)</span></td><td><span class="g gC">C</span></td><td class="n hs m">10-02</td><td class="n hs">-0.2%</td><td class="n">10-05 15:00</td><td class="hs"><svg class="sp" viewBox="0 0 96 24" preserveAspectRatio="none" aria-hidden="true"><line x1="0" x2="96" y1="20.7" y2="20.7" stroke="var(--line2)" stroke-dasharray="2 2" vector-effect="non-scaling-stroke"/><polyline points="0.0,20.7 9.6,21.1 19.2,22.0 28.8,17.8 38.4,17.4 48.0,15.3 57.6,16.8 67.2,14.5 76.8,6.1 86.4,2.0 96.0,9.3" fill="none" stroke="var(--up)" stroke-width="1.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg></td><td class="n"><span class="up">+3.62%</span></td><td><span class="up">赚</span></td></tr><tr><td><b>EFX</b><span class="nm">Equifax</span></td><td><span class="g gC">C</span></td><td class="n hs m">10-02</td><td class="n hs">-1.0%</td><td class="n">10-05 15:00</td><td class="hs"><svg class="sp" viewBox="0 0 96 24" preserveAspectRatio="none" aria-hidden="true"><line x1="0" x2="96" y1="21.8" y2="21.8" stroke="var(--line2)" stroke-dasharray="2 2" vector-effect="non-scaling-stroke"/><polyline points="0.0,21.8 9.6,21.9 19.2,22.0 28.8,18.7 38.4,18.4 48.0,16.8 57.6,14.9 67.2,13.6 76.8,2.0 86.4,2.0 96.0,4.9" fill="none" stroke="var(--up)" stroke-width="1.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg></td><td class="n"><span class="up">+11.10%</span></td><td><span class="up">赚</span></td></tr><tr><td><b>SO</b><span class="nm">Southern Company</span></td><td><span class="g gA">A</span></td><td class="n hs m">10-01</td><td class="n hs">-0.3%</td><td class="n">10-02 15:00</td><td class="hs"><svg class="sp" viewBox="0 0 96 24" preserveAspectRatio="none" aria-hidden="true"><line x1="0" x2="96" y1="22.0" y2="22.0" stroke="var(--line2)" stroke-dasharray="2 2" vector-effect="non-scaling-stroke"/><polyline points="0.0,22.0 9.6,21.8 19.2,17.4 28.8,17.4 38.4,15.5 48.0,15.4 57.6,13.1 67.2,10.2 76.8,6.8 86.4,7.4 96.0,2.0" fill="none" stroke="var(--up)" stroke-width="1.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg></td><td class="n"><span class="up">+8.81%</span></td><td><span class="up">赚</span></td></tr><tr><td><b>RF</b><span class="nm">Regions Financial Corporation</span></td><td><span class="g gB">B</span></td><td class="n hs m">10-01</td><td class="n hs">-0.3%</td><td class="n">10-02 15:00</td><td class="hs"><svg class="sp" viewBox="0 0 96 24" preserveAspectRatio="none" aria-hidden="true"><line x1="0" x2="96" y1="11.3" y2="11.3" stroke="var(--line2)" stroke-dasharray="2 2" vector-effect="non-scaling-stroke"/><polyline points="0.0,11.3 9.6,12.1 19.2,12.6 28.8,22.0 38.4,12.1 48.0,13.2 57.6,4.1 67.2,13.7 76.8,16.9 86.4,5.8 96.0,2.0" fill="none" stroke="var(--up)" stroke-width="1.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg></td><td class="n"><span class="up">+1.19%</span></td><td><span class="up">赚</span></td></tr></tbody></table></div><p class="note">开盘跌幅：信号当天开盘价比前一天收盘低多少。买入按收盘价，时间写收盘时刻。走势线从买入当天开始，虚线是成本线。最好一笔 MOS +28.5%。</p></div></section>
+<div class="grid2"><section class="panel"><div class="ph"><h2>分档成绩</h2><span class="r">近半年回放 对比 26 年回测</span></div><div class="pb">
+<div class="tw"><table><thead><tr><th>档</th><th class="n">近半年笔数</th><th class="n">赚钱</th><th class="n">平均</th><th class="n">回测平均</th><th class="n">回测赚钱</th></tr></thead>
+<tbody><tr><td><span class="g gA">A</span></td><td class="n">13</td><td class="n">85%</td><td class="n"><span class="up">+4.02%</span></td><td class="n"><span class="up">+2.94%</span></td><td class="n">67%</td></tr><tr><td><span class="g gB">B</span></td><td class="n">31</td><td class="n">77%</td><td class="n"><span class="up">+3.60%</span></td><td class="n"><span class="up">+1.30%</span></td><td class="n">57%</td></tr><tr><td><span class="g gC">C</span></td><td class="n">24</td><td class="n">58%</td><td class="n"><span class="up">+2.77%</span></td><td class="n"><span class="down">-0.05%</span></td><td class="n">53%</td></tr></tbody></table></div>
+<p class="note">A：开盘跌得深，同时市场恐慌。B：只占一条。C：都没有。开盘跌得深是指跌 1% 以上或跌破前一天最低价；市场恐慌是指 VIX 25 以上或当天有 5 个以上主推。回测用 2000–2025 年当时的成分股（含后来被剔除的）。</p>
+</div></section><section class="panel"><div class="ph"><h2>规则</h2><span class="r">2026-11-19 起使用</span></div><div class="pb rules">
+<h3>出信号（四条都要满足）</h3>
+<ol><li>MACD 柱在零轴下方，连续 3 天抬高</li><li>前一天 RSI14 低于 30，当天回升</li>
+<li>当天开盘低于前一天收盘</li><li>这只股票 5 天内第一次出信号</li></ol>
+<h3>买卖</h3>
+<ul><li>信号第二天收盘前买（美中 14:50–15:00；提前收盘日 11:50–12:00）</li>
+<li>拿满 10 个交易日，收盘前卖</li><li>一天出很多只时，先买 A，再买 B；单只仓位要小</li>
+<li>持有期内有财报或波动特别大的，买一半</li></ul>
+<details><summary>长期回测数字</summary>
+<p class="note" style="font-size:12.5px">2000–2025 年平均每年约 120 笔，平均每笔 +1.21%，57% 的交易赚钱，81% 的年份赚钱。
+2026 年 156 笔，平均每笔 +2.43%，65% 赚钱。对比：随便买一只成分股拿 10 天，平均 +0.40%。</p></details>
+</div></section></div>
+<footer>仅供自己研究，不是投资建议。红色是涨，绿色是跌。最近 20 笔和图表按当前成分股回放。</footer>
 </div>
 </body>
 </html>

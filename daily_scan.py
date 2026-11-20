@@ -13,6 +13,7 @@ import requests, io, sys, json, webbrowser, warnings, subprocess, re, base64
 from datetime import datetime, timedelta
 from report import render_report            # 旧版页面（保留）
 from report_v2 import render_report as render_report_v2
+from report_v3 import render_report as render_report_v3
 from pandas.tseries.holiday import USFederalHolidayCalendar
 BDAY = pd.offsets.CustomBusinessDay(calendar=USFederalHolidayCalendar())   # 美股交易日（近似，未含耶稣受难日）
 
@@ -384,6 +385,7 @@ def replay_main(data, tickers, vix_hist, name_map, lookback=120):
                 rec.update(status='完成', ret=(float(c.iloc[x]) / ep - 1) * 100, exit_day=idx[x], held=NEW_RULE_HOLD)
             else:
                 rec.update(status='持有中', ret=(float(c.iloc[-1]) / ep - 1) * 100, held=len(c) - 1 - e)
+            rec['path'] = [round((float(v) / ep - 1) * 100, 2) for v in c.iloc[e:min(x, len(c) - 1) + 1]]   # 网页小走势图
             recs.append(rec)
     if not recs:
         return []
@@ -394,6 +396,61 @@ def replay_main(data, tickers, vix_hist, name_map, lookback=120):
         r['net'] = r['ret'] - 0.10 if 'ret' in r else None
     recs.sort(key=lambda r: (r['signal_day'], r['ticker']), reverse=True)
     return recs
+
+
+def watch_list(data, tickers, name_map, entry_day):
+    """观察名单：明天可能触发主推的股票。今天 MACD 柱<0 且比昨天高、今天 RSI<30、5 天内没出过算数的基础信号。
+    明天要触发还需：开盘低于今天收盘（低开）、收盘高于今天收盘（RSI 回升）、收盘高到让 MACD 柱继续抬高。
+    MACD 柱对明天收盘价是线性的，所以能直接解出这个价格。"""
+    out = []
+    for t in tickers:
+        try:
+            c = data[t]['Close'].dropna()
+        except Exception:
+            continue
+        if len(c) < 260:
+            continue
+        rsi = calc_rsi(c); _, _, h = calc_macd(c)
+        if not (h.iloc[-1] < 0 and h.iloc[-1] > h.iloc[-2] and rsi.iloc[-1] < 30):
+            continue
+        b = base_flags(c).iloc[-80:]; last = None
+        for d, v in b.items():
+            if v and (last is None or (d - last).days > NEW_RULE_DEDUP_DAYS):
+                last = d
+        if last is not None and (pd.Timestamp(entry_day) - last).days <= NEW_RULE_DEDUP_DAYS:
+            continue
+        c0 = float(c.iloc[-1]); nxt = pd.Timestamp(entry_day)
+        def h_at(p):
+            cc = pd.concat([c, pd.Series([p], index=[nxt])])
+            return float(calc_macd(cc)[2].iloc[-1])
+        a0, a1 = h_at(c0), h_at(c0 * 1.01)
+        slope = (a1 - a0) / (c0 * 0.01)
+        if slope <= 0:
+            continue
+        p_macd = c0 + (float(h.iloc[-1]) - a0) / slope          # 明天收盘高于它，MACD 柱才会继续抬高
+        p_neg = c0 + (0 - a0) / slope                           # 明天收盘低于它，柱子才还在零轴下方
+        need = max(c0, p_macd)
+        if need >= p_neg:
+            continue
+        out.append({'ticker': t, 'name': name_map.get(t, t), 'close': c0, 'rsi': float(rsi.iloc[-1]),
+                    'chg': float(c0 / float(c.iloc[-2]) - 1) * 100, 'need': need,
+                    'need_pct': (need / c0 - 1) * 100})
+    out.sort(key=lambda r: r['need_pct'])
+    return out
+
+
+def market_series(data, spy, vix_hist, n=120):
+    """网页走势图：标普500、VIX、站上 50 日线的成分股比例，最近 n 个交易日"""
+    closes = data.xs('Close', axis=1, level=1)
+    ma50 = closes.rolling(50).mean()
+    valid = closes.notna() & ma50.notna()
+    breadth = ((closes > ma50) & valid).sum(1) / valid.sum(1).replace(0, np.nan) * 100
+    idx = closes.index[-n:]
+    sp = spy.copy(); sp.index = pd.to_datetime(sp.index).tz_localize(None) if getattr(sp.index, 'tz', None) else pd.to_datetime(sp.index)
+    return {'dates': [d.strftime('%Y-%m-%d') for d in idx],
+            'spy': [None if pd.isna(v) else round(float(v), 2) for v in sp.reindex(idx).ffill().values],
+            'vix': [None if pd.isna(v) else round(float(v), 2) for v in vix_hist.reindex(idx).ffill().values],
+            'breadth': [None if pd.isna(v) else round(float(v), 1) for v in breadth.reindex(idx).values]}
 
 
 def star_tier(conds, grade):
@@ -657,17 +714,25 @@ def main():
     recent = pick_performance(history)
     print("重放最近的主推（回测记录）...")
     replay = replay_main(data, tickers, vix_hist, name_map)
+    print("观察名单、市场走势...")
+    watch = watch_list(data, tickers, name_map, entry_day)
+    mkt = market_series(data, spy, vix_hist)
 
     date_str = datetime.now().strftime('%Y-%m-%d %H:%M')
 
-    render = render_report if '--old-page' in sys.argv else render_report_v2   # --old-page：用旧版页面
-    html = render({
+    render = (render_report if '--old-page' in sys.argv            # --old-page：最早的旧版页面
+              else render_report_v2 if '--v2-page' in sys.argv     # --v2-page：11-20 的简版页面
+              else render_report_v3)
+    ctx = {
         'date_str': date_str,
         'signal_day': signal_day.strftime('%Y-%m-%d'),
         'entry_day': entry_day.strftime('%Y-%m-%d'),
         'exit_day': exit_day.strftime('%Y-%m-%d'),
         'hold': NEW_RULE_HOLD,
         'replay': replay,
+        'watch': watch,
+        'mkt': mkt,
+        'spy_chg': float(spy.iloc[-1] / spy.iloc[-2] - 1) * 100,
         'n_combos': len(combos),
         'grade_counts': grade_counts,
         'bl': bl,
@@ -680,7 +745,12 @@ def main():
         'results': results,
         'funnel': {'universe': n_universe, 'base': n_base, 'deduped': n_deduped},
         'recent': recent,
-    })
+    }
+    if '--dump-ctx' in sys.argv:   # 调网页用：把数据存下来，改页面时不用重新下载
+        import pickle
+        with open(sys.argv[sys.argv.index('--dump-ctx') + 1], 'wb') as f:
+            pickle.dump(ctx, f)
+    html = render(ctx)
 
     with open(OUTPUT_HTML, 'w', encoding='utf-8') as f:
         f.write(html)
