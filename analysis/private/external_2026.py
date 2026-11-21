@@ -33,7 +33,7 @@ if not os.path.exists(CACHE):
     pd.to_pickle({'O': O, 'H': H, 'L': L, 'C': C, 'MEM': MEM, 'V': V}, CACHE)
 d = pd.read_pickle(CACHE); O, H, L, C, MEM, V = (d[k] for k in ('O', 'H', 'L', 'C', 'MEM', 'V'))
 V = V.reindex(index=C.index, columns=C.columns)     # 新补的几天没有成交量，放量突破在那几天不出信号
-dates = C.index; COST = 0.10; S26 = pd.Timestamp('2026-01-01'); first = dates.searchsorted(S26)
+dates = C.index; COST = 0.10; S26 = pd.Timestamp(os.environ.get('START', '2026-01-01')); first = dates.searchsorted(S26)   # START=2025-01-01 可改起点
 print('数据到', dates[-1].date())
 
 def rsi_c(c, n):
@@ -104,11 +104,13 @@ for k, r in M.items():
     rows.append({'方法': k, '已平仓': len(dd), '每笔%': round(dd.net.mean(), 2), '中位数%': round(dd.net.median(), 2),
                  '赚钱%': round((dd.net > 0).mean() * 100), '持有天': round(dd.hold.mean(), 1),
                  '每天%': round(dd.net.mean() / dd.hold.mean(), 3), '最差5%': round(np.percentile(dd.net, 5), 1),
-                 '赚钱月': f'{(dd.groupby(dd.day.dt.month).net.mean() > 0).sum()}/{dd.day.dt.month.nunique()}',
-                 '持有中': len(o), '浮动%': round(o.net.mean(), 2) if len(o) else None})
-    months[k] = dd.groupby(dd.day.dt.month).net.mean().round(2)
+                 '赚钱月': f'{(dd.groupby(dd.day.dt.to_period("M")).net.mean() > 0).sum()}/{dd.day.dt.to_period("M").nunique()}',
+                 '持有中': len(o), '浮动%': round(o.net.mean(), 2) if len(o) else None,
+                 '含持仓每笔%': round(r.net.mean(), 2), '2025每笔%': round(dd[dd.day.dt.year == 2025].net.mean(), 2),
+                 '2026每笔%': round(dd[dd.day.dt.year == 2026].net.mean(), 2)})
+    months[k] = dd.groupby(dd.day.dt.to_period('M')).net.mean().round(2)
 T = pd.DataFrame(rows).sort_values('每笔%', ascending=False)
-T.to_csv(os.path.join(HERE, 'external_2026.csv'), index=False, encoding='utf-8-sig')
-pd.DataFrame(months).T.to_csv(os.path.join(HERE, 'external_2026_monthly.csv'), encoding='utf-8-sig')
+T.to_csv(os.path.join(HERE, f'external_{S26.year}on.csv' if S26.year != 2026 else 'external_2026.csv'), index=False, encoding='utf-8-sig')
+pd.DataFrame(months).T.to_csv(os.path.join(HERE, f'external_{S26.year}on_monthly.csv' if S26.year != 2026 else 'external_2026_monthly.csv'), encoding='utf-8-sig')
 pd.set_option('display.width', 260); print(T.to_string(index=False))
-print(pd.DataFrame(months).T.to_string())
+
