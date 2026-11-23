@@ -5,7 +5,8 @@
 """
 import json
 from html import escape
-from report_v2 import BT, GRADES, _day, _close_ct, _buy_time, _sign
+from report_v2 import BT, GRADES, COND_GRADES, IN_GRADE, cond_tags, _day, _close_ct, _buy_time, _sign
+GL = {'A': 'SSS', 'B': 'S', 'C': 'A'}   # 内部仍用 A/B/C 排序和存档，页面显示 SSS/S/A
 
 CSS = '''
 :root{
@@ -76,7 +77,7 @@ th.n,td.n{text-align:right}
 td .nm{display:block;font-size:12px;color:var(--ink3);max-width:170px;overflow:hidden;text-overflow:ellipsis}
 td.wr{white-space:normal}
 .wl{display:block;font-size:12px;color:var(--up)}
-.g{display:inline-block;width:20px;height:20px;line-height:20px;text-align:center;border-radius:4px;font-weight:700;font-size:12px;color:#fff}
+.g{display:inline-block;min-width:20px;padding:0 4px;box-sizing:border-box;height:20px;line-height:20px;text-align:center;border-radius:4px;font-weight:700;font-size:12px;color:#fff}
 .gA{background:var(--gA)} .gB{background:var(--gB)} .gC{background:var(--gC)}
 .sp{display:block;width:96px;height:24px}
 .bar{display:inline-block;width:40px;height:4px;border-radius:2px;background:var(--line);vertical-align:middle;margin-right:5px;overflow:hidden}
@@ -103,6 +104,9 @@ td.wr{white-space:normal}
 .rules ol,.rules ul{margin:0 0 10px;padding-left:20px} .rules li{margin:2px 0}
 .rules h3{font-size:13.5px;color:var(--ink);margin:4px 0 4px}
 .note{font-size:12px;color:var(--ink3);margin:8px 0 0}
+.cts{display:block;margin-top:3px;line-height:1.9}
+.ct{display:inline-block;font-size:11px;line-height:17px;padding:0 5px;border-radius:3px;margin-right:4px;border:1px solid;white-space:nowrap}
+.ct.cSSS{color:var(--gA);border-color:var(--gA);font-weight:650} .ct.cA{color:var(--gB);border-color:var(--gB)} .ct.cB{color:var(--ink3);border-color:var(--line2)}
 details summary{cursor:pointer;color:var(--ink2);font-size:13px;margin-top:6px}
 footer{color:var(--ink3);font-size:12px;margin-top:16px}
 
@@ -171,7 +175,7 @@ def _stats(ctx):
          f'比 200 日均线 {ctx["spy_pct"]:+.1f}%' + (f'，半年 {ret120:+.1f}%' if ret120 is not None else ''),
          _spark(spy, color='var(--spx)')),
         ('VIX 恐慌指数', f'{v:.1f}<small class="m">{_vix_word(v)}</small>',
-         '25 以上算恐慌，A/B 档加分', _spark(vix, color='var(--up)' if v >= 25 else 'var(--ink3)')),
+         '25 以上算恐慌，评级加分', _spark(vix, color='var(--up)' if v >= 25 else 'var(--ink3)')),
         ('站上 50 日均线', f'{b_now:.0f}%' if b_now is not None else '—',
          (f'5 天前 {b_5:.0f}%，' if b_5 is not None else '') + '成分股比例', _spark(br)),
         ('今天超卖', f'{n_base}<small class="m">只</small>', 'MACD 和 RSI 两条都满足的股票', ''),
@@ -193,7 +197,7 @@ def _today(ctx):
                 + (f'观察名单里 {n_watch} 只离触发只差一天，明天收盘后再看。' if n_watch else '') + '</p>')
         return f'<section class="panel today"><div class="ph"><h2>今天买不买</h2><span class="r">{_day(sig)}收盘</span></div><div class="pb">{body}</div></section>'
     ab = sum((r.get('main_grade') or 'C') != 'C' for r in main)
-    verdict = f'<div class="verdict buy">买 {ab} 只</div>' if ab else '<div class="verdict">只有 C 档，不买</div>'
+    verdict = f'<div class="verdict buy">买 {ab} 只</div>' if ab else '<div class="verdict">只有 A 级，不买</div>'
     rows = ''
     for r in main:
         g = r.get('main_grade') or 'C'
@@ -205,14 +209,15 @@ def _today(ctx):
         if (r.get('atr_pct') or 0) >= 4:
             warn.append(f'波动大（ATR {r["atr_pct"]:.1f}%），买一半')
         rows += (f'<tr><td class="wr"><b>{escape(r["ticker"])}</b> <span class="m">{escape(r["name"])}</span>'
-                 + ''.join(f'<span class="wl">{w}</span>' for w in warn) + '</td>'
-                 f'<td><span class="g g{g}">{g}</span></td><td class="n">{r.get("gap", 0):.1f}%</td>'
+                 + ''.join(f'<span class="wl">{w}</span>' for w in warn)
+                 + ('<span class="cts">' + ''.join(f'<span class="ct c{cg}">{escape(cn)}</span>' for cg, cn in (r.get('cond_tags') or cond_tags(r.get('conds') or []))) + '</span>' if (r.get('cond_tags') or r.get('conds')) else '') + '</td>'
+                 f'<td><span class="g g{g}">{GL[g]}</span></td><td class="n">{r.get("gap", 0):.1f}%</td>'
                  f'<td class="n hs">{r["rsi"]}</td><td class="n">${r["price"]}</td></tr>')
     body = (verdict
-            + f'<p>{len(main)} 只符合条件，其中 A、B 档 {ab} 只；C 档历史上不赚钱，只看不买。</p>'
+            + f'<p>{len(main)} 只符合条件，其中 SSS、S 级 {ab} 只；A 级历史上不赚钱，只看不买。同一级别里按命中的 SSS 条件多少排，越靠前越优先。</p>'
             + f'<dl class="when"><dt>买入</dt><dd><b>{_day(ent)} {_buy_time(ent)}</b> 美中，收盘前</dd>'
             + f'<dt>卖出</dt><dd><b>{_day(ext)}</b> 收盘前，拿满 {ctx["hold"]} 个交易日</dd></dl>'
-            + f'<div class="tw"><table><thead><tr><th>股票</th><th>档</th><th class="n">开盘跌幅</th>'
+            + f'<div class="tw"><table><thead><tr><th>股票</th><th>级别</th><th class="n">开盘跌幅</th>'
               f'<th class="n hs">RSI</th><th class="n">收盘价</th></tr></thead><tbody>{rows}</tbody></table></div>')
     return f'<section class="panel today"><div class="ph"><h2>今天买不买</h2><span class="r">{_day(sig)}收盘</span></div><div class="pb">{body}</div></section>'
 
@@ -278,7 +283,7 @@ def _market_chart(ctx):
     total = sum(c['A'] + c['B'] + c['C'] for c in cnt)
     return f'''<section class="panel">
 <div class="ph"><h2>大盘和主推信号</h2><span class="r">最近 {n} 个交易日，共 {total} 个主推</span></div>
-<div class="pb" style="padding-bottom:6px"><div class="lg"><span><i class="ln" style="background:var(--spx)"></i>标普500</span><span><i style="background:var(--gA)"></i>A 档</span><span><i style="background:var(--gB)"></i>B 档</span><span><i style="background:var(--gC)"></i>C 档</span></div></div>
+<div class="pb" style="padding-bottom:6px"><div class="lg"><span><i class="ln" style="background:var(--spx)"></i>标普500</span><span><i style="background:var(--gA)"></i>SSS 级</span><span><i style="background:var(--gB)"></i>S 级</span><span><i style="background:var(--gC)"></i>A 级</span></div></div>
 <div class="chart" id="mc">
   {ylabels}
   <svg viewBox="0 0 {W} {H1}" preserveAspectRatio="none" style="height:170px">{grid}
@@ -299,7 +304,7 @@ def _market_chart(ctx):
     var i=Math.min(n-1,Math.max(0,Math.floor(x/w*n))), c=D.c[i], t=c.A+c.B+c.C, d=D.d[i];
     hair.style.display='block'; hair.style.left=(pad+(i+.5)/n*w)+'px'; hair.style.height=(el.offsetHeight-22)+'px';
     tip.innerHTML='<b>'+(+d.slice(5,7))+'月'+(+d.slice(8))+'日</b><br>标普 '+fmt(D.s[i],0)+'　VIX '+fmt(D.v[i],1)+
-      '<br>站上 50 日线 '+fmt(D.b[i],0)+'%<br>主推 '+(t?t+' 个（A '+c.A+'，B '+c.B+'，C '+c.C+'）':'无');
+      '<br>站上 50 日线 '+fmt(D.b[i],0)+'%<br>主推 '+(t?t+' 个（SSS '+c.A+'，S '+c.B+'，A '+c.C+'）':'无');
     tip.style.display='block';
     var tx=pad+(i+.5)/n*w+12; if(tx+tip.offsetWidth>r.width) tx=pad+(i+.5)/n*w-12-tip.offsetWidth;
     tip.style.left=tx+'px'; tip.style.top='8px';
@@ -338,14 +343,14 @@ def _last20(ctx):
         path = r.get('path') or []
         col = 'var(--up)' if (r.get('net') or 0) > 0 else 'var(--down)'
         body += (f'<tr><td><b>{escape(r["ticker"])}</b><span class="nm">{escape(r["name"])}</span></td>'
-                 f'<td><span class="g g{g}">{g}</span></td>'
+                 f'<td><span class="g g{g}">{GL[g]}</span></td>'
                  f'<td class="n hs m">{r["signal_day"]:%m-%d}</td>'
                  f'<td class="n hs">{r["gap"]:.1f}%</td>'
                  f'<td class="n">{r["entry_day"]:%m-%d} {_close_ct(r["entry_day"])}</td>'
                  f'<td class="hs">{_spark(path + [None] * (hold + 1 - len(path)), 96, 24, col, zero=True, cls='sp')}</td>'
                  f'<td class="n">{_pct(r["net"])}</td><td>{st}</td></tr>')
     return (f'<section class="panel">{head}{kpis}<div class="pb"><div class="tw"><table><thead><tr>'
-            f'<th>股票</th><th>档</th><th class="n hs">信号日</th><th class="n hs">开盘跌幅</th><th class="n">买入（美中）</th>'
+            f'<th>股票</th><th>级别</th><th class="n hs">信号日</th><th class="n hs">开盘跌幅</th><th class="n">买入（美中）</th>'
             f'<th class="hs">10 天走势</th><th class="n">收益</th><th></th></tr></thead><tbody>{body}</tbody></table></div>'
             f'<p class="note">开盘跌幅：信号当天开盘价比前一天收盘低多少。买入按收盘价，时间写收盘时刻。走势线从买入当天开始，虚线是成本线。'
             + (f'最好一笔 {escape(best["ticker"])} {best["net"]:+.1f}%。' if best else '') + '</p></div></section>')
@@ -358,23 +363,36 @@ def _grades(ctx):
         x = [r['net'] for r in done if r['grade'] == g]
         recent = (f'<td class="n">{len(x)}</td><td class="n">{sum(t > 0 for t in x) / len(x) * 100:.0f}%</td>'
                   f'<td class="n">{_pct(sum(x) / len(x))}</td>') if x else '<td class="n">0</td><td class="n m">—</td><td class="n m">—</td>'
-        rows += (f'<tr><td><span class="g g{g}">{g}</span></td>{recent}'
+        rows += (f'<tr><td><span class="g g{g}">{GL[g]}</span></td>{recent}'
                  f'<td class="n">{_pct(v[2])}</td><td class="n">{v[3]}%</td></tr>')
-    return f'''<section class="panel"><div class="ph"><h2>分档成绩</h2><span class="r">近半年回放 对比 26 年回测</span></div><div class="pb">
-<div class="tw"><table><thead><tr><th>档</th><th class="n">近半年笔数</th><th class="n">赚钱</th><th class="n">平均</th><th class="n">回测平均</th><th class="n">回测赚钱</th></tr></thead>
+    return f'''<section class="panel"><div class="ph"><h2>分级成绩</h2><span class="r">近半年回放 对比 26 年回测</span></div><div class="pb">
+<div class="tw"><table><thead><tr><th>级别</th><th class="n">近半年笔数</th><th class="n">赚钱</th><th class="n">平均</th><th class="n">回测平均</th><th class="n">回测赚钱</th></tr></thead>
 <tbody>{rows}</tbody></table></div>
-<p class="note">A：开盘跌得深，同时市场恐慌。B：只占一条。C：都没有。开盘跌得深是指跌 1% 以上或跌破前一天最低价；市场恐慌是指 VIX 25 以上或当天有 5 个以上主推。回测用 2000–2025 年当时的成分股（含后来被剔除的）。</p>
+<p class="note">SSS：开盘跌得深，同时市场恐慌。S：只占一条。A：都没有。开盘跌得深是指跌 1% 以上或跌破前一天最低价；市场恐慌是指 VIX 25 以上或当天有 5 个以上主推。回测用 2000–2025 年当时的成分股（含后来被剔除的）。</p>
+</div></section>'''
+
+
+def _conds(ctx):
+    tr = ''
+    for k, (g, name, d1, d2) in COND_GRADES.items():
+        note = '<span class="m">（已算进股票级别）</span>' if k in IN_GRADE else ''
+        tr += (f'<tr><td><span class="ct c{g}">{g}</span></td><td>{escape(name)}{note}</td>'
+               f'<td class="n {_sign(d1)}">{d1:+.2f}%</td><td class="n {_sign(d2)}">{d2:+.2f}%</td></tr>')
+    return f'''<section class="panel"><div class="ph"><h2>条件分级</h2><span class="r">主推里命中这个条件的，比没命中的每笔多赚多少</span></div><div class="pb">
+<div class="tw"><table><thead><tr><th>级别</th><th>条件</th><th class="n">2000–2025</th><th class="n">2026</th></tr></thead>
+<tbody>{tr}</tbody></table></div>
+<p class="note">SSS：两段都多赚 0.5% 以上。A：两段都多赚，但幅度小。B：一段多赚，另一段不算差，只作参考。2026 年明显变差或笔数太少的条件没列出（十字星底、锤子线、多头吞没、CCI&lt;-100 等）。</p>
 </div></section>'''
 
 
 def _rules(ctx):
-    return f'''<section class="panel"><div class="ph"><h2>规则</h2><span class="r">2026-11-19 起使用</span></div><div class="pb rules">
+    return f'''<section class="panel"><div class="ph"><h2>规则</h2></div><div class="pb rules">
 <h3>出信号（四条都要满足）</h3>
 <ol><li>MACD 柱在零轴下方，连续 3 天抬高</li><li>前一天 RSI14 低于 30，当天回升</li>
 <li>当天开盘低于前一天收盘</li><li>这只股票 5 天内第一次出信号</li></ol>
 <h3>买卖</h3>
 <ul><li>信号第二天收盘前买（美中 14:50–15:00；提前收盘日 11:50–12:00）</li>
-<li>拿满 {ctx["hold"]} 个交易日，收盘前卖</li><li>一天出很多只时，先买 A，再买 B；单只仓位要小</li>
+<li>拿满 {ctx["hold"]} 个交易日，收盘前卖</li><li>一天出很多只时，先买 SSS，再买 S；单只仓位要小</li>
 <li>持有期内有财报或波动特别大的，买一半</li></ul>
 <details><summary>长期回测数字</summary>
 <p class="note" style="font-size:12.5px">2000–2025 年平均每年约 {BT["per_year"]} 笔，平均每笔 +{BT["net"]:.2f}%，{BT["win"]}% 的交易赚钱，{BT["pos_years"]}% 的年份赚钱。
@@ -399,6 +417,7 @@ def render_report(ctx):
 {_market_chart(ctx)}
 {_last20(ctx)}
 <div class="grid2">{_grades(ctx)}{_rules(ctx)}</div>
+{_conds(ctx)}
 <footer>仅供自己研究，不是投资建议。红色是涨，绿色是跌。最近 20 笔和图表按当前成分股回放。</footer>
 </div>
 </body>

@@ -15,6 +15,35 @@ GRADES = {
     'C': ('两项都不满足', 41, -0.05, 53, 63, 1.60, 57),
 }
 GRADE_NOTE = {'A': '优先买', 'B': '正常买', 'C': '历史上不赚钱，只观察'}
+# 条件分级（analysis/private/cond_grades.py，2026-11-22）：主推信号里命中比没命中每笔多赚多少。
+# key: (级别, 名称, 以往多赚%, 2026 多赚%)。以往 = 2000–2025-11。deep / fear 已算进股票级别，不再单独当标签。
+COND_GRADES = {
+    'fear': ('SSS', '市场恐慌', 1.60, 1.33),
+    'gap_down_close': ('SSS', '跳空收正', 1.46, 0.50),
+    'near_52w': ('SSS', '近52周低点', 0.98, 1.97),
+    'dist_ma200_lt_m15': ('SSS', '距200日线跌超15%', 0.57, 0.90),
+    'deep': ('A', '开盘跌得深', 1.42, 0.06),
+    'ret5d_lt_m3': ('A', '5日跌超3%', 0.23, 1.14),
+    'vol_gt12': ('A', '放量1.2倍', 0.05, 1.65),
+    'wr_rising3': ('B', 'WR升3天', 0.24, -0.39),
+    'obv_rising': ('B', 'OBV上升', 0.23, -0.35),
+    'rsi_lt20': ('B', 'RSI<20', -0.04, 0.20),
+    'mfi_rising': ('B', 'MFI上升', -0.06, 0.46),
+    'rsi_lt25': ('B', 'RSI<25', -0.11, 1.87),
+    'wr_lt80': ('B', 'WR<-80', -0.16, 1.01),
+    'below_kelt': ('B', 'Keltner下轨', -0.28, 0.99),
+    'mfi_lt20': ('B', 'MFI<20', -0.36, 0.83),
+    'rsi_div': ('B', 'RSI底背离', -0.48, 1.73),
+    'cci_rising': ('B', 'CCI上升', -1.55, 4.11),
+}
+IN_GRADE = ('fear', 'deep')   # 已经决定股票级别的两条
+
+
+def cond_tags(conds):
+    """命中的条件 → [(级别, 名称)]，按 SSS/A/B 排；不含已算进股票级别的两条"""
+    o = {'SSS': 0, 'A': 1, 'B': 2}
+    t = [COND_GRADES[k][:2] for k in conds if k in COND_GRADES and k not in IN_GRADE]
+    return sorted(t, key=lambda x: o[x[0]])
 
 CSS = '''
 :root{

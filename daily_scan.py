@@ -12,7 +12,7 @@ os.environ['MPLBACKEND'] = 'Agg'
 import requests, io, sys, json, webbrowser, warnings, subprocess, re, base64
 from datetime import datetime, timedelta
 from report import render_report            # 旧版页面（保留）
-from report_v2 import render_report as render_report_v2
+from report_v2 import render_report as render_report_v2, cond_tags
 from report_v3 import render_report as render_report_v3
 from pandas.tseries.holiday import USFederalHolidayCalendar
 BDAY = pd.offsets.CustomBusinessDay(calendar=USFederalHolidayCalendar())   # 美股交易日（近似，未含耶稣受难日）
@@ -643,6 +643,7 @@ def main():
                 'tier_wr5': TIER_STATS[tier][0],
                 'tier_ret5': TIER_STATS[tier][1],
                 'matched_signals': matched_signals,
+                'conds': [k for k, v in conds.items() if v is True],
                 'wr1': bc.get('wr1', 0),
                 'wr3': bc.get('wr3', 0),
                 'wr5': bc.get('wr5', 0),
@@ -701,7 +702,10 @@ def main():
     n_main = sum(r['new_rule'] for r in results)
     for r in results:
         r['main_grade'] = main_grade(r['gap'], r['open_lt_pl'], vix_price, n_main) if r['new_rule'] else ''
-    results.sort(key=lambda x: (not x['new_rule'], x['main_grade'], x['gap'], TIER_ORDER.index(x['tier']), -x.get('win_rate_5', 0)))
+        r['cond_tags'] = cond_tags(r.get('conds') or [])
+        r['n_sss'] = sum(g == 'SSS' for g, _ in r['cond_tags']); r['n_a'] = sum(g == 'A' for g, _ in r['cond_tags'])
+    # 同一级别里，命中 SSS 条件多的排前，再看 A 条件，再看低开幅度
+    results.sort(key=lambda x: (not x['new_rule'], x['main_grade'], -x['n_sss'], -x['n_a'], x['gap'], TIER_ORDER.index(x['tier']), -x.get('win_rate_5', 0)))
     for r in results:
         r['n_base_day'] = n_base   # 今天全市场通过基础信号的股票数
 
@@ -757,7 +761,7 @@ def main():
 
     print(f"\n✅ 报告已生成：{OUTPUT_HTML}")
     for r in results:
-        print(f"   {'主推' + r['main_grade'] if r['new_rule'] else '     '} {r['tier']:4} {r['ticker']:6} RSI={r['rsi']:5.1f} 原等级={r['grade'] or '—'} 匹配: {r['matched_combo']}")
+        print(f"   {'主推' + {'A': 'SSS', 'B': 'S', 'C': 'A'}.get(r['main_grade'], '') if r['new_rule'] else '     '} {r['tier']:4} {r['ticker']:6} RSI={r['rsi']:5.1f} 原等级={r['grade'] or '—'} 匹配: {r['matched_combo']}")
     print(f"\n   总计: {len(results)} 只")
 
     if '--no-open' not in sys.argv:
