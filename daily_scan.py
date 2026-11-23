@@ -820,7 +820,7 @@ def main():
 
     print(f"\n✅ 报告已生成：{OUTPUT_HTML}")
     for r in results:
-        print(f"   {'主推' + {'A': 'SSS', 'B': 'S', 'C': 'A'}.get(r['main_grade'], '') if r['new_rule'] else '     '} {r['tier']:4} {r['ticker']:6} RSI={r['rsi']:5.1f} 原等级={r['grade'] or '—'} 匹配: {r['matched_combo']}")
+        print(f"   {'主推' + {'A': 'SSS', 'B': 'A', 'C': 'B'}.get(r['main_grade'], '') if r['new_rule'] else '     '} {r['tier']:4} {r['ticker']:6} RSI={r['rsi']:5.1f} 原等级={r['grade'] or '—'} 匹配: {r['matched_combo']}")
     print(f"\n   总计: {len(results)} 只")
 
     if '--no-open' not in sys.argv:

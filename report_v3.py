@@ -6,7 +6,7 @@
 import json
 from html import escape
 from report_v2 import BT, GRADES, COND_GRADES, IN_GRADE, MARKET_CONDS, cond_tags, _day, _close_ct, _buy_time, _sign
-GL = {'A': 'SSS', 'B': 'S', 'C': 'A'}   # 内部仍用 A/B/C 排序和存档，页面显示 SSS/S/A
+GL = {'A': 'SSS', 'B': 'A', 'C': 'B'}   # 内部仍用 A/B/C 排序和存档，页面显示 SSS/A/B
 
 CSS = '''
 :root{
@@ -209,7 +209,7 @@ def _today(ctx):
                 + (f'观察名单里 {n_watch} 只离触发只差一天，明天收盘后再看。' if n_watch else '') + '</p>')
         return f'<section class="panel today"><div class="ph"><h2>今天买不买</h2><span class="r">{_day(sig)}收盘</span></div><div class="pb">{body}</div></section>'
     ab = sum((r.get('main_grade') or 'C') != 'C' for r in main)
-    verdict = f'<div class="verdict buy">买 {ab} 只</div>' if ab else '<div class="verdict">只有 A 级，不买</div>'
+    verdict = f'<div class="verdict buy">买 {ab} 只</div>' if ab else '<div class="verdict">只有 B 级，不买</div>'
     rows = ''
     for r in main:
         g = r.get('main_grade') or 'C'
@@ -226,7 +226,7 @@ def _today(ctx):
                  f'<td><span class="g g{g}">{GL[g]}</span></td><td class="n">{r.get("gap", 0):.1f}%</td>'
                  f'<td class="n hs">{r["rsi"]}</td><td class="n">${r["price"]}</td></tr>')
     body = (verdict
-            + f'<p>{len(main)} 只符合条件，其中 SSS、S 级 {ab} 只；A 级历史上不赚钱，只看不买。同一级别里按命中的 SSS 条件多少排，越靠前越优先。</p>'
+            + f'<p>{len(main)} 只符合条件，其中 SSS、A 级 {ab} 只；B 级历史上不赚钱，只看不买。同一级别里按命中的 SSS 条件多少排，越靠前越优先。</p>'
             + f'<dl class="when"><dt>买入</dt><dd><b>{_day(ent)} {_buy_time(ent)}</b> 美中，收盘前</dd>'
             + f'<dt>卖出</dt><dd><b>{_day(ext)}</b> 收盘前，拿满 {ctx["hold"]} 个交易日</dd></dl>'
             + f'<div class="tw"><table><thead><tr><th>股票</th><th>级别</th><th class="n">开盘跌幅</th>'
@@ -295,7 +295,7 @@ def _market_chart(ctx):
     total = sum(c['A'] + c['B'] + c['C'] for c in cnt)
     return f'''<section class="panel">
 <div class="ph"><h2>大盘和主推信号</h2><span class="r">2026 年以来，共 {total} 个主推</span></div>
-<div class="pb" style="padding-bottom:6px"><div class="lg"><span><i class="ln" style="background:var(--spx)"></i>标普500</span><span><i style="background:var(--gA)"></i>SSS 级</span><span><i style="background:var(--gB)"></i>S 级</span><span><i style="background:var(--gC)"></i>A 级</span></div></div>
+<div class="pb" style="padding-bottom:6px"><div class="lg"><span><i class="ln" style="background:var(--spx)"></i>标普500</span><span><i style="background:var(--gA)"></i>SSS 级</span><span><i style="background:var(--gB)"></i>A 级</span><span><i style="background:var(--gC)"></i>B 级</span></div></div>
 <div class="chart" id="mc">
   {ylabels}
   <svg viewBox="0 0 {W} {H1}" preserveAspectRatio="none" style="height:170px">{grid}
@@ -316,7 +316,7 @@ def _market_chart(ctx):
     var i=Math.min(n-1,Math.max(0,Math.floor(x/w*n))), c=D.c[i], t=c.A+c.B+c.C, d=D.d[i];
     hair.style.display='block'; hair.style.left=(pad+(i+.5)/n*w)+'px'; hair.style.height=(el.offsetHeight-22)+'px';
     tip.innerHTML='<b>'+(+d.slice(5,7))+'月'+(+d.slice(8))+'日</b><br>标普 '+fmt(D.s[i],0)+'　VIX '+fmt(D.v[i],1)+
-      '<br>站上 50 日线 '+fmt(D.b[i],0)+'%<br>主推 '+(t?t+' 个（SSS '+c.A+'，S '+c.B+'，A '+c.C+'）':'无');
+      '<br>站上 50 日线 '+fmt(D.b[i],0)+'%<br>主推 '+(t?t+' 个（SSS '+c.A+'，A '+c.B+'，B '+c.C+'）':'无');
     tip.style.display='block';
     var tx=pad+(i+.5)/n*w+12; if(tx+tip.offsetWidth>r.width) tx=pad+(i+.5)/n*w-12-tip.offsetWidth;
     tip.style.left=tx+'px'; tip.style.top='8px';
@@ -381,7 +381,7 @@ def _grades(ctx):
     return f'''<section class="panel"><div class="ph"><h2>分级成绩</h2><span class="r">2026 年 对比 2000–2025 年回测</span></div><div class="pb">
 <div class="tw"><table><thead><tr><th>级别</th><th class="n">2026 笔数</th><th class="n">赚钱</th><th class="n">平均</th><th class="n">回测平均</th><th class="n">回测赚钱</th></tr></thead>
 <tbody>{rows}</tbody></table></div>
-<p class="note">SSS：开盘跌得深，同时市场恐慌。S：只占一条。A：都没有。开盘跌得深是指跌 1% 以上或跌破前一天最低价；市场恐慌是指 VIX 25 以上或当天有 5 个以上主推。回测用 2000–2025 年当时的成分股（含后来被剔除的）。</p>
+<p class="note">SSS：开盘跌得深，同时市场恐慌。A：只占一条。B：都没有。开盘跌得深是指跌 1% 以上或跌破前一天最低价；市场恐慌是指 VIX 25 以上或当天有 5 个以上主推。回测用 2000–2025 年当时的成分股（含后来被剔除的）。</p>
 </div></section>'''
 
 
@@ -410,7 +410,7 @@ def _rules(ctx):
 <li>当天开盘低于前一天收盘</li><li>这只股票 5 天内第一次出信号</li></ol>
 <h3>买卖</h3>
 <ul><li>信号第二天收盘前买（美中 14:50–15:00；提前收盘日 11:50–12:00）</li>
-<li>拿满 {ctx["hold"]} 个交易日，收盘前卖</li><li>一天出很多只时，先买 SSS，再买 S；单只仓位要小</li>
+<li>拿满 {ctx["hold"]} 个交易日，收盘前卖</li><li>一天出很多只时，先买 SSS，再买 A；单只仓位要小</li>
 <li>持有期内有财报或波动特别大的，买一半</li></ul>
 <details><summary>长期回测数字</summary>
 <p class="note" style="font-size:12.5px">2000–2025 年平均每年约 {BT["per_year"]} 笔，平均每笔 +{BT["net"]:.2f}%，{BT["win"]}% 的交易赚钱，{BT["pos_years"]}% 的年份赚钱。
