@@ -382,7 +382,6 @@ def replay_main(data, tickers, vix_hist, name_map, since=RECORD_START, spy=None,
             try:   # 信号当天命中的条件（只用到当天为止的数据）
                 cr = compute_conditions(c.iloc[:i + 1], hh.iloc[:i + 1], l.iloc[:i + 1], vv.iloc[:i + 1], o.iloc[:i + 1])
                 rec['conds'] = [k for k, v in cr[0].items() if v is True] if cr else []
-                rec['conds'] += web_flags(td, spy, i)
             except Exception:
                 rec['conds'] = []
             e = i + 1
@@ -402,12 +401,24 @@ def replay_main(data, tickers, vix_hist, name_map, since=RECORD_START, spy=None,
     vx = vix_hist.reindex(sorted(nday.index), method='ffill')
     for r in recs:
         r['grade'] = main_grade(r['gap'], r['open_lt_pl'], float(vx.get(r['signal_day'], 0) or 0), int(nday[r['signal_day']]))
-        if mf is not None:
-            r['conds'] = (r.get('conds') or []) + mkt_conds(mf, r['signal_day'], int(nday[r['signal_day']]))
         r['cond_tags'] = cond_tags(r.get('conds') or [])
         r['net'] = r['ret'] - 0.10 if 'ret' in r else None
     recs.sort(key=lambda r: (r['signal_day'], r['ticker']), reverse=True)
     return recs
+
+
+def attach_library(recs, data, spy, vix_hist):
+    """给一批主推（需要 signal_day、ticker、conds）加上条件库里的网上条件，再算标签"""
+    if not recs:
+        return
+    from cond_library import library
+    from report_v2 import WEB_CONDS
+    fr = {k: data.xs(k, axis=1, level=1).astype('float64') for k in ('Open', 'High', 'Low', 'Close', 'Volume')}
+    F, _ = library(fr['Open'], fr['High'], fr['Low'], fr['Close'], fr['Volume'], spy.astype('float64'),
+                   vix_hist.astype('float64'), [pd.Timestamp(r['signal_day']) for r in recs], [r['ticker'] for r in recs])
+    for n, r in enumerate(recs):
+        r['conds'] = [k for k in (r.get('conds') or []) if k not in WEB_CONDS] + [k for k in WEB_CONDS if k in F and F[k][n]]
+        r['cond_tags'] = cond_tags(r['conds'])
 
 
 def watch_list(data, tickers, name_map, entry_day):
@@ -699,7 +710,7 @@ def main():
                 'tier_wr5': TIER_STATS[tier][0],
                 'tier_ret5': TIER_STATS[tier][1],
                 'matched_signals': matched_signals,
-                'conds': [k for k, v in conds.items() if v is True] + web_flags(td, spy, len(td) - 1),
+                'conds': [k for k, v in conds.items() if v is True],
                 'wr1': bc.get('wr1', 0),
                 'wr3': bc.get('wr3', 0),
                 'wr5': bc.get('wr5', 0),
@@ -754,14 +765,14 @@ def main():
     if n_deduped:
         print(f"  去重过滤: 移除 {before - len(results)} 只（近10交易日已推荐）")
 
-    mf = market_flags(data, spy, vix_hist)
     # 主推分档 A/B/C；主推排最前（按档、再按低开幅度），其余按旧星级
     n_main = sum(r['new_rule'] for r in results)
     for r in results:
         r['main_grade'] = main_grade(r['gap'], r['open_lt_pl'], vix_price, n_main) if r['new_rule'] else ''
-        if r['new_rule']:
-            r['conds'] = (r.get('conds') or []) + mkt_conds(mf, signal_day, n_main)
+        r['signal_day'] = signal_day
         r['cond_tags'] = cond_tags(r.get('conds') or [])
+    attach_library([r for r in results if r['new_rule']], data, spy, vix_hist)
+    for r in results:
         r['n_sss'] = sum(g == 'SSS' for g, _ in r['cond_tags']); r['n_a'] = sum(g == 'A' for g, _ in r['cond_tags'])
     # 同一级别里，命中 SSS 条件多的排前，再看 A 条件，再看低开幅度
     results.sort(key=lambda x: (not x['new_rule'], x['main_grade'], -x['n_sss'], -x['n_a'], x['gap'], TIER_ORDER.index(x['tier']), -x.get('win_rate_5', 0)))
@@ -776,7 +787,8 @@ def main():
     save_history(history)
     recent = pick_performance(history)
     print("重放最近的主推（回测记录）...")
-    replay = replay_main(data, tickers, vix_hist, name_map, spy=spy, mf=mf)
+    replay = replay_main(data, tickers, vix_hist, name_map)
+    attach_library(replay, data, spy, vix_hist)
     print("观察名单、市场走势...")
     watch = watch_list(data, tickers, name_map, entry_day)
     mkt = market_series(data, spy, vix_hist, n=int((data.index >= pd.Timestamp(RECORD_START)).sum()))

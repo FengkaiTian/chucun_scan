@@ -1,0 +1,826 @@
+{
+ "fear": {
+  "grade": "SSS",
+  "name": "市场恐慌",
+  "d1": 1.6,
+  "d2": 1.33,
+  "market": true,
+  "web": false
+ },
+ "gap_down_close": {
+  "grade": "SSS",
+  "name": "跳空收正",
+  "d1": 1.46,
+  "d2": 0.5,
+  "market": false,
+  "web": false
+ },
+ "near_52w": {
+  "grade": "SSS",
+  "name": "近52周低点",
+  "d1": 0.98,
+  "d2": 1.97,
+  "market": false,
+  "web": false
+ },
+ "dist_ma200_lt_m15": {
+  "grade": "SSS",
+  "name": "距200日线跌超15%",
+  "d1": 0.57,
+  "d2": 0.9,
+  "market": false,
+  "web": false
+ },
+ "deep": {
+  "grade": "A",
+  "name": "开盘跌得深",
+  "d1": 1.42,
+  "d2": 0.06,
+  "market": false,
+  "web": false
+ },
+ "ret5d_lt_m3": {
+  "grade": "A",
+  "name": "5日跌超3%",
+  "d1": 0.23,
+  "d2": 1.14,
+  "market": false,
+  "web": false
+ },
+ "vol_gt12": {
+  "grade": "A",
+  "name": "放量1.2倍",
+  "d1": 0.05,
+  "d2": 1.65,
+  "market": false,
+  "web": false
+ },
+ "wr_rising3": {
+  "grade": "B",
+  "name": "WR升3天",
+  "d1": 0.24,
+  "d2": -0.39,
+  "market": false,
+  "web": false
+ },
+ "obv_rising": {
+  "grade": "B",
+  "name": "OBV上升",
+  "d1": 0.23,
+  "d2": -0.35,
+  "market": false,
+  "web": false
+ },
+ "rsi_lt20": {
+  "grade": "B",
+  "name": "RSI<20",
+  "d1": -0.04,
+  "d2": 0.2,
+  "market": false,
+  "web": false
+ },
+ "mfi_rising": {
+  "grade": "B",
+  "name": "MFI上升",
+  "d1": -0.06,
+  "d2": 0.46,
+  "market": false,
+  "web": false
+ },
+ "rsi_lt25": {
+  "grade": "B",
+  "name": "RSI<25",
+  "d1": -0.11,
+  "d2": 1.87,
+  "market": false,
+  "web": false
+ },
+ "wr_lt80": {
+  "grade": "B",
+  "name": "WR<-80",
+  "d1": -0.16,
+  "d2": 1.01,
+  "market": false,
+  "web": false
+ },
+ "below_kelt": {
+  "grade": "B",
+  "name": "Keltner下轨",
+  "d1": -0.28,
+  "d2": 0.99,
+  "market": false,
+  "web": false
+ },
+ "mfi_lt20": {
+  "grade": "B",
+  "name": "MFI<20",
+  "d1": -0.36,
+  "d2": 0.83,
+  "market": false,
+  "web": false
+ },
+ "rsi_div": {
+  "grade": "B",
+  "name": "RSI底背离",
+  "d1": -0.48,
+  "d2": 1.73,
+  "market": false,
+  "web": false
+ },
+ "cci_rising": {
+  "grade": "B",
+  "name": "CCI上升",
+  "d1": -1.55,
+  "d2": 4.11,
+  "market": false,
+  "web": false
+ },
+ "同日信号≥15个": {
+  "grade": "SSS",
+  "name": "当天主推≥15个",
+  "d1": 3.49,
+  "d2": 2.54,
+  "market": true,
+  "web": true
+ },
+ "距MA200<-40%": {
+  "grade": "SSS",
+  "name": "距MA200<-40%",
+  "d1": 3.11,
+  "d2": 0.69,
+  "market": false,
+  "web": true
+ },
+ "宽度:MA50上方<35%": {
+  "grade": "SSS",
+  "name": "大盘宽度:MA50上方<35%",
+  "d1": 2.82,
+  "d2": 3.02,
+  "market": true,
+  "web": true
+ },
+ "距MA200<-30%": {
+  "grade": "SSS",
+  "name": "距MA200<-30%",
+  "d1": 2.02,
+  "d2": 1.77,
+  "market": false,
+  "web": true
+ },
+ "SPY<MA200": {
+  "grade": "SSS",
+  "name": "标普<MA200",
+  "d1": 1.94,
+  "d2": 4.23,
+  "market": true,
+  "web": true
+ },
+ "同日信号≥5个": {
+  "grade": "SSS",
+  "name": "当天主推≥5个",
+  "d1": 1.9,
+  "d2": 1.41,
+  "market": true,
+  "web": true
+ },
+ "MA20<MA50": {
+  "grade": "SSS",
+  "name": "MA20<MA50",
+  "d1": 1.69,
+  "d2": 3.55,
+  "market": false,
+  "web": true
+ },
+ "距MA200<-25%": {
+  "grade": "SSS",
+  "name": "距MA200<-25%",
+  "d1": 1.68,
+  "d2": 0.5,
+  "market": false,
+  "web": true
+ },
+ "SPY今天跌>1%": {
+  "grade": "SSS",
+  "name": "标普今天跌>1%",
+  "d1": 1.58,
+  "d2": 4.05,
+  "market": true,
+  "web": true
+ },
+ "VIX今天涨>10%": {
+  "grade": "SSS",
+  "name": "VIX今天涨>10%",
+  "d1": 1.44,
+  "d2": 3.28,
+  "market": true,
+  "web": true
+ },
+ "MA5<MA10<MA20空头排列": {
+  "grade": "SSS",
+  "name": "MA5<MA10<MA20空头排列",
+  "d1": 1.31,
+  "d2": 4.16,
+  "market": false,
+  "web": true
+ },
+ "SPY<MA50": {
+  "grade": "SSS",
+  "name": "标普<MA50",
+  "d1": 1.27,
+  "d2": 2.93,
+  "market": true,
+  "web": true
+ },
+ "距252日高点<-40%": {
+  "grade": "SSS",
+  "name": "距252日高点<-40%",
+  "d1": 1.08,
+  "d2": 3.0,
+  "market": false,
+  "web": true
+ },
+ "一年价格分位<2%": {
+  "grade": "SSS",
+  "name": "一年价格分位<2%",
+  "d1": 1.02,
+  "d2": 0.8,
+  "market": false,
+  "web": true
+ },
+ "距20日高点<-20%": {
+  "grade": "SSS",
+  "name": "距20日高点<-20%",
+  "d1": 0.97,
+  "d2": 0.74,
+  "market": false,
+  "web": true
+ },
+ "一年价格分位<5%": {
+  "grade": "SSS",
+  "name": "一年价格分位<5%",
+  "d1": 0.94,
+  "d2": 1.7,
+  "market": false,
+  "web": true
+ },
+ "ATR%>4%": {
+  "grade": "SSS",
+  "name": "ATR%>4%",
+  "d1": 0.87,
+  "d2": 1.16,
+  "market": false,
+  "web": true
+ },
+ "20日跌>15%": {
+  "grade": "SSS",
+  "name": "20日跌>15%",
+  "d1": 0.84,
+  "d2": 1.09,
+  "market": false,
+  "web": true
+ },
+ "SPY_RSI2<10": {
+  "grade": "SSS",
+  "name": "标普_RSI2<10",
+  "d1": 0.79,
+  "d2": 1.04,
+  "market": true,
+  "web": true
+ },
+ "20日跌>20%": {
+  "grade": "SSS",
+  "name": "20日跌>20%",
+  "d1": 0.78,
+  "d2": 2.64,
+  "market": false,
+  "web": true
+ },
+ "VIX20-25": {
+  "grade": "SSS",
+  "name": "VIX20-25",
+  "d1": 0.68,
+  "d2": 2.53,
+  "market": true,
+  "web": true
+ },
+ "刺透形态": {
+  "grade": "SSS",
+  "name": "刺透形态",
+  "d1": 0.61,
+  "d2": 2.09,
+  "market": false,
+  "web": true
+ },
+ "股价<20": {
+  "grade": "SSS",
+  "name": "股价<20",
+  "d1": 0.54,
+  "d2": 8.75,
+  "market": false,
+  "web": true
+ },
+ "VIX>10日均值": {
+  "grade": "SSS",
+  "name": "VIX>10日均值",
+  "d1": 0.54,
+  "d2": 2.12,
+  "market": true,
+  "web": true
+ },
+ "今天创252日新低": {
+  "grade": "SSS",
+  "name": "今天创252日新低",
+  "d1": 0.53,
+  "d2": 1.64,
+  "market": false,
+  "web": true
+ },
+ "距252日高点<-30%": {
+  "grade": "SSS",
+  "name": "距252日高点<-30%",
+  "d1": 0.51,
+  "d2": 0.73,
+  "market": false,
+  "web": true
+ },
+ "5日跑输SPY>8%": {
+  "grade": "A",
+  "name": "5日跑输标普>8%",
+  "d1": 2.82,
+  "d2": 1.51,
+  "market": false,
+  "web": true
+ },
+ "BIAS10<-8%": {
+  "grade": "A",
+  "name": "BIAS10<-8%",
+  "d1": 1.6,
+  "d2": 3.51,
+  "market": false,
+  "web": true
+ },
+ "振幅>1.5ATR": {
+  "grade": "A",
+  "name": "振幅>1.5ATR",
+  "d1": 1.09,
+  "d2": 2.13,
+  "market": false,
+  "web": true
+ },
+ "BIAS60<-20%": {
+  "grade": "A",
+  "name": "BIAS60<-20%",
+  "d1": 1.08,
+  "d2": 0.02,
+  "market": false,
+  "web": true
+ },
+ "当天上涨家数<30%": {
+  "grade": "A",
+  "name": "当天上涨家数<30%",
+  "d1": 1.0,
+  "d2": 4.95,
+  "market": true,
+  "web": true
+ },
+ "BIAS20<-15%": {
+  "grade": "A",
+  "name": "BIAS20<-15%",
+  "d1": 0.88,
+  "d2": 0.17,
+  "market": false,
+  "web": true
+ },
+ "内包日": {
+  "grade": "A",
+  "name": "内包日",
+  "d1": 0.84,
+  "d2": 0.18,
+  "market": false,
+  "web": true
+ },
+ "今天跑赢SPY>2%": {
+  "grade": "A",
+  "name": "今天跑赢标普>2%",
+  "d1": 0.8,
+  "d2": 0.11,
+  "market": false,
+  "web": true
+ },
+ "BIAS60<-15%": {
+  "grade": "A",
+  "name": "BIAS60<-15%",
+  "d1": 0.78,
+  "d2": 1.23,
+  "market": false,
+  "web": true
+ },
+ "开盘<昨日最低": {
+  "grade": "A",
+  "name": "开盘<昨日最低",
+  "d1": 0.77,
+  "d2": 0.23,
+  "market": false,
+  "web": true
+ },
+ "Stoch%K<10": {
+  "grade": "A",
+  "name": "Stoch%K<10",
+  "d1": 0.71,
+  "d2": 0.34,
+  "market": false,
+  "web": true
+ },
+ "WR<-90": {
+  "grade": "A",
+  "name": "WR<-90",
+  "d1": 0.71,
+  "d2": 0.34,
+  "market": false,
+  "web": true
+ },
+ "MA50<MA200": {
+  "grade": "A",
+  "name": "MA50<MA200",
+  "d1": 0.68,
+  "d2": 1.37,
+  "market": false,
+  "web": true
+ },
+ "BIAS20<-8%": {
+  "grade": "A",
+  "name": "BIAS20<-8%",
+  "d1": 0.54,
+  "d2": 0.39,
+  "market": false,
+  "web": true
+ },
+ "BIAS10<-5%": {
+  "grade": "A",
+  "name": "BIAS10<-5%",
+  "d1": 0.52,
+  "d2": 1.96,
+  "market": false,
+  "web": true
+ },
+ "一年跌>30%": {
+  "grade": "A",
+  "name": "一年跌>30%",
+  "d1": 0.47,
+  "d2": 4.12,
+  "market": false,
+  "web": true
+ },
+ "10日跌>15%": {
+  "grade": "A",
+  "name": "10日跌>15%",
+  "d1": 0.42,
+  "d2": 0.75,
+  "market": false,
+  "web": true
+ },
+ "MA200下降": {
+  "grade": "A",
+  "name": "MA200下降",
+  "d1": 0.42,
+  "d2": 1.95,
+  "market": false,
+  "web": true
+ },
+ "今天跑赢SPY": {
+  "grade": "A",
+  "name": "今天跑赢标普",
+  "d1": 0.39,
+  "d2": 4.0,
+  "market": false,
+  "web": true
+ },
+ "今天创20日新低": {
+  "grade": "A",
+  "name": "今天创20日新低",
+  "d1": 0.38,
+  "d2": 0.02,
+  "market": false,
+  "web": true
+ },
+ "BB带宽扩张1.5x": {
+  "grade": "A",
+  "name": "BB带宽扩张1.5x",
+  "d1": 0.31,
+  "d2": 0.21,
+  "market": false,
+  "web": true
+ },
+ "今天涨>2%": {
+  "grade": "A",
+  "name": "今天涨>2%",
+  "d1": 0.21,
+  "d2": 0.12,
+  "market": false,
+  "web": true
+ },
+ "当天涨幅百分位>80%": {
+  "grade": "A",
+  "name": "当天涨幅百分位>80%",
+  "d1": 0.15,
+  "d2": 0.91,
+  "market": false,
+  "web": true
+ },
+ "收盘<MA200": {
+  "grade": "A",
+  "name": "收盘<MA200",
+  "d1": 0.15,
+  "d2": 2.94,
+  "market": false,
+  "web": true
+ },
+ "20日跑输SPY>20%": {
+  "grade": "A",
+  "name": "20日跑输标普>20%",
+  "d1": 0.1,
+  "d2": 0.23,
+  "market": false,
+  "web": true
+ },
+ "IBS>0.5": {
+  "grade": "A",
+  "name": "IBS>0.5",
+  "d1": 0.09,
+  "d2": 0.76,
+  "market": false,
+  "web": true
+ },
+ "收盘在上半区": {
+  "grade": "A",
+  "name": "收盘在上半区",
+  "d1": 0.09,
+  "d2": 0.76,
+  "market": false,
+  "web": true
+ },
+ "外包阳线": {
+  "grade": "A",
+  "name": "外包阳线",
+  "d1": 0.05,
+  "d2": 0.88,
+  "market": false,
+  "web": true
+ },
+ "距252日高点<-50%": {
+  "grade": "B",
+  "name": "距252日高点<-50%",
+  "d1": 1.93,
+  "d2": -0.34,
+  "market": false,
+  "web": true
+ },
+ "VIX25-30": {
+  "grade": "B",
+  "name": "VIX25-30",
+  "d1": 1.18,
+  "d2": -0.19,
+  "market": true,
+  "web": true
+ },
+ "大阳线>2%": {
+  "grade": "B",
+  "name": "大阳线>2%",
+  "d1": 1.03,
+  "d2": -0.03,
+  "market": false,
+  "web": true
+ },
+ "跳空低开>2%": {
+  "grade": "B",
+  "name": "跳空低开>2%",
+  "d1": 0.84,
+  "d2": -0.18,
+  "market": false,
+  "web": true
+ },
+ "跳空低开>2%收正": {
+  "grade": "B",
+  "name": "跳空低开>2%收正",
+  "d1": 0.84,
+  "d2": -0.18,
+  "market": false,
+  "web": true
+ },
+ "MACD线<-5%股价": {
+  "grade": "B",
+  "name": "MACD线<-5%股价",
+  "d1": 0.81,
+  "d2": -0.42,
+  "market": false,
+  "web": true
+ },
+ "5日跑输SPY>5%": {
+  "grade": "B",
+  "name": "5日跑输标普>5%",
+  "d1": 0.75,
+  "d2": -0.5,
+  "market": false,
+  "web": true
+ },
+ "距20日高点<-15%": {
+  "grade": "B",
+  "name": "距20日高点<-15%",
+  "d1": 0.6,
+  "d2": -0.23,
+  "market": false,
+  "web": true
+ },
+ "连续3天缩量": {
+  "grade": "B",
+  "name": "连续3天缩量",
+  "d1": 0.57,
+  "d2": -0.14,
+  "market": false,
+  "web": true
+ },
+ "破20日低后收回": {
+  "grade": "B",
+  "name": "破20日低后收回",
+  "d1": 0.27,
+  "d2": -0.04,
+  "market": false,
+  "web": true
+ },
+ "今天涨>1%": {
+  "grade": "B",
+  "name": "今天涨>1%",
+  "d1": 0.19,
+  "d2": -0.31,
+  "market": false,
+  "web": true
+ },
+ "今天涨>3%": {
+  "grade": "B",
+  "name": "今天涨>3%",
+  "d1": -0.03,
+  "d2": 2.9,
+  "market": false,
+  "web": true
+ },
+ "量比昨日放大": {
+  "grade": "B",
+  "name": "量比昨日放大",
+  "d1": -0.11,
+  "d2": 1.95,
+  "market": false,
+  "web": true
+ },
+ "Stoch%K<20": {
+  "grade": "B",
+  "name": "Stoch%K<20",
+  "d1": -0.16,
+  "d2": 1.01,
+  "market": false,
+  "web": true
+ },
+ "CMF<-0.2": {
+  "grade": "B",
+  "name": "CMF<-0.2",
+  "d1": -0.25,
+  "d2": 0.23,
+  "market": false,
+  "web": true
+ },
+ "ATR%<2%": {
+  "grade": "B",
+  "name": "ATR%<2%",
+  "d1": -0.31,
+  "d2": 1.38,
+  "market": false,
+  "web": true
+ },
+ "KDJ金叉": {
+  "grade": "B",
+  "name": "KDJ金叉",
+  "d1": -0.32,
+  "d2": 0.61,
+  "market": false,
+  "web": true
+ },
+ "阳线放量1.5x": {
+  "grade": "B",
+  "name": "阳线放量1.5x",
+  "d1": -0.42,
+  "d2": 3.95,
+  "market": false,
+  "web": true
+ },
+ "IBS>0.8": {
+  "grade": "B",
+  "name": "IBS>0.8",
+  "d1": -0.47,
+  "d2": 2.02,
+  "market": false,
+  "web": true
+ },
+ "IBS>0.7": {
+  "grade": "B",
+  "name": "IBS>0.7",
+  "d1": -0.48,
+  "d2": 1.41,
+  "market": false,
+  "web": true
+ },
+ "收盘>昨日最高": {
+  "grade": "B",
+  "name": "收盘>昨日最高",
+  "d1": -0.48,
+  "d2": 1.26,
+  "market": false,
+  "web": true
+ },
+ "UO<30": {
+  "grade": "B",
+  "name": "UO<30",
+  "d1": -0.49,
+  "d2": 0.14,
+  "market": false,
+  "web": true
+ },
+ "VIX今天跌": {
+  "grade": "B",
+  "name": "VIX今天跌",
+  "d1": -0.5,
+  "d2": 0.29,
+  "market": true,
+  "web": true
+ },
+ "5日均量>20日均量1.3x": {
+  "grade": "B",
+  "name": "5日均量>20日均量1.3x",
+  "d1": -0.51,
+  "d2": 1.28,
+  "market": false,
+  "web": true
+ },
+ "慢速K上穿D(<20)": {
+  "grade": "B",
+  "name": "慢速K上穿D(<20)",
+  "d1": -0.62,
+  "d2": 0.2,
+  "market": false,
+  "web": true
+ },
+ "收盘>MA5": {
+  "grade": "B",
+  "name": "收盘>MA5",
+  "d1": -0.75,
+  "d2": 0.58,
+  "market": false,
+  "web": true
+ },
+ "MFI<10": {
+  "grade": "B",
+  "name": "MFI<10",
+  "d1": -0.89,
+  "d2": 0.3,
+  "market": false,
+  "web": true
+ },
+ "站回MA5": {
+  "grade": "B",
+  "name": "站回MA5",
+  "d1": -0.95,
+  "d2": 1.59,
+  "market": false,
+  "web": true
+ },
+ "RSI5<15": {
+  "grade": "B",
+  "name": "RSI5<15",
+  "d1": -1.16,
+  "d2": 1.48,
+  "market": false,
+  "web": true
+ },
+ "当天上涨家数>60%": {
+  "grade": "B",
+  "name": "当天上涨家数>60%",
+  "d1": -1.17,
+  "d2": 0.95,
+  "market": true,
+  "web": true
+ },
+ "SPY5日涨": {
+  "grade": "B",
+  "name": "标普5日涨",
+  "d1": -1.7,
+  "d2": 0.81,
+  "market": true,
+  "web": true
+ },
+ "J值回升": {
+  "grade": "B",
+  "name": "J值回升",
+  "d1": -1.88,
+  "d2": 13.23,
+  "market": false,
+  "web": true
+ }
+}

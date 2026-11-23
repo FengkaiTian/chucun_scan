@@ -15,45 +15,13 @@ GRADES = {
     'C': ('两项都不满足', 41, -0.05, 53, 63, 1.60, 57),
 }
 GRADE_NOTE = {'A': '优先买', 'B': '正常买', 'C': '历史上不赚钱，只观察'}
-# 条件分级（analysis/private/cond_grades.py，2026-11-22）：主推信号里命中比没命中每笔多赚多少。
-# key: (级别, 名称, 以往多赚%, 2026 多赚%)。以往 = 2000–2025-11。deep / fear 已算进股票级别，不再单独当标签。
-COND_GRADES = {
-    'fear': ('SSS', '市场恐慌', 1.60, 1.33),
-    'gap_down_close': ('SSS', '跳空收正', 1.46, 0.50),
-    'near_52w': ('SSS', '近52周低点', 0.98, 1.97),
-    'dist_ma200_lt_m15': ('SSS', '距200日线跌超15%', 0.57, 0.90),
-    'deep': ('A', '开盘跌得深', 1.42, 0.06),
-    'ret5d_lt_m3': ('A', '5日跌超3%', 0.23, 1.14),
-    'vol_gt12': ('A', '放量1.2倍', 0.05, 1.65),
-    'wr_rising3': ('B', 'WR升3天', 0.24, -0.39),
-    'obv_rising': ('B', 'OBV上升', 0.23, -0.35),
-    'rsi_lt20': ('B', 'RSI<20', -0.04, 0.20),
-    'mfi_rising': ('B', 'MFI上升', -0.06, 0.46),
-    'rsi_lt25': ('B', 'RSI<25', -0.11, 1.87),
-    'wr_lt80': ('B', 'WR<-80', -0.16, 1.01),
-    'below_kelt': ('B', 'Keltner下轨', -0.28, 0.99),
-    'mfi_lt20': ('B', 'MFI<20', -0.36, 0.83),
-    'rsi_div': ('B', 'RSI底背离', -0.48, 1.73),
-    'cci_rising': ('B', 'CCI上升', -1.55, 4.11),
-    # 网上常见的条件（analysis/private/web_cond_grades.py）
-    'nday15': ('SSS', '当天主推≥15只', 3.49, 2.54),
-    'breadth35': ('SSS', '大盘普跌（<35%站上50日线）', 2.82, 3.02),
-    'dist200_30': ('SSS', '距200日线跌超30%', 2.02, 1.77),
-    'spy_lt200': ('SSS', '标普在200日线下', 1.94, 4.23),
-    'spy_dn1': ('SSS', '标普当天跌超1%', 1.58, 4.05),
-    'vix_up10': ('SSS', 'VIX当天涨超10%', 1.44, 3.28),
-    'dd252_40': ('SSS', '比一年最高跌超40%', 1.08, 3.00),
-    'ret20_20': ('SSS', '一个月跌超20%', 0.78, 2.64),
-    'piercing': ('SSS', '刺透形态', 0.61, 2.09),
-    'under_spy5': ('A', '5天跑输标普8%以上', 2.82, 1.51),
-    'bias10_8': ('A', '低于10日线8%以上', 1.60, 3.51),
-    'range15': ('A', '振幅超1.5倍ATR', 1.09, 2.13),
-    'adv30': ('A', '当天上涨家数不到30%', 1.00, 4.95),
-    'yr_dn30': ('A', '一年跌超30%', 0.47, 4.12),
-}
-MARKET_CONDS = ('fear', 'nday15', 'breadth35', 'spy_lt200', 'spy_dn1', 'vix_up10', 'adv30')   # 大盘条件，同一天所有股票一样
-WEB_CONDS = ('nday15', 'breadth35', 'dist200_30', 'spy_lt200', 'spy_dn1', 'vix_up10', 'dd252_40', 'ret20_20', 'piercing',
-             'under_spy5', 'bias10_8', 'range15', 'adv30', 'yr_dn30')
+# 条件分级：原来的 17 个（analysis/private/cond_grades.py）+ 网上常见的 86 个（web_cond_grades.py），都存在 cond_grades.json。
+# 主推信号里命中比没命中每笔多赚多少。key: (级别, 名称, 以往多赚%, 2026 多赚%)。以往 = 2000–2025-11。
+import json as _json, os as _os
+_CG = _json.load(open(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'cond_grades.json'), encoding='utf-8'))
+COND_GRADES = {k: (v['grade'], v['name'], v['d1'], v['d2']) for k, v in _CG.items()}
+MARKET_CONDS = tuple(k for k, v in _CG.items() if v['market'])   # 大盘条件，同一天所有股票一样
+WEB_CONDS = tuple(k for k, v in _CG.items() if v['web'])
 IN_GRADE = ('fear', 'deep')   # 已经决定股票级别的两条
 
 
@@ -61,8 +29,6 @@ def cond_tags(conds):
     """命中的条件 → [(级别, 名称)]，按 SSS/A/B 排；不含已算进股票级别的两条"""
     o = {'SSS': 0, 'A': 1, 'B': 2}
     conds = list(dict.fromkeys(conds))
-    if 'dist200_30' in conds:   # 跌超 30% 时不再重复显示跌超 15%
-        conds = [k for k in conds if k != 'dist_ma200_lt_m15']
     t = [COND_GRADES[k][:2] for k in conds if k in COND_GRADES and k not in IN_GRADE]
     return sorted(t, key=lambda x: o[x[0]])
 

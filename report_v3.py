@@ -6,6 +6,7 @@
 import json
 from html import escape
 from report_v2 import BT, GRADES, COND_GRADES, IN_GRADE, MARKET_CONDS, cond_tags, _day, _close_ct, _buy_time, _sign
+CG_SUMMARY = (f'{len(COND_GRADES)} 个条件入选（' + '、'.join(f'{g} {sum(v[0] == g for v in COND_GRADES.values())}' for g in ('SSS', 'A', 'B')) + '）')
 GL = {'A': 'SSS', 'B': 'A', 'C': 'B'}   # 内部仍用 A/B/C 排序和存档，页面显示 SSS/A/B
 
 CSS = '''
@@ -105,6 +106,7 @@ td.wr{white-space:normal}
 .rules h3{font-size:13.5px;color:var(--ink);margin:4px 0 4px}
 .note{font-size:12px;color:var(--ink3);margin:8px 0 0}
 .cts{display:block;margin-top:3px;line-height:1.9}
+.cd{margin-top:3px} .cd summary{list-style:none;cursor:pointer;margin:0;font-size:inherit;color:inherit;line-height:1.9} .cd summary::-webkit-details-marker{display:none} .cd summary::after{content:' 展开';font-size:11px;color:var(--ink3)} .cd[open] summary::after{content:' 收起'} .cd .cts{max-width:420px}
 .ct{display:inline-block;font-size:11px;line-height:17px;padding:0 5px;border-radius:3px;margin-right:4px;border:1px solid;white-space:nowrap}
 .ct.cSSS{color:var(--gA);border-color:var(--gA);font-weight:650} .ct.cA{color:var(--gB);border-color:var(--gB)} .ct.cB{color:var(--ink3);border-color:var(--line2)}
 details summary{cursor:pointer;color:var(--ink2);font-size:13px;margin-top:6px}
@@ -187,15 +189,14 @@ def _stats(ctx):
 
 
 def _tags(r):
-    """命中的条件：SSS、A 逐个列出，B 只给个数（鼠标停上去能看到是哪些）"""
+    """命中的条件：先给 SSS / A / B 各几个，点开看全部"""
     t = r.get('cond_tags') or cond_tags(r.get('conds') or [])
-    main = [(g, n) for g, n in t if g != 'B']; b = [n for g, n in t if g == 'B']
-    if not main and not b:
+    if not t:
         return ''
-    out = ''.join(f'<span class="ct c{g}">{escape(n)}</span>' for g, n in main)
-    if b:
-        out += f'<span class="ct cB" title="{escape("、".join(b))}">+{len(b)} 参考</span>'
-    return f'<span class="cts">{out}</span>'
+    cnt = {g: sum(x == g for x, _ in t) for g in ('SSS', 'A', 'B')}
+    summ = ''.join(f'<span class="ct c{g}">{g} × {n}</span>' for g, n in cnt.items() if n)
+    full = ''.join(f'<span class="ct c{g}">{escape(n)}</span>' for g, n in t)
+    return f'<details class="cd"><summary>{summ}</summary><div class="cts">{full}</div></details>'
 
 
 def _today(ctx):
@@ -397,8 +398,8 @@ def _conds(ctx):
     return f'''<section class="panel"><div class="ph"><h2>条件分级</h2><span class="r">主推里命中这个条件的，比没命中的每笔多赚多少</span></div><div class="pb">
 <div class="tw long"><table><thead><tr><th>级别</th><th>条件</th><th>类型</th><th class="n">2000–2025</th><th class="n">2026</th></tr></thead>
 <tbody>{tr}</tbody></table></div>
-<p class="note">测过约 200 个条件，包括 RSI2、ConnorsRSI、IBS、KDJ、乖离率、布林带、K 线形态、量能、大盘宽度和 VIX 等网上常用的指标。
-SSS：两段都多赚 0.5% 以上。A：两段都多赚，但幅度小。B：一段多赚，另一段不算差，只作参考。2026 年明显变差、笔数太少、几乎每只都满足、和别的条件重复的没列出。
+<p class="note">共 {CG_SUMMARY}。一共测过约 240 个条件，包括 RSI2、ConnorsRSI、IBS、KDJ、乖离率、布林带、K 线形态、量能、大盘宽度和 VIX 等网上常用的指标。
+SSS：两段都多赚 0.5% 以上。A：两段都多赚，但幅度小。B：一段多赚，另一段不算差，只作参考。2026 年明显变差、笔数太少或以往和今年都不赚的没列出。日历类（星期、月份）不算条件。
 RSI2、IBS 这类条件和主推很少同时出现（主推当天 RSI 在回升），所以不在表里。</p>
 </div></section>'''
 
