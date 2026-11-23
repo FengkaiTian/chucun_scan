@@ -412,13 +412,18 @@ def attach_library(recs, data, spy, vix_hist):
     if not recs:
         return
     from cond_library import library
-    from report_v2 import WEB_CONDS
+    from report_v2 import WEB_CONDS, combo_tags
     fr = {k: data.xs(k, axis=1, level=1).astype('float64') for k in ('Open', 'High', 'Low', 'Close', 'Volume')}
     F, _ = library(fr['Open'], fr['High'], fr['Low'], fr['Close'], fr['Volume'], spy.astype('float64'),
                    vix_hist.astype('float64'), [pd.Timestamp(r['signal_day']) for r in recs], [r['ticker'] for r in recs])
     for n, r in enumerate(recs):
         r['conds'] = [k for k in (r.get('conds') or []) if k not in WEB_CONDS] + [k for k in WEB_CONDS if k in F and F[k][n]]
+        # 股票级别里的两条也当条件用（组合里会用到）：A 级两条都占，B 级只占一条，C 级都没有
+        g = r.get('main_grade') or r.get('grade') or 'C'
+        deep = r['gap'] <= -1 or bool(r.get('open_lt_pl'))
+        r['conds'] += (['deep'] if deep else []) + (['fear'] if g == 'A' or (g == 'B' and not deep) else [])
         r['cond_tags'] = cond_tags(r['conds'])
+        r['combo_tags'] = combo_tags(r['conds'])
 
 
 def watch_list(data, tickers, name_map, entry_day):

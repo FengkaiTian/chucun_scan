@@ -25,6 +25,22 @@ WEB_CONDS = tuple(k for k, v in _CG.items() if v['web'])
 IN_GRADE = ('fear', 'deep')   # 已经决定股票级别的两条
 
 
+# 组合分级：2 个、3 个条件同时满足（analysis/private/combo_grades.py），存在 combo_grades.json。
+# 每个: k=条件 key 列表, g=级别, n1/d1=以往笔数/多赚%, n2/d2=2026 笔数/多赚%, w2=2026 胜率%。
+COMBOS = _json.load(open(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'combo_grades.json'), encoding='utf-8'))
+for _c in COMBOS:
+    _c['name'] = '＋'.join(COND_GRADES[k][1] for k in _c['k'])
+
+
+def combo_tags(conds):
+    """命中的组合 → [(级别, 名称)]，按 SSS/A/B、以往多赚排"""
+    o = {'SSS': 0, 'A': 1, 'B': 2}
+    have = set(conds)
+    hit = [c for c in COMBOS if have.issuperset(c['k'])]
+    hit.sort(key=lambda c: (o[c['g']], -c['d1']))
+    return [(c['g'], c['name']) for c in hit]
+
+
 def cond_tags(conds):
     """命中的条件 → [(级别, 名称)]，按 SSS/A/B 排；不含已算进股票级别的两条"""
     o = {'SSS': 0, 'A': 1, 'B': 2}

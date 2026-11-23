@@ -5,7 +5,7 @@
 """
 import json
 from html import escape
-from report_v2 import BT, GRADES, COND_GRADES, IN_GRADE, MARKET_CONDS, cond_tags, _day, _close_ct, _buy_time, _sign
+from report_v2 import BT, GRADES, COND_GRADES, IN_GRADE, MARKET_CONDS, COMBOS, cond_tags, combo_tags, _day, _close_ct, _buy_time, _sign
 CG_SUMMARY = (f'{len(COND_GRADES)} 个条件入选（' + '、'.join(f'{g} {sum(v[0] == g for v in COND_GRADES.values())}' for g in ('SSS', 'A', 'B')) + '）')
 GL = {'A': 'SSS', 'B': 'A', 'C': 'B'}   # 内部仍用 A/B/C 排序和存档，页面显示 SSS/A/B
 
@@ -106,6 +106,8 @@ td.wr{white-space:normal}
 .rules h3{font-size:13.5px;color:var(--ink);margin:4px 0 4px}
 .note{font-size:12px;color:var(--ink3);margin:8px 0 0}
 .cts{display:block;margin-top:3px;line-height:1.9}
+.tl{font-size:11px;color:var(--ink3);margin-right:4px}
+.cf{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;font-size:13px} .cf select,.cf input{font:inherit;padding:3px 6px;border:1px solid var(--rule);border-radius:4px;background:var(--bg);color:var(--ink)} .cf input{flex:1;min-width:140px}
 .cd{margin-top:3px} .cd summary{list-style:none;cursor:pointer;margin:0;font-size:inherit;color:inherit;line-height:1.9} .cd summary::-webkit-details-marker{display:none} .cd summary::after{content:' 展开';font-size:11px;color:var(--ink3)} .cd[open] summary::after{content:' 收起'} .cd .cts{max-width:420px}
 .ct{display:inline-block;font-size:11px;line-height:17px;padding:0 5px;border-radius:3px;margin-right:4px;border:1px solid;white-space:nowrap}
 .ct.cSSS{color:var(--gA);border-color:var(--gA);font-weight:650} .ct.cA{color:var(--gB);border-color:var(--gB)} .ct.cB{color:var(--ink3);border-color:var(--line2)}
@@ -188,15 +190,25 @@ def _stats(ctx):
         for k, val, s, sp in tiles) + '</section>'
 
 
-def _tags(r):
-    """命中的条件：先给 SSS / A / B 各几个，点开看全部"""
-    t = r.get('cond_tags') or cond_tags(r.get('conds') or [])
+def _tagbox(label, t, top=None):
     if not t:
         return ''
     cnt = {g: sum(x == g for x, _ in t) for g in ('SSS', 'A', 'B')}
-    summ = ''.join(f'<span class="ct c{g}">{g} × {n}</span>' for g, n in cnt.items() if n)
-    full = ''.join(f'<span class="ct c{g}">{escape(n)}</span>' for g, n in t)
+    summ = f'<span class="tl">{label}</span>' + ''.join(f'<span class="ct c{g}">{g} × {n}</span>' for g, n in cnt.items() if n)
+    shown = t if top is None else t[:top]
+    full = ''.join(f'<span class="ct c{g}">{escape(n)}</span>' for g, n in shown)
+    if top is not None and len(t) > top:
+        full += f'<span class="m">…另外 {len(t) - top} 个，见下面组合分级表</span>'
     return f'<details class="cd"><summary>{summ}</summary><div class="cts">{full}</div></details>'
+
+
+def _tags(r):
+    """命中的条件和组合：先给 SSS / A / B 各几个，点开看具体的"""
+    t = r.get('cond_tags') or cond_tags(r.get('conds') or [])
+    c = r.get('combo_tags')
+    if c is None:
+        c = combo_tags(r.get('conds') or [])
+    return _tagbox('条件', t) + _tagbox('组合', c, 30)
 
 
 def _today(ctx):
@@ -227,7 +239,7 @@ def _today(ctx):
                  f'<td><span class="g g{g}">{GL[g]}</span></td><td class="n">{r.get("gap", 0):.1f}%</td>'
                  f'<td class="n hs">{r["rsi"]}</td><td class="n">${r["price"]}</td></tr>')
     body = (verdict
-            + f'<p>{len(main)} 只符合条件，其中 SSS、A 级 {ab} 只；B 级历史上不赚钱，只看不买。同一级别里按命中的 SSS 条件多少排，越靠前越优先。</p>'
+            + f'<p>{len(main)} 只符合条件，其中 SSS、A 级 {ab} 只；B 级历史上不赚钱，只看不买。同一级别里按命中的 SSS 条件多少排，越靠前越优先。每只下面点开能看命中了哪些条件和组合。</p>'
             + f'<dl class="when"><dt>买入</dt><dd><b>{_day(ent)} {_buy_time(ent)}</b> 美中，收盘前</dd>'
             + f'<dt>卖出</dt><dd><b>{_day(ext)}</b> 收盘前，拿满 {ctx["hold"]} 个交易日</dd></dl>'
             + f'<div class="tw"><table><thead><tr><th>股票</th><th>级别</th><th class="n">开盘跌幅</th>'
@@ -404,6 +416,33 @@ RSI2、IBS 这类条件和主推很少同时出现（主推当天 RSI 在回升�
 </div></section>'''
 
 
+def _combos(ctx):
+    import json
+    o = {'SSS': 0, 'A': 1, 'B': 2}
+    rows = sorted(COMBOS, key=lambda c: (o[c['g']], -c['d1']))
+    data = json.dumps([[c['g'], c['name'], len(c['k']), c['n1'], c['d1'], c['n2'], c['d2'], c['w2']] for c in rows],
+                      ensure_ascii=False, separators=(',', ':')).replace('</', '<\\/')
+    cnt = {g: sum(c['g'] == g for c in COMBOS) for g in o}
+    n2 = sum(len(c['k']) == 2 for c in COMBOS)
+    return f'''<section class="panel"><div class="ph"><h2>组合分级</h2><span class="r">两三个条件同时满足的，比没满足的每笔多赚多少</span></div><div class="pb">
+<div class="cf"><select id="cg"><option value="">全部级别</option><option>SSS</option><option>A</option><option>B</option></select>
+<select id="cn"><option value="">2 个和 3 个条件</option><option value="2">2 个条件</option><option value="3">3 个条件</option></select>
+<input id="cq" type="search" placeholder="搜条件名，比如 开盘跌得深"><span class="m" id="cc"></span></div>
+<div class="tw long"><table><thead><tr><th>级别</th><th>组合</th><th class="n hs">以往笔数</th><th class="n">2000–2025</th><th class="n hs">2026 笔数</th><th class="n">2026</th><th class="n hs">2026 赚钱</th></tr></thead>
+<tbody id="cb"></tbody></table></div>
+<p class="note">共 {len(COMBOS)} 个组合入选（SSS {cnt["SSS"]}、A {cnt["A"]}、B {cnt["B"]}；2 个条件的 {n2} 个，3 个条件的 {len(COMBOS) - n2} 个）。
+从上面分了级的条件里任取 2 个或 3 个，一共试了约 18 万种，以前用的 334 个组合也一起重测了。入选要满足：以往至少 30 笔、2026 年至少 10 笔，
+两段都要比组合里最好的那个单条件多赚，不然组合没意义；命中的主推完全一样的只留一个。分级标准和单条件一样。
+组合试得多，难免有碰巧好看的，越是笔数少的越要打折看。以前那 334 个组合是在全部基础信号上挑的，放到主推上几乎都不再比单条件强。</p>
+<script>(function(){{var D={data};var g=document.getElementById('cg'),n=document.getElementById('cn'),q=document.getElementById('cq'),b=document.getElementById('cb'),c=document.getElementById('cc');
+function f(x){{return (x>0?'+':'')+x.toFixed(2)+'%'}}function s(x){{return x>0?'up':(x<0?'down':'')}}
+function e(t){{return t.replace(/[&<>]/g,function(m){{return {{'&':'&amp;','<':'&lt;','>':'&gt;'}}[m]}})}}
+function r(){{var G=g.value,N=n.value,Q=q.value.trim(),h=[],k=0;for(var i=0;i<D.length;i++){{var d=D[i];if(G&&d[0]!==G)continue;if(N&&String(d[2])!==N)continue;if(Q&&d[1].indexOf(Q)<0)continue;k++;if(h.length<300)h.push('<tr><td><span class="ct c'+d[0]+'">'+d[0]+'</span></td><td>'+e(d[1])+'</td><td class="n hs">'+d[3]+'</td><td class="n '+s(d[4])+'">'+f(d[4])+'</td><td class="n hs">'+d[5]+'</td><td class="n '+s(d[6])+'">'+f(d[6])+'</td><td class="n hs">'+d[7]+'%</td></tr>')}}
+b.innerHTML=h.join('');c.textContent=k>300?('找到 '+k+' 个，显示前 300 个'):('找到 '+k+' 个')}}
+g.onchange=n.onchange=r;q.oninput=r;r()}})();</script>
+</div></section>'''
+
+
 def _rules(ctx):
     return f'''<section class="panel"><div class="ph"><h2>规则</h2></div><div class="pb rules">
 <h3>出信号（四条都要满足）</h3>
@@ -437,6 +476,7 @@ def render_report(ctx):
 {_last20(ctx)}
 <div class="grid2">{_grades(ctx)}{_rules(ctx)}</div>
 {_conds(ctx)}
+{_combos(ctx)}
 <footer>仅供自己研究，不是投资建议。红色是涨，绿色是跌。记录和图表按每天收盘数据、用同一套规则算出，按当前成分股。</footer>
 </div>
 </body>
