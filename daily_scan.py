@@ -354,7 +354,7 @@ def main_grade(gap_pct, open_lt_prev_low, vix, n_main_today):
 RECORD_START = '2026-01-01'   # 网页记录从这天开始
 
 
-def replay_main(data, tickers, vix_hist, name_map, since=RECORD_START):
+def replay_main(data, tickers, vix_hist, name_map, since=RECORD_START, spy=None, mf=None):
     """用已下载的日线，把主推规则在最近 lookback 个交易日逐日重放，得到最近的主推记录（回测）。
     每条：信号日、入场日（T1 收盘）、持有 10 天的收益；没满 10 天的给出至今收益和已持有天数。
     只覆盖当前成分股（近几个月影响很小）。"""
@@ -382,9 +382,9 @@ def replay_main(data, tickers, vix_hist, name_map, since=RECORD_START):
             try:   # 信号当天命中的条件（只用到当天为止的数据）
                 cr = compute_conditions(c.iloc[:i + 1], hh.iloc[:i + 1], l.iloc[:i + 1], vv.iloc[:i + 1], o.iloc[:i + 1])
                 rec['conds'] = [k for k, v in cr[0].items() if v is True] if cr else []
+                rec['conds'] += web_flags(td, spy, i)
             except Exception:
                 rec['conds'] = []
-            rec['cond_tags'] = cond_tags(rec['conds'])
             e = i + 1
             if e >= len(c):
                 rec.update(status='待买入'); recs.append(rec); continue
@@ -402,6 +402,9 @@ def replay_main(data, tickers, vix_hist, name_map, since=RECORD_START):
     vx = vix_hist.reindex(sorted(nday.index), method='ffill')
     for r in recs:
         r['grade'] = main_grade(r['gap'], r['open_lt_pl'], float(vx.get(r['signal_day'], 0) or 0), int(nday[r['signal_day']]))
+        if mf is not None:
+            r['conds'] = (r.get('conds') or []) + mkt_conds(mf, r['signal_day'], int(nday[r['signal_day']]))
+        r['cond_tags'] = cond_tags(r.get('conds') or [])
         r['net'] = r['ret'] - 0.10 if 'ret' in r else None
     recs.sort(key=lambda r: (r['signal_day'], r['ticker']), reverse=True)
     return recs
@@ -471,6 +474,50 @@ def star_tier(conds, grade):
     if grade == 'SSS':
         return '★'
     return '参考'
+
+
+# ── 网上常见的条件（analysis/private/web_cond_grades.py 挑出来的，分级见 report_v2.COND_GRADES）──────
+def web_flags(td, spy_close, i):
+    """个股条件，只用到第 i 根（信号日）为止的数据"""
+    c, h, l, o = td['Close'].iloc[:i + 1], td['High'].iloc[:i + 1], td['Low'].iloc[:i + 1], td['Open'].iloc[:i + 1]
+    out = []
+    def last(x):
+        v = x.iloc[-1]
+        return bool(v) if pd.notna(v) else False
+    if len(c) >= 200 and last(c / c.rolling(200).mean() - 1 < -0.30): out.append('dist200_30')
+    if len(c) >= 200 and last(c / h.rolling(252, min_periods=200).max() - 1 < -0.40): out.append('dd252_40')
+    if len(c) > 20 and last(c / c.shift(20) - 1 < -0.20): out.append('ret20_20')
+    if len(c) > 252 and last(c / c.shift(252) - 1 < -0.30): out.append('yr_dn30')
+    if len(c) >= 10 and last(c / c.rolling(10).mean() - 1 < -0.08): out.append('bias10_8')
+    pc, po = c.shift(1), o.shift(1)
+    if last((pc < po) & (o < pc) & (c > (po + pc) / 2) & (c < po)): out.append('piercing')
+    tr = pd.concat([h - l, (h - pc).abs(), (l - pc).abs()], axis=1).max(axis=1)
+    atr = tr.ewm(alpha=1 / 14, adjust=False, min_periods=14).mean()
+    if len(c) > 15 and last(tr > 1.5 * atr.shift(1)): out.append('range15')
+    if spy_close is not None and len(c) > 5:
+        sp = spy_close.reindex(c.index).ffill()
+        if last((c / c.shift(5) - sp / sp.shift(5)) < -0.08): out.append('under_spy5')
+    return out
+
+
+def market_flags(data, spy, vix_hist):
+    """大盘条件，按日期：大盘普跌、标普跌破 200 日线、标普当天跌超 1%、VIX 当天涨超 10%、上涨家数不到 30%"""
+    closes = data.xs('Close', axis=1, level=1)
+    br50 = (closes > closes.rolling(50).mean()).sum(1) / closes.notna().sum(1)
+    adv = (closes.pct_change() > 0).sum(1) / closes.notna().sum(1)
+    sp = spy.reindex(closes.index).ffill(); vx = vix_hist.reindex(closes.index).ffill()
+    return pd.DataFrame({'breadth35': br50 < 0.35, 'spy_lt200': sp < sp.rolling(200).mean(),
+                         'spy_dn1': sp.pct_change() < -0.01, 'vix_up10': vx.pct_change() > 0.10,
+                         'adv30': adv < 0.30}, index=closes.index).fillna(False)
+
+
+def mkt_conds(mf, day, n_main_day):
+    out = []
+    if day in mf.index:
+        out = [k for k, v in mf.loc[day].items() if bool(v)]
+    if n_main_day >= 15:
+        out.append('nday15')
+    return out
 
 
 # ── 选股记录与实际表现 ────────────────────────────────────
@@ -583,7 +630,7 @@ def main():
     if len(data) and data.index[-1].date() == ny.date() and (ny.hour, ny.minute) < (16, 30):
         data = data.iloc[:-1]
         print(f"美股尚未收盘（纽约 {ny:%H:%M}），只用到 {data.index[-1].date()} 的完整日线")
-    spy = yf.download('^GSPC', period='1y', auto_adjust=True, progress=False)['Close'].squeeze()
+    spy = yf.download('^GSPC', period='2y', auto_adjust=True, progress=False)['Close'].squeeze()
     vix_df = yf.download('^VIX', period='15mo', auto_adjust=True, progress=False)['Close'].squeeze()
     vix_hist = vix_df.copy(); vix_hist.index = pd.to_datetime(vix_hist.index)
     if vix_hist.index.tz is not None:
@@ -652,7 +699,7 @@ def main():
                 'tier_wr5': TIER_STATS[tier][0],
                 'tier_ret5': TIER_STATS[tier][1],
                 'matched_signals': matched_signals,
-                'conds': [k for k, v in conds.items() if v is True],
+                'conds': [k for k, v in conds.items() if v is True] + web_flags(td, spy, len(td) - 1),
                 'wr1': bc.get('wr1', 0),
                 'wr3': bc.get('wr3', 0),
                 'wr5': bc.get('wr5', 0),
@@ -707,10 +754,13 @@ def main():
     if n_deduped:
         print(f"  去重过滤: 移除 {before - len(results)} 只（近10交易日已推荐）")
 
+    mf = market_flags(data, spy, vix_hist)
     # 主推分档 A/B/C；主推排最前（按档、再按低开幅度），其余按旧星级
     n_main = sum(r['new_rule'] for r in results)
     for r in results:
         r['main_grade'] = main_grade(r['gap'], r['open_lt_pl'], vix_price, n_main) if r['new_rule'] else ''
+        if r['new_rule']:
+            r['conds'] = (r.get('conds') or []) + mkt_conds(mf, signal_day, n_main)
         r['cond_tags'] = cond_tags(r.get('conds') or [])
         r['n_sss'] = sum(g == 'SSS' for g, _ in r['cond_tags']); r['n_a'] = sum(g == 'A' for g, _ in r['cond_tags'])
     # 同一级别里，命中 SSS 条件多的排前，再看 A 条件，再看低开幅度
@@ -726,7 +776,7 @@ def main():
     save_history(history)
     recent = pick_performance(history)
     print("重放最近的主推（回测记录）...")
-    replay = replay_main(data, tickers, vix_hist, name_map)
+    replay = replay_main(data, tickers, vix_hist, name_map, spy=spy, mf=mf)
     print("观察名单、市场走势...")
     watch = watch_list(data, tickers, name_map, entry_day)
     mkt = market_series(data, spy, vix_hist, n=int((data.index >= pd.Timestamp(RECORD_START)).sum()))

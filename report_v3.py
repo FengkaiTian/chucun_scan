@@ -5,7 +5,7 @@
 """
 import json
 from html import escape
-from report_v2 import BT, GRADES, COND_GRADES, IN_GRADE, cond_tags, _day, _close_ct, _buy_time, _sign
+from report_v2 import BT, GRADES, COND_GRADES, IN_GRADE, MARKET_CONDS, cond_tags, _day, _close_ct, _buy_time, _sign
 GL = {'A': 'SSS', 'B': 'S', 'C': 'A'}   # 内部仍用 A/B/C 排序和存档，页面显示 SSS/S/A
 
 CSS = '''
@@ -386,15 +386,20 @@ def _grades(ctx):
 
 
 def _conds(ctx):
+    o = {'SSS': 0, 'A': 1, 'B': 2}
+    items = sorted(COND_GRADES.items(), key=lambda kv: (o[kv[1][0]], -(kv[1][2] + kv[1][3])))
     tr = ''
-    for k, (g, name, d1, d2) in COND_GRADES.items():
+    for k, (g, name, d1, d2) in items:
         note = '<span class="m">（已算进股票级别）</span>' if k in IN_GRADE else ''
-        tr += (f'<tr><td><span class="ct c{g}">{g}</span></td><td>{escape(name)}{note}</td>'
+        kind = '大盘' if k in MARKET_CONDS else '个股'
+        tr += (f'<tr><td><span class="ct c{g}">{g}</span></td><td>{escape(name)}{note}</td><td class="m">{kind}</td>'
                f'<td class="n {_sign(d1)}">{d1:+.2f}%</td><td class="n {_sign(d2)}">{d2:+.2f}%</td></tr>')
     return f'''<section class="panel"><div class="ph"><h2>条件分级</h2><span class="r">主推里命中这个条件的，比没命中的每笔多赚多少</span></div><div class="pb">
-<div class="tw"><table><thead><tr><th>级别</th><th>条件</th><th class="n">2000–2025</th><th class="n">2026</th></tr></thead>
+<div class="tw long"><table><thead><tr><th>级别</th><th>条件</th><th>类型</th><th class="n">2000–2025</th><th class="n">2026</th></tr></thead>
 <tbody>{tr}</tbody></table></div>
-<p class="note">SSS：两段都多赚 0.5% 以上。A：两段都多赚，但幅度小。B：一段多赚，另一段不算差，只作参考。2026 年明显变差或笔数太少的条件没列出（十字星底、锤子线、多头吞没、CCI&lt;-100 等）。</p>
+<p class="note">测过约 200 个条件，包括 RSI2、ConnorsRSI、IBS、KDJ、乖离率、布林带、K 线形态、量能、大盘宽度和 VIX 等网上常用的指标。
+SSS：两段都多赚 0.5% 以上。A：两段都多赚，但幅度小。B：一段多赚，另一段不算差，只作参考。2026 年明显变差、笔数太少、几乎每只都满足、和别的条件重复的没列出。
+RSI2、IBS 这类条件和主推很少同时出现（主推当天 RSI 在回升），所以不在表里。</p>
 </div></section>'''
 
 
