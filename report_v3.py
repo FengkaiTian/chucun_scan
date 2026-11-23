@@ -67,7 +67,7 @@ body{margin:0;background:var(--bg);color:var(--ink);
 .when{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:12px 0 4px;padding:10px 12px;background:var(--hl);border-radius:6px}
 .when dt{color:var(--ink3)} .when dd{margin:0} .when b{font-weight:650}
 
-.tw{overflow-x:auto}
+.tw{overflow-x:auto} .tw.long{max-height:640px;overflow-y:auto} .tw.long thead th{position:sticky;top:0;background:var(--panel);z-index:1}
 table{width:100%;border-collapse:collapse}
 th{font-size:12px;font-weight:500;color:var(--ink3);text-align:left;padding:7px 10px 7px 0;border-bottom:1px solid var(--line2);white-space:nowrap}
 td{padding:8px 10px 8px 0;border-bottom:1px solid var(--line);white-space:nowrap}
@@ -172,7 +172,7 @@ def _stats(ctx):
     n_base = ctx['funnel']['base']
     tiles = [
         ('标普500', f'{ctx["spy_price"]:,.0f}<small class="{_sign(chg)}">{chg:+.2f}%</small>',
-         f'比 200 日均线 {ctx["spy_pct"]:+.1f}%' + (f'，半年 {ret120:+.1f}%' if ret120 is not None else ''),
+         f'比 200 日均线 {ctx["spy_pct"]:+.1f}%' + (f'，今年 {ret120:+.1f}%' if ret120 is not None else ''),
          _spark(spy, color='var(--spx)')),
         ('VIX 恐慌指数', f'{v:.1f}<small class="m">{_vix_word(v)}</small>',
          '25 以上算恐慌，评级加分', _spark(vix, color='var(--up)' if v >= 25 else 'var(--ink3)')),
@@ -184,6 +184,18 @@ def _stats(ctx):
     return '<section class="stats">' + ''.join(
         f'<div class="tile"><div class="k">{k}</div><div class="v n">{val}</div><div class="s">{s}</div>{sp}</div>'
         for k, val, s, sp in tiles) + '</section>'
+
+
+def _tags(r):
+    """命中的条件：SSS、A 逐个列出，B 只给个数（鼠标停上去能看到是哪些）"""
+    t = r.get('cond_tags') or cond_tags(r.get('conds') or [])
+    main = [(g, n) for g, n in t if g != 'B']; b = [n for g, n in t if g == 'B']
+    if not main and not b:
+        return ''
+    out = ''.join(f'<span class="ct c{g}">{escape(n)}</span>' for g, n in main)
+    if b:
+        out += f'<span class="ct cB" title="{escape("、".join(b))}">+{len(b)} 参考</span>'
+    return f'<span class="cts">{out}</span>'
 
 
 def _today(ctx):
@@ -210,7 +222,7 @@ def _today(ctx):
             warn.append(f'波动大（ATR {r["atr_pct"]:.1f}%），买一半')
         rows += (f'<tr><td class="wr"><b>{escape(r["ticker"])}</b> <span class="m">{escape(r["name"])}</span>'
                  + ''.join(f'<span class="wl">{w}</span>' for w in warn)
-                 + ('<span class="cts">' + ''.join(f'<span class="ct c{cg}">{escape(cn)}</span>' for cg, cn in (r.get('cond_tags') or cond_tags(r.get('conds') or []))) + '</span>' if (r.get('cond_tags') or r.get('conds')) else '') + '</td>'
+                 + _tags(r) + '</td>'
                  f'<td><span class="g g{g}">{GL[g]}</span></td><td class="n">{r.get("gap", 0):.1f}%</td>'
                  f'<td class="n hs">{r["rsi"]}</td><td class="n">${r["price"]}</td></tr>')
     body = (verdict
@@ -282,7 +294,7 @@ def _market_chart(ctx):
     data = json.dumps({'d': dates, 's': spy, 'v': vix, 'b': br, 'c': cnt}, separators=(',', ':'))
     total = sum(c['A'] + c['B'] + c['C'] for c in cnt)
     return f'''<section class="panel">
-<div class="ph"><h2>大盘和主推信号</h2><span class="r">最近 {n} 个交易日，共 {total} 个主推</span></div>
+<div class="ph"><h2>大盘和主推信号</h2><span class="r">2026 年以来，共 {total} 个主推</span></div>
 <div class="pb" style="padding-bottom:6px"><div class="lg"><span><i class="ln" style="background:var(--spx)"></i>标普500</span><span><i style="background:var(--gA)"></i>SSS 级</span><span><i style="background:var(--gB)"></i>S 级</span><span><i style="background:var(--gC)"></i>A 级</span></div></div>
 <div class="chart" id="mc">
   {ylabels}
@@ -320,8 +332,8 @@ def _market_chart(ctx):
 
 def _last20(ctx):
     hold = ctx['hold']
-    rows = [r for r in (ctx.get('replay') or []) if r.get('status') in ('完成', '持有中')][:20]
-    head = '<div class="ph"><h2>最近 20 笔主推</h2><span class="r">按规则逐日回放，收益已减 0.10% 成本</span></div>'
+    rows = [r for r in (ctx.get('replay') or []) if r.get('status') in ('完成', '持有中')]
+    head = f'<div class="ph"><h2>2026 年全部主推</h2><span class="r">共 {len(rows)} 笔，收益已减 0.10% 成本</span></div>'
     if not rows:
         return f'<section class="panel">{head}<div class="pb"><p class="m">最近没有主推。</p></div></section>'
     done = [r for r in rows if r['status'] == '完成']
@@ -342,14 +354,15 @@ def _last20(ctx):
             st = f'<span class="bar hs"><i style="width:{r["held"] / hold * 100:.0f}%"></i></span><span class="m n">{r["held"]}/{hold}天</span>'
         path = r.get('path') or []
         col = 'var(--up)' if (r.get('net') or 0) > 0 else 'var(--down)'
-        body += (f'<tr><td><b>{escape(r["ticker"])}</b><span class="nm">{escape(r["name"])}</span></td>'
+        body += (f'<tr><td class="wr"><b>{escape(r["ticker"])}</b><span class="nm">{escape(r["name"])}</span>'
+                 + _tags(r) + '</td>'
                  f'<td><span class="g g{g}">{GL[g]}</span></td>'
                  f'<td class="n hs m">{r["signal_day"]:%m-%d}</td>'
                  f'<td class="n hs">{r["gap"]:.1f}%</td>'
                  f'<td class="n">{r["entry_day"]:%m-%d} {_close_ct(r["entry_day"])}</td>'
                  f'<td class="hs">{_spark(path + [None] * (hold + 1 - len(path)), 96, 24, col, zero=True, cls='sp')}</td>'
                  f'<td class="n">{_pct(r["net"])}</td><td>{st}</td></tr>')
-    return (f'<section class="panel">{head}{kpis}<div class="pb"><div class="tw"><table><thead><tr>'
+    return (f'<section class="panel">{head}{kpis}<div class="pb"><div class="tw long"><table><thead><tr>'
             f'<th>股票</th><th>级别</th><th class="n hs">信号日</th><th class="n hs">开盘跌幅</th><th class="n">买入（美中）</th>'
             f'<th class="hs">10 天走势</th><th class="n">收益</th><th></th></tr></thead><tbody>{body}</tbody></table></div>'
             f'<p class="note">开盘跌幅：信号当天开盘价比前一天收盘低多少。买入按收盘价，时间写收盘时刻。走势线从买入当天开始，虚线是成本线。'
@@ -365,8 +378,8 @@ def _grades(ctx):
                   f'<td class="n">{_pct(sum(x) / len(x))}</td>') if x else '<td class="n">0</td><td class="n m">—</td><td class="n m">—</td>'
         rows += (f'<tr><td><span class="g g{g}">{GL[g]}</span></td>{recent}'
                  f'<td class="n">{_pct(v[2])}</td><td class="n">{v[3]}%</td></tr>')
-    return f'''<section class="panel"><div class="ph"><h2>分级成绩</h2><span class="r">近半年回放 对比 26 年回测</span></div><div class="pb">
-<div class="tw"><table><thead><tr><th>级别</th><th class="n">近半年笔数</th><th class="n">赚钱</th><th class="n">平均</th><th class="n">回测平均</th><th class="n">回测赚钱</th></tr></thead>
+    return f'''<section class="panel"><div class="ph"><h2>分级成绩</h2><span class="r">2026 年 对比 2000–2025 年回测</span></div><div class="pb">
+<div class="tw"><table><thead><tr><th>级别</th><th class="n">2026 笔数</th><th class="n">赚钱</th><th class="n">平均</th><th class="n">回测平均</th><th class="n">回测赚钱</th></tr></thead>
 <tbody>{rows}</tbody></table></div>
 <p class="note">SSS：开盘跌得深，同时市场恐慌。S：只占一条。A：都没有。开盘跌得深是指跌 1% 以上或跌破前一天最低价；市场恐慌是指 VIX 25 以上或当天有 5 个以上主推。回测用 2000–2025 年当时的成分股（含后来被剔除的）。</p>
 </div></section>'''
@@ -418,7 +431,7 @@ def render_report(ctx):
 {_last20(ctx)}
 <div class="grid2">{_grades(ctx)}{_rules(ctx)}</div>
 {_conds(ctx)}
-<footer>仅供自己研究，不是投资建议。红色是涨，绿色是跌。最近 20 笔和图表按当前成分股回放。</footer>
+<footer>仅供自己研究，不是投资建议。红色是涨，绿色是跌。记录和图表按每天收盘数据、用同一套规则算出，按当前成分股。</footer>
 </div>
 </body>
 </html>'''

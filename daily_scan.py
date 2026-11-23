@@ -351,7 +351,10 @@ def main_grade(gap_pct, open_lt_prev_low, vix, n_main_today):
     return 'ABC'[2 - score]
 
 
-def replay_main(data, tickers, vix_hist, name_map, lookback=120):
+RECORD_START = '2026-01-01'   # 网页记录从这天开始
+
+
+def replay_main(data, tickers, vix_hist, name_map, since=RECORD_START):
     """用已下载的日线，把主推规则在最近 lookback 个交易日逐日重放，得到最近的主推记录（回测）。
     每条：信号日、入场日（T1 收盘）、持有 10 天的收益；没满 10 天的给出至今收益和已持有天数。
     只覆盖当前成分股（近几个月影响很小）。"""
@@ -363,9 +366,9 @@ def replay_main(data, tickers, vix_hist, name_map, lookback=120):
             continue
         if len(td) < 260:
             continue
-        c, o, l = td['Close'], td['Open'], td['Low']
+        c, o, l, hh, vv = td['Close'], td['Open'], td['Low'], td['High'], td['Volume']
         b = base_flags(c)
-        idx = c.index; start = len(c) - lookback
+        idx = c.index; start = int(idx.searchsorted(pd.Timestamp(since)))
         last = None
         for i in np.where(b.values)[0]:
             d = idx[i]
@@ -376,6 +379,12 @@ def replay_main(data, tickers, vix_hist, name_map, lookback=120):
                 continue
             rec = {'ticker': t, 'name': name_map.get(t, t), 'signal_day': d,
                    'gap': float(o.iloc[i] / c.iloc[i - 1] - 1) * 100, 'open_lt_pl': bool(o.iloc[i] < l.iloc[i - 1])}
+            try:   # 信号当天命中的条件（只用到当天为止的数据）
+                cr = compute_conditions(c.iloc[:i + 1], hh.iloc[:i + 1], l.iloc[:i + 1], vv.iloc[:i + 1], o.iloc[:i + 1])
+                rec['conds'] = [k for k, v in cr[0].items() if v is True] if cr else []
+            except Exception:
+                rec['conds'] = []
+            rec['cond_tags'] = cond_tags(rec['conds'])
             e = i + 1
             if e >= len(c):
                 rec.update(status='待买入'); recs.append(rec); continue
@@ -566,7 +575,7 @@ def main():
     tickers = list(sector_map.keys())
     print(f"共 {len(tickers)} 只，下载数据...")
 
-    data = yf.download(tickers, period='15mo', group_by='ticker',
+    data = yf.download(tickers, period='2y', group_by='ticker',
                        auto_adjust=True, threads=True, progress=True)
     # 美股还没收盘时，yfinance 会给出当天的半截日线，信号会算错；只用完整日线
     import zoneinfo
@@ -720,7 +729,7 @@ def main():
     replay = replay_main(data, tickers, vix_hist, name_map)
     print("观察名单、市场走势...")
     watch = watch_list(data, tickers, name_map, entry_day)
-    mkt = market_series(data, spy, vix_hist)
+    mkt = market_series(data, spy, vix_hist, n=int((data.index >= pd.Timestamp(RECORD_START)).sum()))
 
     date_str = datetime.now().strftime('%Y-%m-%d %H:%M')
 
