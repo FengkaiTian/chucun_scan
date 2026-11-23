@@ -425,14 +425,15 @@ def _combos(ctx):
     cnt = {g: sum(c['g'] == g for c in COMBOS) for g in o}
     n2 = sum(len(c['k']) == 2 for c in COMBOS)
     return f'''<section class="panel"><div class="ph"><h2>组合分级</h2><span class="r">两三个条件同时满足的，比没满足的每笔多赚多少</span></div><div class="pb">
-<div class="cf"><select id="cg"><option value="">全部级别</option><option>SSS</option><option>A</option><option>B</option></select>
+<div class="cf"><select id="cg"><option value="">全部级别</option><option>SSS</option><option>A</option></select>
 <select id="cn"><option value="">2 个和 3 个条件</option><option value="2">2 个条件</option><option value="3">3 个条件</option></select>
 <input id="cq" type="search" placeholder="搜条件名，比如 开盘跌得深"><span class="m" id="cc"></span></div>
 <div class="tw long"><table><thead><tr><th>级别</th><th>组合</th><th class="n hs">以往笔数</th><th class="n">2000–2025</th><th class="n hs">2026 笔数</th><th class="n">2026</th><th class="n hs">2026 赚钱</th></tr></thead>
 <tbody id="cb"></tbody></table></div>
-<p class="note">共 {len(COMBOS)} 个组合入选（SSS {cnt["SSS"]}、A {cnt["A"]}、B {cnt["B"]}；2 个条件的 {n2} 个，3 个条件的 {len(COMBOS) - n2} 个）。
-从上面分了级的条件里任取 2 个或 3 个，一共试了约 18 万种，以前用的 334 个组合也一起重测了。入选要满足：以往至少 30 笔、2026 年至少 10 笔，
-两段都要比组合里最好的那个单条件多赚，不然组合没意义；命中的主推完全一样的只留一个。分级标准和单条件一样。
+<p class="note">共 {len(COMBOS)} 个组合入选（SSS {cnt["SSS"]}、A {cnt["A"]}；2 个条件的 {n2} 个，3 个条件的 {len(COMBOS) - n2} 个）。
+从上面分了级的条件里任取 2 个或 3 个，一共试了约 18 万种，以前用的 334 个组合也一起重测了。入选要满足：以往至少 30 笔、2026 年至少 10 笔；
+2000–2025 和 2026 两段都必须跑赢：命中的比没命中的多赚，比组合里每个单条件多赚，3 个条件的还要比里面每一对 2 个条件多赚。
+命中的主推完全一样的只留一个。SSS：两段都多赚 0.5% 以上；A：两段都多赚，但幅度小。
 组合试得多，难免有碰巧好看的，越是笔数少的越要打折看。以前那 334 个组合是在全部基础信号上挑的，放到主推上几乎都不再比单条件强。</p>
 <script>(function(){{var D={data};var g=document.getElementById('cg'),n=document.getElementById('cn'),q=document.getElementById('cq'),b=document.getElementById('cb'),c=document.getElementById('cc');
 function f(x){{return (x>0?'+':'')+x.toFixed(2)+'%'}}function s(x){{return x>0?'up':(x<0?'down':'')}}
