@@ -16,3 +16,4 @@ __pycache__/
 analysis/private/*.parquet
 analysis/private/stable_combos.csv
 analysis/private/panel_ext.pkl
+scan_log.txt
