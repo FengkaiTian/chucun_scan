@@ -240,7 +240,8 @@ def _today(ctx):
                  f'<td class="n hs">{r["rsi"]}</td><td class="n">${r["price"]}</td></tr>')
     body = (verdict
             + f'<p>{len(main)} 只符合条件，其中 SSS、A 级 {ab} 只；B 级历史上不赚钱，只看不买。同一级别里按命中的 SSS 条件多少排，越靠前越优先。每只下面点开能看命中了哪些条件和组合。</p>'
-            + f'<dl class="when"><dt>买入</dt><dd><b>{_day(ent)} {_buy_time(ent)}</b> 美中，收盘前</dd>'
+            + f'<dl class="when"><dt>买入</dt><dd><b>{_day(ent)} {_buy_time(ent)}</b> 美中，收盘前'
+            + ('；今天 VIX 在 30 以上，<b>开盘就买</b>更好' if ctx['vix_price'] >= 30 else '；没空的话开盘买也行，平均差不多') + '</dd>'
             + f'<dt>卖出</dt><dd><b>{_day(ext)}</b> 收盘前，拿满 {ctx["hold"]} 个交易日</dd></dl>'
             + f'<div class="tw"><table><thead><tr><th>股票</th><th>级别</th><th class="n">开盘跌幅</th>'
               f'<th class="n hs">RSI</th><th class="n">收盘价</th></tr></thead><tbody>{rows}</tbody></table></div>')
@@ -450,7 +451,7 @@ def _rules(ctx):
 <ol><li>MACD 柱在零轴下方，连续 3 天抬高</li><li>前一天 RSI14 低于 30，当天回升</li>
 <li>当天开盘低于前一天收盘</li><li>这只股票 5 天内第一次出信号</li></ol>
 <h3>买卖</h3>
-<ul><li>信号第二天收盘前买（美中 14:50–15:00；提前收盘日 11:50–12:00）</li>
+<ul><li>信号第二天收盘前买（美中 14:50–15:00；提前收盘日 11:50–12:00）。开盘买平均差不多；VIX 30 以上的大恐慌里，开盘买每笔平均多赚约 0.6%</li>
 <li>拿满 {ctx["hold"]} 个交易日，收盘前卖</li><li>一天出很多只时，先买 SSS，再买 A；单只仓位要小</li>
 <li>持有期内有财报或波动特别大的，买一半</li></ul>
 <details><summary>长期回测数字</summary>
