@@ -629,5 +629,7 @@
 {"ticker": "DDOG", "scan_date": "2026-11-19", "grade": "SSS", "tier": "★", "new_rule": false, "wr5": 71.4, "source": "live"},
 {"ticker": "AXON", "scan_date": "2026-11-24", "grade": "", "tier": "参考", "new_rule": false, "main_grade": "", "wr5": 0, "source": "live"},
 {"ticker": "COF", "scan_date": "2026-11-25", "grade": "B", "tier": "参考", "new_rule": true, "main_grade": "B", "wr5": 69.3, "source": "live"},
-{"ticker": "CRM", "scan_date": "2026-11-25", "grade": "", "tier": "参考", "new_rule": true, "main_grade": "B", "wr5": 0, "source": "live"}
+{"ticker": "CRM", "scan_date": "2026-11-25", "grade": "", "tier": "参考", "new_rule": true, "main_grade": "B", "wr5": 0, "source": "live"},
+{"ticker": "COIN", "scan_date": "2026-11-27", "grade": "SSS", "tier": "★★★", "new_rule": true, "main_grade": "A", "wr5": 72.3, "source": "live"},
+{"ticker": "FCX", "scan_date": "2026-11-27", "grade": "SSS", "tier": "★★★", "new_rule": true, "main_grade": "A", "wr5": 62.2, "source": "live"}
 ]
