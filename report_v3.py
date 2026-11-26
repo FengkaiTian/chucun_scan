@@ -179,10 +179,10 @@ def _stats(ctx):
          f'比 200 日均线 {ctx["spy_pct"]:+.1f}%' + (f'，今年 {ret120:+.1f}%' if ret120 is not None else ''),
          _spark(spy, color='var(--spx)')),
         ('VIX 恐慌指数', f'{v:.1f}<small class="m">{_vix_word(v)}</small>',
-         '25 以上算恐慌，评级加分', _spark(vix, color='var(--up)' if v >= 25 else 'var(--ink3)')),
+         '25 以上算恐慌', _spark(vix, color='var(--up)' if v >= 25 else 'var(--ink3)')),
         ('站上 50 日均线', f'{b_now:.0f}%' if b_now is not None else '—',
          (f'5 天前 {b_5:.0f}%，' if b_5 is not None else '') + '成分股比例', _spark(br)),
-        ('今天超卖', f'{n_base}<small class="m">只</small>', 'MACD 和 RSI 两条都满足的股票', ''),
+        ('今天超卖', f'{n_base}<small class="m">只</small>', 'MACD、RSI 都满足', ''),
         ('观察名单', f'{n_watch}<small class="m">只</small>', '明天低开、收涨就会出信号', ''),
     ]
     return '<section class="stats">' + ''.join(
@@ -217,9 +217,7 @@ def _today(ctx):
     n_watch = len(ctx.get('watch') or [])
     if not main:
         body = (f'<div class="verdict">今天不买</div>'
-                f'<p>{_day(sig, False)}收盘后，没有股票符合主推条件。</p>'
-                f'<p>这类机会多半跟在大跌后面，一出就是好几只；市场平稳时几周没有也正常。'
-                + (f'观察名单里 {n_watch} 只离触发只差一天，明天收盘后再看。' if n_watch else '') + '</p>')
+                + (f'<p>观察名单 {n_watch} 只，明天收盘后再看。</p>' if n_watch else ''))
         return f'<section class="panel today"><div class="ph"><h2>今天买不买</h2><span class="r">{_day(sig)}收盘</span></div><div class="pb">{body}</div></section>'
     ab = sum((r.get('main_grade') or 'C') != 'C' for r in main)
     verdict = f'<div class="verdict buy">买 {ab} 只</div>' if ab else '<div class="verdict">只有 B 级，不买</div>'
@@ -239,10 +237,10 @@ def _today(ctx):
                  f'<td><span class="g g{g}">{GL[g]}</span></td><td class="n">{r.get("gap", 0):.1f}%</td>'
                  f'<td class="n hs">{r["rsi"]}</td><td class="n">${r["price"]}</td></tr>')
     body = (verdict
-            + f'<p>{len(main)} 只符合条件，其中 SSS、A 级 {ab} 只；B 级历史上不赚钱，只看不买。同一级别里按命中的 SSS 条件多少排，越靠前越优先。每只下面点开能看命中了哪些条件和组合。</p>'
+            + (f'<p>B 级不买。</p>' if ab < len(main) else '')
             + f'<dl class="when"><dt>买入</dt><dd><b>{_day(ent)} {_buy_time(ent)}</b> 美中，收盘前'
-            + ('；今天 VIX 在 30 以上，<b>开盘就买</b>更好' if ctx['vix_price'] >= 30 else '；没空的话开盘买也行，平均差不多') + '</dd>'
-            + f'<dt>卖出</dt><dd><b>{_day(ext)}</b> 收盘前，拿满 {ctx["hold"]} 个交易日</dd></dl>'
+            + ('；VIX≥30，<b>开盘就买</b>' if ctx['vix_price'] >= 30 else '（开盘买也行）') + '</dd>'
+            + f'<dt>卖出</dt><dd><b>{_day(ext)}</b> 收盘前</dd></dl>'
             + f'<div class="tw"><table><thead><tr><th>股票</th><th>级别</th><th class="n">开盘跌幅</th>'
               f'<th class="n hs">RSI</th><th class="n">收盘价</th></tr></thead><tbody>{rows}</tbody></table></div>')
     return f'<section class="panel today"><div class="ph"><h2>今天买不买</h2><span class="r">{_day(sig)}收盘</span></div><div class="pb">{body}</div></section>'
@@ -262,7 +260,7 @@ def _watch(ctx):
     return (f'<section class="panel">{head}<div class="pb"><div class="tw"><table><thead><tr><th>股票</th>'
             f'<th class="n">RSI</th><th class="n">今天收盘</th><th class="n">明天收盘至少</th></tr></thead>'
             f'<tbody>{rows}</tbody></table></div>'
-            f'<p class="note">明天要同时满足：开盘低于今天收盘，收盘不低于右列价格。满足就进主推，后天收盘买。</p>{more}</div></section>')
+            f'<p class="note">明天低开、收盘不低于右列，就进主推。</p>{more}</div></section>')
 
 
 def _market_chart(ctx):
@@ -379,8 +377,7 @@ def _last20(ctx):
     return (f'<section class="panel">{head}{kpis}<div class="pb"><div class="tw long"><table><thead><tr>'
             f'<th>股票</th><th>级别</th><th class="n hs">信号日</th><th class="n hs">开盘跌幅</th><th class="n">买入（美中）</th>'
             f'<th class="hs">10 天走势</th><th class="n">收益</th><th></th></tr></thead><tbody>{body}</tbody></table></div>'
-            f'<p class="note">开盘跌幅：信号当天开盘价比前一天收盘低多少。买入按收盘价，时间写收盘时刻。走势线从买入当天开始，虚线是成本线。'
-            + (f'最好一笔 {escape(best["ticker"])} {best["net"]:+.1f}%。' if best else '') + '</p></div></section>')
+            '</div></section>')
 
 
 def _grades(ctx):
@@ -395,7 +392,7 @@ def _grades(ctx):
     return f'''<section class="panel"><div class="ph"><h2>分级成绩</h2><span class="r">2026 年 对比 2000–2025 年回测</span></div><div class="pb">
 <div class="tw"><table><thead><tr><th>级别</th><th class="n">2026 笔数</th><th class="n">赚钱</th><th class="n">平均</th><th class="n">回测平均</th><th class="n">回测赚钱</th></tr></thead>
 <tbody>{rows}</tbody></table></div>
-<p class="note">SSS：开盘跌得深，同时市场恐慌。A：只占一条。B：都没有。开盘跌得深是指跌 1% 以上或跌破前一天最低价；市场恐慌是指 VIX 25 以上或当天有 5 个以上主推。回测用 2000–2025 年当时的成分股（含后来被剔除的）。</p>
+<p class="note">SSS＝开盘跌得深（≥1% 或破昨日最低）＋市场恐慌（VIX≥25 或当天≥5 个主推）；A 占一条；B 都没有。</p>
 </div></section>'''
 
 
@@ -404,16 +401,14 @@ def _conds(ctx):
     items = sorted(COND_GRADES.items(), key=lambda kv: (o[kv[1][0]], -(kv[1][2] + kv[1][3])))
     tr = ''
     for k, (g, name, d1, d2) in items:
-        note = '<span class="m">（已算进股票级别）</span>' if k in IN_GRADE else ''
+        note = '<span class="m">（已算进级别）</span>' if k in IN_GRADE else ''
         kind = '大盘' if k in MARKET_CONDS else '个股'
         tr += (f'<tr><td><span class="ct c{g}">{g}</span></td><td>{escape(name)}{note}</td><td class="m">{kind}</td>'
                f'<td class="n {_sign(d1)}">{d1:+.2f}%</td><td class="n {_sign(d2)}">{d2:+.2f}%</td></tr>')
-    return f'''<section class="panel"><div class="ph"><h2>条件分级</h2><span class="r">主推里命中这个条件的，比没命中的每笔多赚多少</span></div><div class="pb">
+    return f'''<section class="panel"><div class="ph"><h2>条件分级</h2><span class="r">命中比没命中每笔多赚</span></div><div class="pb">
 <div class="tw long"><table><thead><tr><th>级别</th><th>条件</th><th>类型</th><th class="n">2000–2025</th><th class="n">2026</th></tr></thead>
 <tbody>{tr}</tbody></table></div>
-<p class="note">共 {CG_SUMMARY}。一共测过约 240 个条件，包括 RSI2、ConnorsRSI、IBS、KDJ、乖离率、布林带、K 线形态、量能、大盘宽度和 VIX 等网上常用的指标。
-SSS：两段都多赚 0.5% 以上。A：两段都多赚，但幅度小。B：一段多赚，另一段不算差，只作参考。2026 年明显变差、笔数太少或以往和今年都不赚的没列出。日历类（星期、月份）不算条件。
-RSI2、IBS 这类条件和主推很少同时出现（主推当天 RSI 在回升），所以不在表里。</p>
+<p class="note">共 {CG_SUMMARY}，从约 240 个常用指标里挑出。SSS 两段都多赚 ≥0.5%，A 都多赚，B 一段多赚。</p>
 </div></section>'''
 
 
@@ -425,17 +420,13 @@ def _combos(ctx):
                       ensure_ascii=False, separators=(',', ':')).replace('</', '<\\/')
     cnt = {g: sum(c['g'] == g for c in COMBOS) for g in o}
     n2 = sum(len(c['k']) == 2 for c in COMBOS)
-    return f'''<section class="panel"><div class="ph"><h2>组合分级</h2><span class="r">两三个条件同时满足的，比没满足的每笔多赚多少</span></div><div class="pb">
+    return f'''<section class="panel"><div class="ph"><h2>组合分级</h2><span class="r">同时命中比没命中每笔多赚</span></div><div class="pb">
 <div class="cf"><select id="cg"><option value="">全部级别</option><option>SSS</option><option>A</option><option>B</option></select>
 <select id="cn"><option value="">2 个和 3 个条件</option><option value="2">2 个条件</option><option value="3">3 个条件</option></select>
 <input id="cq" type="search" placeholder="搜条件名，比如 开盘跌得深"><span class="m" id="cc"></span></div>
 <div class="tw long"><table><thead><tr><th>级别</th><th>组合</th><th class="n hs">以往笔数</th><th class="n">2000–2025</th><th class="n hs">赢的年份</th><th class="n hs">2026 笔数</th><th class="n">2026</th><th class="n hs">2026 赚钱</th></tr></thead>
 <tbody id="cb"></tbody></table></div>
-<p class="note">共 {len(COMBOS)} 个组合入选（SSS {cnt["SSS"]}、A {cnt["A"]}、B {cnt["B"]}；2 个条件的 {n2} 个，3 个条件的 {len(COMBOS) - n2} 个）。
-从上面分了级的条件里任取 2 个或 3 个，一共试了约 18 万种，以前用的 334 个组合也一起重测了。入选要满足：以往至少 30 笔、2026 年至少 10 笔；
-2000–2025 和 2026 两段都必须跑赢：命中的比没命中的多赚，比组合里每个单条件多赚，3 个条件的还要比里面每一对 2 个条件多赚。
-命中的主推完全一样的只留一个。组合比单条件要求更严：SSS：两段都多赚 0.5% 以上，而且 2000–2025 年里八成以上的年份跑赢；A：两段都多赚 0.5% 以上；B：两段都多赚，但幅度小。
-组合试得多，难免有碰巧好看的，越是笔数少的越要打折看。以前那 334 个组合是在全部基础信号上挑的，放到主推上几乎都不再比单条件强。</p>
+<p class="note">从约 18 万种里挑出 {len(COMBOS)} 个：两段都要跑赢没命中的、跑赢其中每个单条件和子组合。SSS 还要八成年份跑赢。</p>
 <script>(function(){{var D={data};var g=document.getElementById('cg'),n=document.getElementById('cn'),q=document.getElementById('cq'),b=document.getElementById('cb'),c=document.getElementById('cc');
 function f(x){{return (x>0?'+':'')+x.toFixed(2)+'%'}}function s(x){{return x>0?'up':(x<0?'down':'')}}
 function e(t){{return t.replace(/[&<>]/g,function(m){{return {{'&':'&amp;','<':'&lt;','>':'&gt;'}}[m]}})}}
@@ -451,9 +442,9 @@ def _rules(ctx):
 <ol><li>MACD 柱在零轴下方，连续 3 天抬高</li><li>前一天 RSI14 低于 30，当天回升</li>
 <li>当天开盘低于前一天收盘</li><li>这只股票 5 天内第一次出信号</li></ol>
 <h3>买卖</h3>
-<ul><li>信号第二天收盘前买（美中 14:50–15:00；提前收盘日 11:50–12:00）。开盘买平均差不多；VIX 30 以上的大恐慌里，开盘买每笔平均多赚约 0.6%</li>
-<li>拿满 {ctx["hold"]} 个交易日，收盘前卖</li><li>一天出很多只时，先买 SSS，再买 A；单只仓位要小</li>
-<li>持有期内有财报或波动特别大的，买一半</li></ul>
+<ul><li>第二天收盘前买（14:50–15:00），开盘买也行；VIX≥30 开盘买</li>
+<li>拿满 {ctx["hold"]} 个交易日，收盘前卖</li><li>先买 SSS 再买 A，单只仓位小</li>
+<li>有财报或波动大，买一半</li></ul>
 <details><summary>长期回测数字</summary>
 <p class="note" style="font-size:12.5px">2000–2025 年平均每年约 {BT["per_year"]} 笔，平均每笔 +{BT["net"]:.2f}%，{BT["win"]}% 的交易赚钱，{BT["pos_years"]}% 的年份赚钱。
 2026 年 {BT["n26"]} 笔，平均每笔 +{BT["net26"]:.2f}%，{BT["win26"]}% 赚钱。对比：随便买一只成分股拿 10 天，平均 +{BT["random"]:.2f}%。</p></details>
@@ -479,7 +470,7 @@ def render_report(ctx):
 <div class="grid2">{_grades(ctx)}{_rules(ctx)}</div>
 {_conds(ctx)}
 {_combos(ctx)}
-<footer>仅供自己研究，不是投资建议。红色是涨，绿色是跌。记录和图表按每天收盘数据、用同一套规则算出，按当前成分股。</footer>
+<footer>仅供研究，不是投资建议。红涨绿跌。</footer>
 </div>
 </body>
 </html>'''
